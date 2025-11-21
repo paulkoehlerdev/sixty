@@ -1,0 +1,31 @@
+{
+    "$schema": "node_modules/wrangler/config-schema.json",
+    "name": "sixty",
+    "main": "src/server/index.ts",
+    "compatibility_date": "2025-08-03",
+    "compatibility_flags": [
+        "nodejs_compat"
+    ],
+    "durable_objects": {
+        "bindings": [
+            {
+                "name": "SixtyAgent",
+                "class_name": "SixtyAgent"
+            }
+        ]
+    },
+    "migrations": [
+        {
+            "tag": "v1",
+            "new_sqlite_classes": [
+                "SixtyAgent"
+            ]
+        }
+    ],
+    "assets": {
+        "directory": "public"
+    },
+    "observability": {
+        "enabled": true
+    }
+}
