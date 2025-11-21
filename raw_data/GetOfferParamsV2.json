@@ -1,0 +1,18 @@
+{
+  "offer_matrix_id": "d5b0f023-af47-4fe8-84f1-7d5e4fdc9a69",
+  "currency": "EUR",
+  "trip_spec": {
+    "pickup_datetime": { "value": "2026-01-01T12:30" },
+    "pickup_location_selection_id": "f65cd632-0ed0-43db-9f0a-90236de6f16f",
+    "return_location_selection_id": "f65cd632-0ed0-43db-9f0a-90236de6f16f",
+    "point_of_sale": "DE",
+    "return_datetime": { "value": "2026-01-02T23:30" },
+    "vehicle_type": 10,
+    "user_profile_id": "",
+    "corporate_customer_number": "",
+    "sim_card_country_code": "DE",
+    "device_location_country_code": "DE",
+    "campaign": ""
+  },
+  "enable_b2b_fallback": true
+}

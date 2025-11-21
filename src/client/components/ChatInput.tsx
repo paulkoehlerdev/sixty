@@ -1,46 +1,46 @@
-import React, { type FormEvent, useState } from 'react';
-import { Input } from '@/components/ui/input.tsx';
-import { Button } from '@/components/ui/button.tsx';
-import { SendIcon } from 'lucide-react';
+import { SendIcon } from "lucide-react";
+import React, { type FormEvent, useState } from "react";
+import { Button } from "@/components/ui/button.tsx";
+import { Input } from "@/components/ui/input.tsx";
 
 type Props = {
-    placeholder: string;
-    sendChatMessage: (message: string) => void;
+  placeholder: string;
+  sendChatMessage: (message: string) => void;
 };
 
 export const ChatInput: React.FC<Props> = ({ placeholder, sendChatMessage }) => {
-    const [userMessage, setUserMessage] = useState<string>('');
+  const [userMessage, setUserMessage] = useState<string>("");
 
-    const onSubmit = (e: FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
+  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
 
-        if (userMessage === '') {
-            return;
-        }
+    if (userMessage === "") {
+      return;
+    }
 
-        sendChatMessage(userMessage);
+    sendChatMessage(userMessage);
 
-        setUserMessage('');
+    setUserMessage("");
 
-        if (document.activeElement instanceof HTMLElement) {
-            document.activeElement.blur();
-        }
-    };
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+  };
 
-    return (
-        <form onSubmit={onSubmit}>
-            <div className="w-full flex bg-muted p-2.5 rounded-[40px]">
-                <Input
-                    placeholder={placeholder}
-                    className="border-none focus-visible:ring-0"
-                    autoFocus
-                    value={userMessage}
-                    onChange={e => setUserMessage(e.target.value)}
-                />
-                <Button className="rounded-3xl aspect-square p-0" type="submit" disabled={userMessage === ''}>
-                    <SendIcon />
-                </Button>
-            </div>
-        </form>
-    );
+  return (
+    <form onSubmit={onSubmit}>
+      <div className="flex w-full rounded-[40px] bg-muted p-2.5">
+        <Input
+          placeholder={placeholder}
+          className="border-none focus-visible:ring-0"
+          autoFocus={true}
+          value={userMessage}
+          onChange={(e) => setUserMessage(e.target.value)}
+        />
+        <Button className="aspect-square rounded-3xl p-0" type="submit" disabled={userMessage === ""}>
+          <SendIcon />
+        </Button>
+      </div>
+    </form>
+  );
 };
