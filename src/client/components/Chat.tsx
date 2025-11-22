@@ -3,12 +3,12 @@ import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { match } from "ts-pattern";
+import { Avatar, AvatarImage } from "@/components/ui/avatar.tsx";
 import type { AgentState } from "@/lib/state";
 import { cn } from "@/lib/utils";
 import { StreamingIndicator } from "./chat-streaming";
 import { CurrentBookingUI } from "./ui-elements/CurrentBookingUI";
 import { UpgradeOfferUI } from "./ui-elements/UpgradeOfferUI";
-import { Avatar, AvatarImage } from "@/components/ui/avatar.tsx";
 
 type Props = {
   messages: UIMessage[];
@@ -45,7 +45,7 @@ export const Chat: React.FC<Props> = ({ messages, isWaitingForResponse, agentSta
   );
 };
 
-function MessageBubble({ message, agentState }: { message: UIMessage; agentState: AgentState }) {
+function MessageBubble({ message, agentState }: { message: UIMessage; agentState: AgentState | null }) {
   return (
     <div className={cn("flex gap-2", message.role === "user" ? "items-center justify-end" : "justify-start")}>
       {match(message.role)
@@ -58,14 +58,14 @@ function MessageBubble({ message, agentState }: { message: UIMessage; agentState
   );
 }
 
-function AssistantMessage({ message, agentState }: { message: UIMessage; agentState: AgentState }) {
+function AssistantMessage({ message, agentState }: { message: UIMessage; agentState: AgentState | null }) {
   return (
     <div className="w-full max-w-full space-y-2">
       <div className="flex items-center gap-3">
         <Avatar className="h-7 w-7">
           <AvatarImage src="/favicon.svg" />
         </Avatar>
-        <p className="text-primary font-bold">Chris</p>
+        <p className="font-bold text-primary">Chris</p>
       </div>
       <div>
         {message.parts.map((part, index) => {
@@ -99,7 +99,7 @@ function UserMessage({ message }: { message: UIMessage }) {
 
   return (
     <div className="flex max-w-[90%] flex-col items-end gap-2">
-      <div className="prose prose-chat wrap-anywhere break-[words] w-fit rounded-2xl bg-accent px-2.5 py-1.5">
+      <div className="prose prose-chat wrap-anywhere break-[words] w-fit rounded-2xl bg-accent px-4 py-2.5">
         {textParts.map((part, index) => (
           // biome-ignore lint/suspicious/noArrayIndexKey: OK in this case, as nothing will be "moved around"
           <React.Fragment key={index}>

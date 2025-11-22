@@ -1,8 +1,8 @@
 import { Button } from "@/components/ui/button.tsx";
 import { Card } from "@/components/ui/card.tsx";
 import type { Offer } from "@/lib/sixt/types";
-import { CarOfferCardContent } from "../CarOfferCard.tsx";
 import { cn } from "@/lib/utils.ts";
+import { CarOfferCardContent } from "../CarOfferCard.tsx";
 
 interface UpgradeOfferUIProps {
   offer: Offer;
