@@ -6,24 +6,15 @@ import { useState } from "react";
 import { Chat } from "@/client/components/Chat.tsx";
 import { ChatInput } from "@/client/components/ChatInput.tsx";
 import { UIElementContainer } from "@/client/components/ui-elements/UIElementContainer";
-import type { CarOffer } from "@/lib/offers";
-import type { AgentState } from "@/server/index";
-import offersData from "../../../raw_data/offers_1.json";
+import { type AgentState, getInitialState } from "@/types/state.ts";
 
 export const ChatScreen: React.FC<{ sessionID: string }> = ({ sessionID }) => {
-  const [agentState, setAgentState] = useState<AgentState>({
-    uiState: {
-      uiMode: "current",
-      booking: offersData.offers[0] as CarOffer,
-    },
-  });
+  const [agentState, setAgentState] = useState<AgentState | null>(null);
 
   const agent = useAgent<AgentState>({
     agent: "sixty-agent",
     name: sessionID,
-    onStateUpdate: (newState, _source) => {
-      setAgentState(newState);
-    },
+    onStateUpdate: (newState) => setAgentState(newState),
     onOpen: () => {},
     onClose: () => {},
   });
@@ -45,7 +36,7 @@ export const ChatScreen: React.FC<{ sessionID: string }> = ({ sessionID }) => {
 
   const clearHistory = () => {
     agentChat.clearHistory();
-    agent.setState({ uiState: null });
+    agent.setState(getInitialState());
   };
 
   return (
@@ -58,7 +49,7 @@ export const ChatScreen: React.FC<{ sessionID: string }> = ({ sessionID }) => {
       </div>
 
       {/* UI Element - no scroll */}
-      <UIElementContainer uiState={agentState.uiState} />
+      {agentState && <UIElementContainer uiState={agentState.uiState} />}
 
       {/* Chat Input - fixed */}
       <div className="grid justify-items-center p-4">

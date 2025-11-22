@@ -1,6 +1,5 @@
-import type { AgentState } from "@/server";
+import type { AgentState } from "@/types/state";
 import { CurrentBookingUI } from "./CurrentBookingUI";
-import { UpgradeOfferUI } from "./UpgradeOfferUI";
 
 interface UIElementContainerProps {
   uiState: AgentState["uiState"];
@@ -11,12 +10,8 @@ export function UIElementContainer({ uiState }: UIElementContainerProps) {
     return null;
   }
 
-  if (uiState.uiMode === "current" && uiState.booking) {
-    return <CurrentBookingUI booking={uiState.booking} />;
-  }
-
-  if (uiState.uiMode === "upgrade" && uiState.offer) {
-    return <UpgradeOfferUI offer={uiState.offer} />;
+  if (uiState.stage === "car_type_upselling" && uiState.currentOffer) {
+    return <CurrentBookingUI booking={uiState.currentOffer} />;
   }
 
   return null;
