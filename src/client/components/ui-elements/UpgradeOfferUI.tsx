@@ -1,17 +1,15 @@
-import type { CarOffer } from "../../../lib/offers";
+import type { Offer } from "@/lib/sixt/types";
 import { CarOfferCard } from "../CarOfferCard.tsx";
+import { Button } from "@/components/ui/button.tsx";
 
 interface UpgradeOfferUIProps {
-  offer: CarOffer;
+  offer: Offer;
 }
 
 export function UpgradeOfferUI({ offer }: UpgradeOfferUIProps) {
-  return (
-    <div className="bg-background px-5 py-4">
-      <div className="mx-auto max-w-md">
-        <h2 className="mb-4 font-bold text-foreground text-lg">AI Recommended Upgrade</h2>
-        <CarOfferCard offer={offer} variant="ai" />
-      </div>
-    </div>
-  );
+  return <div>
+    <h2 className="mb-4 font-bold text-foreground text-lg">Recommended Upgrade</h2>
+    <CarOfferCard offer={offer} variant="ai" />
+    <Button className="w-full mt-2 p-2">Upgrade</Button>
+    </div>;
 }

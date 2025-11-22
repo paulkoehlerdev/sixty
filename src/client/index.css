@@ -77,6 +77,9 @@
   --sidebar-ring: oklch(0.708 0 0);
 
   color-scheme: dark;
+
+  --gradient-start: #ff0f7b;
+  --gradient-end: #f89b29;
 }
 
 .dark {

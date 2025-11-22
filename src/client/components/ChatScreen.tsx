@@ -5,7 +5,6 @@ import type React from "react";
 import { useState } from "react";
 import { Chat } from "@/client/components/Chat.tsx";
 import { ChatInput } from "@/client/components/ChatInput.tsx";
-import { UIElementContainer } from "@/client/components/ui-elements/UIElementContainer";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import type { AgentState } from "@/lib/state.ts";
 
@@ -44,12 +43,13 @@ export const ChatScreen: React.FC<{ sessionID: string }> = ({ sessionID }) => {
     <ScrollArea className="relative mx-auto h-screen max-w-lg pt-4">
       {/* Chat Messages - scrollable */}
 
-      <Chat messages={agentChat.messages} isWaitingForResponse={agentChat.status === "submitted"} />
+      <Chat
+        messages={agentChat.messages}
+        isWaitingForResponse={agentChat.status === "submitted"}
+        agentState={agentState}
+      />
 
-      {/* UI Element - no scroll */}
-      {agentState && <UIElementContainer uiState={agentState.uiState} />}
-
-      <div className="h-30"/>
+      <div className="h-30" />
 
       <div className="fixed right-0 bottom-0 left-0 mx-auto grid max-w-lg justify-items-center bg-background">
         <div className="w-full max-w-[850px]">

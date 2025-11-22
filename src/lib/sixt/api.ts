@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
-import type {Booking, Location, Offer, SearchRequest, SelectedLocation} from "./types.ts";
+import type { Booking, Location, Offer, SearchRequest, SelectedLocation } from "./types.ts";
 
 const baseUrl = "https://grpc-prod.orange.sixt.com";
 

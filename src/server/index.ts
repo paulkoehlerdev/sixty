@@ -21,8 +21,14 @@ export class SixtyAgent extends AIChatAgent<Env, AgentState> {
 
     if (this.messages.length === 0) {
       this.messages.push({
+        id: "12312309123",
         role: "assistant",
-        parts: [{ type: "text", text: "Hey! I'm Chris, happy to help with your booking today. Are you on schedule for you pickup?" }],
+        parts: [
+          {
+            type: "text",
+            text: "Hey! I'm Chris, happy to help with your booking today. Are you on schedule for you pickup?",
+          },
+        ],
       });
       this.persistMessages(this.messages);
 
@@ -60,4 +66,4 @@ export default {
   async fetch(request: Request, env: Env) {
     return (await routeAgentRequest(request, env)) || new Response("Not found", { status: 404 });
   },
-} satisfies ExportedHandler<Env>;
+};

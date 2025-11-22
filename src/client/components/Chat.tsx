@@ -3,15 +3,19 @@ import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { match } from "ts-pattern";
+import type { AgentState } from "@/lib/state";
 import { cn } from "@/lib/utils";
 import { StreamingIndicator } from "./chat-streaming";
+import { CurrentBookingUI } from "./ui-elements/CurrentBookingUI";
+import { UpgradeOfferUI } from "./ui-elements/UpgradeOfferUI";
 
 type Props = {
   messages: UIMessage[];
   isWaitingForResponse: boolean;
+  agentState: AgentState | null;
 };
 
-export const Chat: React.FC<Props> = ({ messages, isWaitingForResponse }) => {
+export const Chat: React.FC<Props> = ({ messages, isWaitingForResponse, agentState }) => {
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = useCallback(() => {
@@ -26,8 +30,11 @@ export const Chat: React.FC<Props> = ({ messages, isWaitingForResponse }) => {
 
   return (
     <div className="flex flex-col gap-2.5">
+      {/* Show current booking at top */}
+      {agentState?.initialOffer && <CurrentBookingUI booking={agentState.initialOffer} />}
+
       {messages.map((message) => {
-        return <MessageBubble key={message.id} message={message} />;
+        return <MessageBubble key={message.id} message={message} agentState={agentState} />;
       })}
 
       <div>{isWaitingForResponse && <StreamingIndicator />}</div>
@@ -37,12 +44,12 @@ export const Chat: React.FC<Props> = ({ messages, isWaitingForResponse }) => {
   );
 };
 
-function MessageBubble({ message }: { message: UIMessage }) {
+function MessageBubble({ message, agentState }: { message: UIMessage; agentState: AgentState }) {
   return (
     <div className={cn("flex gap-2", message.role === "user" ? "items-center justify-end" : "justify-start")}>
       {match(message.role)
         .with("user", () => <UserMessage message={message} />)
-        .with("assistant", () => <AssistantMessage message={message} />)
+        .with("assistant", () => <AssistantMessage message={message} agentState={agentState} />)
         .otherwise(() => (
           <></>
         ))}
@@ -50,13 +57,21 @@ function MessageBubble({ message }: { message: UIMessage }) {
   );
 }
 
-function AssistantMessage({ message }: { message: UIMessage }) {
+function AssistantMessage({ message, agentState }: { message: UIMessage; agentState: AgentState }) {
   return (
     <div className="w-full max-w-full space-y-2">
       {message.parts.map((part, index) => {
         return match(part)
-          .with({ type: "text" }, (part) => <AssistantTextMessagePart key={index} part={part} />)
-          .otherwise(() => <></>);
+          .with({ type: "text" }, (part) => <AssistantTextMessagePart key={`text-${index}`} part={part} />)
+          .with({ type: "tool-showCarTypeUpsellOffer" }, (part) => {
+            const offerId = part.input.offerId;
+            const offer = agentState?.availableOffers[offerId];
+
+            if (offer) {
+              return <UpgradeOfferUI key={`upsell-${offer.offer_id}`} offer={offer} />;
+            }
+          })
+          .otherwise(() => <React.Fragment key={`unknown-${message.id}`} />);
       })}
     </div>
   );

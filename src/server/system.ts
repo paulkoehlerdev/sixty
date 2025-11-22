@@ -1,6 +1,6 @@
+import type { Offer } from "../lib/sixt/types.ts";
 import type { AgentState } from "../lib/state";
 import { formatScratchpadForPrompt } from "./scratchpad";
-import type { Offer } from "../lib/sixt/types.ts";
 
 const BASE_SYSTEM_PROMPT = `
 You are Chris, a SixtRentalAgent, a casual, friendly, concise post-booking rental-car sales agent for Sixt.
@@ -34,7 +34,12 @@ When you found an appropriate upselling offer, use the showCarTypeUpsellOffer to
 
 function getSubPromptForState(state: AgentState): string {
   if (state.stage === "car_type_upselling") {
-    return UPSELL_CAR_PROMPT;
+    return `
+${UPSELL_CAR_PROMPT}
+
+# Available cars for upgrades 
+${JSON.stringify(state.availableOffers)}
+    `;
   }
   return "";
 }

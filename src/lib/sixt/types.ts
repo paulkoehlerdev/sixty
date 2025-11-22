@@ -117,6 +117,7 @@ export type CarInfo = {
 export type Price = {
   currency: string;
   amount: number;
+  value: number;
 };
 
 export type PriceBreakdown = {
