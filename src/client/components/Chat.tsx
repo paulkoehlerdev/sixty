@@ -65,7 +65,7 @@ function AssistantMessage({ message, agentState }: { message: UIMessage; agentSt
         <Avatar className="h-7 w-7">
           <AvatarImage src="/favicon.svg" />
         </Avatar>
-        <p className="text-[#ff5000] font-bold">Chris</p>
+        <p className="text-primary font-bold">Chris</p>
       </div>
       <div>
         {message.parts.map((part, index) => {
