@@ -2,9 +2,17 @@ import { Calendar, MapPin } from "lucide-react";
 import { CarOfferCardContent } from "@/client/components/CarOfferCard.tsx";
 import { PriceDisplay } from "@/client/components/ui-elements/PriceDisplay.tsx";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import type { Offer } from "@/lib/sixt/types";
+import type { Location, Offer } from "@/lib/sixt/types";
 
-export function CurrentBookingUI({ booking }: { booking: Offer }) {
+export function CurrentBookingUI({
+  booking,
+  pickupLocation,
+  returnLocation,
+}: {
+  booking: Offer;
+  pickupLocation: Location;
+  returnLocation: Location;
+}) {
   return (
     <Card variant="normal" className="dark:border-none">
       <CardHeader className="pb-3">
@@ -23,7 +31,7 @@ export function CurrentBookingUI({ booking }: { booking: Offer }) {
             </div>
             <div>
               <p className="text-muted-foreground text-xs">Pickup Location</p>
-              <p className="font-semibold text-card-foreground text-sm">{booking.pickup_branch_id}</p>
+              <p className="font-semibold text-card-foreground text-sm">{pickupLocation.branch.title}</p>
             </div>
           </div>
 
@@ -33,7 +41,7 @@ export function CurrentBookingUI({ booking }: { booking: Offer }) {
             </div>
             <div>
               <p className="text-muted-foreground text-xs">Return Location</p>
-              <p className="font-semibold text-card-foreground text-sm">{booking.return_branch_id}</p>
+              <p className="font-semibold text-card-foreground text-sm">{returnLocation.branch.title}</p>
             </div>
           </div>
         </div>

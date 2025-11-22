@@ -32,23 +32,8 @@ export class SixtyAgent extends AIChatAgent<Env, AgentState> {
     super(ctx, env);
 
     (async () => {
-      if (this.messages.length === 0) {
-        await this.persistMessages([
-          {
-            id: uuidv4(),
-            role: "assistant",
-            parts: [
-              {
-                type: "text",
-                text: "Hey! I'm Chris, happy to help with your booking today. Are you on schedule for you pickup?",
-              },
-            ],
-          },
-        ]);
-      }
-
       // fetch offers from Sixt
-      const offers = await getAvailableOffers(this.state.offer_matrix_id);
+      const { offers, pickupLocation, returnLocation } = await getAvailableOffers(this.state.offer_matrix_id);
 
       const availableOffers: Record<OfferId, Offer> = {};
       for (const offer of offers) {
@@ -57,7 +42,26 @@ export class SixtyAgent extends AIChatAgent<Env, AgentState> {
 
       const initialOffer = offers[0]; // TEMP
 
-      this.setState({ ...this.state, initialOffer, availableOffers });
+      this.setState({ ...this.state, initialOffer, availableOffers, pickupLocation, returnLocation });
+
+      if (this.messages.length === 0) {
+        await this.saveMessages([
+          {
+            id: uuidv4(),
+            role: "user",
+            metadata: "hidden",
+            parts: [
+              {
+                type: "text",
+                text: `
+                  Hey! I'm close and want to pick up my car soon. Is everything ready?
+                  Can you tell remind me again what i have booked and are there some cheap upgrades?
+                `,
+              },
+            ],
+          },
+        ]);
+      }
     })();
   }
 

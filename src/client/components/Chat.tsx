@@ -41,7 +41,13 @@ export const Chat: React.FC<Props> = ({ messages, isWaitingForResponse, sendChat
 
   return (
     <div className="flex flex-col gap-4">
-      {agentState?.initialOffer && <CurrentBookingUI booking={agentState.initialOffer} />}
+      {agentState?.initialOffer && (
+        <CurrentBookingUI
+          booking={agentState.initialOffer}
+          pickupLocation={agentState.pickupLocation}
+          returnLocation={agentState.returnLocation}
+        />
+      )}
 
       {messages
         .filter((message) => !message.metadata || message.metadata !== "hidden")
