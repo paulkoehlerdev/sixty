@@ -230,8 +230,7 @@ export type AddOnDescription = {
   };
 };
 
-export type AddOns = {
-  packages: {
+export type Package = {
     id: string;
     description: AddOnDescription;
     actual_price: PriceBreakdown;
@@ -243,8 +242,9 @@ export type AddOns = {
     deductible_text: string;
     stars: number;
     is_selected: boolean;
-  }[];
-  products: {
+}
+
+export type Product = {
     charge_code: string;
     internal_name: string;
     quantity: number;
@@ -258,7 +258,11 @@ export type AddOns = {
     is_included_in_package: boolean;
     is_disabled: boolean;
     is_selected_by_user: boolean;
-  }[];
+}
+
+export type AddOns = {
+  packages: Package[];
+  products: Product[];
 };
 
 export type Booking = {

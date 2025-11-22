@@ -10,6 +10,8 @@ export type AgentState = {
   currentOffer?: OfferId;
   availableOffers?: Record<OfferId, Offer>;
 
+  booking?: Booking;
+
   currentBooking: Booking | null;
 };
 
