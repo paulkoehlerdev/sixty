@@ -9,33 +9,51 @@ import {
   streamText,
   type ToolSet,
 } from "ai";
-import { type AgentState, getInitialState } from "../lib/state";
+import { type AgentState, getAvailableOffers } from "../lib/state";
 import { getSystemPromptForState } from "./system";
 import { getAvailableToolsForState } from "./tools";
+import type { Offer, OfferId } from "../lib/sixt/types.ts";
+import { getInitialScratchpad } from "./scratchpad.ts";
 
 const model = openai("gpt-4.1-mini");
 
 export class SixtyAgent extends AIChatAgent<Env, AgentState> {
-  constructor(ctx: unknown, env: Env) {
+  initialState = {
+    stage: "car_type_upselling",
+    scratchpad: getInitialScratchpad(),
+  } satisfies AgentState;
+
+  constructor(ctx: never, env: Env) {
     super(ctx, env);
 
-    if (this.messages.length === 0) {
-      this.messages.push({
-        id: "12312309123",
-        role: "assistant",
-        parts: [
+    (async () => {
+      if (this.messages.length === 0) {
+        await this.persistMessages([
           {
-            type: "text",
-            text: "Hey! I'm Chris, happy to help with your booking today. Are you on schedule for you pickup?",
+            id: "000000",
+            role: "assistant",
+            parts: [
+              {
+                type: "text",
+                text: "Hey! I'm Chris, happy to help with your booking today. Are you on schedule for you pickup?",
+              },
+            ],
           },
-        ],
-      });
-      this.persistMessages(this.messages);
-
-      if (!this.state) {
-        getInitialState().then((state) => this.setState(state));
+        ]);
       }
-    }
+
+      // fetch offers from Sixt
+      const offers = await getAvailableOffers();
+
+      const availableOffers: Record<OfferId, Offer> = {};
+      for (const offer of offers) {
+        availableOffers[offer.offer_id] = offer;
+      }
+
+      const initialOffer = availableOffers[0]; // TEMP
+
+      this.setState({ ...this.state, initialOffer, currentOffer: initialOffer.offer_id, availableOffers });
+    })();
   }
 
   async onChatMessage(
