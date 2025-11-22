@@ -24,7 +24,7 @@ export class SixtyAgent extends AIChatAgent<Env, AgentState> {
         role: "assistant",
         parts: [{ type: "text", text: "Hey! I'm Chris, happy to help with your booking today. Are you on schedule for you pickup?" }],
       });
-      this.saveMessages(this.messages);
+      this.persistMessages(this.messages);
 
       if (!this.state) {
         getInitialState().then((state) => this.setState(state));
