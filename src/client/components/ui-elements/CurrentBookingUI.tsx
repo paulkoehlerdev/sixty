@@ -10,8 +10,8 @@ export function CurrentBookingUI({
   returnLocation,
 }: {
   booking: Offer;
-  pickupLocation: Location;
-  returnLocation: Location;
+  pickupLocation?: Location;
+  returnLocation?: Location;
 }) {
   return (
     <Card variant="normal" className="dark:border-none">
@@ -24,27 +24,29 @@ export function CurrentBookingUI({
       <CarOfferCardContent offer={booking} />
 
       <CardContent className="space-y-4 px-5 pb-5">
-        <div className="grid grid-cols-2 gap-4">
-          <div className="flex items-start gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary">
-              <MapPin className="h-5 w-5 text-secondary-foreground" />
+        {pickupLocation && returnLocation && (
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex items-start gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary">
+                <MapPin className="h-5 w-5 text-secondary-foreground" />
+              </div>
+              <div>
+                <p className="text-muted-foreground text-xs">Pickup Location</p>
+                <p className="font-semibold text-card-foreground text-sm">{pickupLocation.branch.title}</p>
+              </div>
             </div>
-            <div>
-              <p className="text-muted-foreground text-xs">Pickup Location</p>
-              <p className="font-semibold text-card-foreground text-sm">{pickupLocation.branch.title}</p>
-            </div>
-          </div>
 
-          <div className="flex items-start gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary">
-              <MapPin className="h-5 w-5 text-secondary-foreground" />
-            </div>
-            <div>
-              <p className="text-muted-foreground text-xs">Return Location</p>
-              <p className="font-semibold text-card-foreground text-sm">{returnLocation.branch.title}</p>
+            <div className="flex items-start gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary">
+                <MapPin className="h-5 w-5 text-secondary-foreground" />
+              </div>
+              <div>
+                <p className="text-muted-foreground text-xs">Return Location</p>
+                <p className="font-semibold text-card-foreground text-sm">{returnLocation.branch.title}</p>
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         <div className="flex items-start gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary">
