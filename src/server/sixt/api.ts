@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
-import type { Location, Offer, SearchRequest, SelectedLocation } from "./types";
+import type {Booking, Location, Offer, Price, PriceBreakdown, SearchRequest, SelectedLocation} from "./types";
 
 const baseUrl = "https://grpc-prod.orange.sixt.com";
 
@@ -72,4 +72,17 @@ export async function getOfferRecommendations(req: SearchRequest): Promise<Offer
     company_id: "1",
   });
   return response.offers ?? [];
+}
+
+export async function getBookingForOffer({ offer_id }: { offer_id: string }): Promise<Booking> {
+  const response = await doGrpcRequest<{
+    booking: Booking;
+  }>("com.sixt.service.rent_booking.api.BookingService/GetBookingForOffer", {
+    booking_id: uuidv4(),
+    offer_matrix_id: uuidv4(),
+    offer_id: offer_id,
+    currency: "EUR",
+    feature_flags: [],
+  });
+  return response.booking;
 }
