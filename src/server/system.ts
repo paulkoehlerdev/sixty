@@ -1,5 +1,6 @@
 import type { AgentState } from "../types/state";
 import { formatScratchpadForPrompt } from "./scratchpad";
+import type { Offer } from "./sixt/types";
 
 const BASE_SYSTEM_PROMPT =
   `You are Chris, a SixtRentalAgent, a casual, friendly, concise post-booking rental-car sales agent for Sixt.
@@ -33,7 +34,7 @@ function getSubPromptForState(state: AgentState): string {
   return "";
 }
 
-export const getSystemPromptForState = (state: AgentState): string => {
+export const getSystemPromptForState = async (state: AgentState): Promise<string> => {
   const scratchpadContext = formatScratchpadForPrompt(state.scratchpad);
   const subPrompt = getSubPromptForState(state);
 
@@ -42,5 +43,14 @@ export const getSystemPromptForState = (state: AgentState): string => {
 ${subPrompt ? `\n${subPrompt}\n` : ""}
 # Current User Profile
 
-${scratchpadContext}`.trim();
+${scratchpadContext}
+
+# Current User Booking information
+
+${getBookingInformationPrompt(state.uiState.currentOffer)}
+`.trim();
 };
+
+export function getBookingInformationPrompt(b: Offer): string {
+  return `This is the booking information: ${JSON.stringify(b)}`;
+}

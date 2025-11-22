@@ -6,7 +6,7 @@ import { useState } from "react";
 import { Chat } from "@/client/components/Chat.tsx";
 import { ChatInput } from "@/client/components/ChatInput.tsx";
 import { UIElementContainer } from "@/client/components/ui-elements/UIElementContainer";
-import { type AgentState, getInitialState } from "@/types/state.ts";
+import type { AgentState } from "@/types/state.ts";
 
 export const ChatScreen: React.FC<{ sessionID: string }> = ({ sessionID }) => {
   const [agentState, setAgentState] = useState<AgentState | null>(null);
@@ -36,7 +36,7 @@ export const ChatScreen: React.FC<{ sessionID: string }> = ({ sessionID }) => {
 
   const clearHistory = () => {
     agentChat.clearHistory();
-    agent.setState(getInitialState());
+    // agent.setState({});
   };
 
   return (

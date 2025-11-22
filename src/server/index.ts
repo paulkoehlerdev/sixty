@@ -16,7 +16,7 @@ import { getAvailableToolsForState } from "./tools";
 const model = openai("gpt-4.1-mini");
 
 export class SixtyAgent extends AIChatAgent<Env, AgentState> {
-  initialState = getInitialState();
+  initialState = undefined;
 
   constructor(ctx: unknown, env: Env) {
     super(ctx, env);
@@ -24,7 +24,7 @@ export class SixtyAgent extends AIChatAgent<Env, AgentState> {
     // Only initialize state if this is a new agent (no state in DB)
     // The getter will automatically load persisted state or fall back to initialState
     if (!this.state) {
-      this.setState(this.initialState);
+      getInitialState().then((state) => this.setState(state));
     }
   }
 
@@ -35,7 +35,7 @@ export class SixtyAgent extends AIChatAgent<Env, AgentState> {
     },
   ): Promise<Response | undefined> {
     const result = streamText({
-      system: getSystemPromptForState(this.state),
+      system: await getSystemPromptForState(this.state),
       messages: convertToModelMessages(this.messages),
       model,
       tools: getAvailableToolsForState(this.state),
