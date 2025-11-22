@@ -1,4 +1,4 @@
-/* Animated gradient border for AI Card */
+/* Animated gradient borders for Card variants */
 
 @property --angle {
   syntax: "<angle>";
@@ -6,24 +6,19 @@
   inherits: false;
 }
 
-/* Outer wrapper that owns the border */
-.ai-card-wrapper {
-  position: relative;
-  z-index: 0;
-  border-radius: 1rem; /* matches Tailwind rounded-2xl */
-  padding: 2px; /* border thickness */
+/* Shared gradient animation */
+@keyframes spin {
+  from {
+    --angle: 0deg;
+  }
+  to {
+    --angle: 360deg;
+  }
 }
 
-/* Actual card element */
-.ai-card-inner {
-  position: relative;
-  border-radius: inherit;
-  overflow: hidden; /* clip internal content, not the glow */
-}
-
-/* Gradient + glow */
-.ai-card-wrapper::before,
-.ai-card-wrapper::after {
+/* Animated gradient border (AI variant and Selected variant) */
+.gradient-card-wrapper::before,
+.gradient-card-wrapper::after {
   --angle: 0deg;
   content: "";
   position: absolute;
@@ -35,7 +30,7 @@
     var(--gradient-end) 50%,
     var(--gradient-start) 100%
   );
-  z-index: -1; /* behind .ai-card-inner */
+  z-index: -1;
   pointer-events: none;
   animation: spin 3s linear infinite;
   transition:
@@ -43,23 +38,14 @@
     opacity 0.1s ease-in-out;
 }
 
-/* crisp border layer */
-.ai-card-wrapper::after {
+/* Crisp border layer */
+.gradient-card-wrapper::after {
   filter: blur(0);
   opacity: 1;
 }
 
-/* optional hover boost */
-.ai-card-wrapper:hover::before {
+/* Glow effect on hover */
+.gradient-card-wrapper:hover::before {
   filter: blur(0.5rem);
   opacity: 0.8;
-}
-
-@keyframes spin {
-  from {
-    --angle: 0deg;
-  }
-  to {
-    --angle: 360deg;
-  }
 }

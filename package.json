@@ -21,6 +21,7 @@
     "@radix-ui/react-compose-refs": "^1.1.2",
     "@radix-ui/react-scroll-area": "^1.2.10",
     "@radix-ui/react-slot": "^1.2.4",
+    "@radix-ui/react-switch": "^1.2.6",
     "@silk-hq/components": "^0.10.0",
     "@tailwindcss/vite": "^4.1.16",
     "agents": "^0.2.17",

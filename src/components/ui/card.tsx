@@ -2,15 +2,39 @@ import "./card.css";
 import { cn } from "@/lib/utils";
 
 interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
-  variant?: "normal" | "ai";
+  variant?: "normal" | "ai" | "success";
 }
 
 export function Card({ className, variant, ...props }: CardProps) {
+  // AI variant: animated gradient border (orange/primary colors)
   if (variant === "ai") {
-    // AI variant: wrapper renders the border, inner div is the actual card
     return (
-      <div className={cn("ai-card-wrapper", className)}>
-        <div className={cn("ai-card-inner", "relative z-10 rounded-2xl bg-card text-card-foreground")} {...props} />
+      <div
+        className={cn("gradient-card-wrapper relative z-0 rounded-2xl p-[2px]", className)}
+        style={
+          {
+            "--gradient-start": "var(--ai-gradient-start)",
+            "--gradient-end": "var(--ai-gradient-end)",
+          } as React.CSSProperties
+        }
+      >
+        <div className={cn("relative z-10 overflow-hidden rounded-2xl bg-card text-card-foreground")} {...props} />
+      </div>
+    );
+  }
+
+  // Success variant: static green gradient border (no animation)
+  if (variant === "success") {
+    return (
+      <div
+        className={cn("relative z-0 rounded-2xl p-[2px]", className)}
+        style={
+          {
+            background: "linear-gradient(135deg, var(--success-gradient-start), var(--success-gradient-end))",
+          } as React.CSSProperties
+        }
+      >
+        <div className={cn("relative z-10 overflow-hidden rounded-2xl bg-card text-card-foreground")} {...props} />
       </div>
     );
   }

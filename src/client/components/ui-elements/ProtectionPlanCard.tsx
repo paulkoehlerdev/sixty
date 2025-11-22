@@ -1,40 +1,25 @@
 import { Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import type { Package } from "@/lib/sixt/types";
 import { cn } from "@/lib/utils";
 import { FeatureIcon } from "../shared/FeatureIcon";
-
-export interface ProtectionPlanFeature {
-  id: string;
-  name: string;
-  included: boolean;
-}
-
-export interface ProtectionPlan {
-  id: string;
-  title: string;
-  rating: number; // 0-3 stars
-  deductible: string;
-  deductibleColor?: "default" | "red" | "green";
-  discount?: string;
-  features: ProtectionPlanFeature[];
-  isSelected?: boolean;
-}
-
-// Re-export default plans for convenience
-export { defaultProtectionPlans } from "./defaultProtectionPlans";
+import { PriceDisplay } from "./PriceDisplay";
 
 interface ProtectionPlanCardProps {
-  plan: ProtectionPlan;
-  onSelect?: (planId: string) => void;
+  package: Package;
+  onSelect?: (packageId: string) => void;
   className?: string;
   variant?: "normal" | "ai";
 }
 
-export function ProtectionPlanCard({ plan, onSelect, className, variant = "normal" }: ProtectionPlanCardProps) {
+export function ProtectionPlanCard({ package: pkg, onSelect, className, variant = "normal" }: ProtectionPlanCardProps) {
   const handleClick = () => {
-    onSelect?.(plan.id);
+    onSelect?.(pkg.id);
   };
+
+  // Extract features from the package description
+  const features = pkg.description.additional_info.line_item_info || [];
 
   return (
     <Card
@@ -42,7 +27,7 @@ export function ProtectionPlanCard({ plan, onSelect, className, variant = "norma
       className={cn(
         "relative cursor-pointer border transition-all hover:scale-[1.02]",
         variant === "ai" && "border-none",
-        plan.isSelected && "ring-2 ring-primary",
+        pkg.is_selected && "ring-2 ring-primary",
         className,
       )}
       onClick={handleClick}
@@ -52,16 +37,16 @@ export function ProtectionPlanCard({ plan, onSelect, className, variant = "norma
         <div
           className={cn(
             "h-5 w-5 rounded-full border-2 transition-all",
-            plan.isSelected ? "border-primary bg-primary" : "border-muted-foreground bg-transparent opacity-50",
+            pkg.is_selected ? "border-primary bg-primary" : "border-muted-foreground bg-transparent opacity-50",
           )}
         >
-          {plan.isSelected && <div className="h-full w-full scale-50 rounded-full bg-white" />}
+          {pkg.is_selected && <div className="h-full w-full scale-50 rounded-full bg-white" />}
         </div>
       </div>
 
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between pr-8">
-          <CardTitle className="font-bold text-base text-card-foreground">{plan.title}</CardTitle>
+          <CardTitle className="font-bold text-base text-card-foreground">{pkg.description.name}</CardTitle>
         </div>
 
         {/* Star Rating */}
@@ -71,39 +56,35 @@ export function ProtectionPlanCard({ plan, onSelect, className, variant = "norma
               key={star}
               className={cn(
                 "h-4 w-4",
-                star <= plan.rating ? "fill-foreground" : "fill-none text-muted-foreground opacity-50",
+                star <= pkg.stars ? "fill-foreground" : "fill-none text-muted-foreground opacity-50",
               )}
             />
           ))}
         </div>
 
         {/* Discount Badge */}
-        {plan.discount && (
+        {pkg.discount_percent > 0 && (
           <div className="mt-2">
-            <Badge className="border-none bg-orange-500 text-white">{plan.discount}</Badge>
+            <Badge className="border-none bg-orange-500 text-white">-{pkg.discount_percent}%</Badge>
           </div>
         )}
 
         {/* Deductible */}
         <div className="mt-3">
-          <p
-            className={cn(
-              "font-medium text-sm",
-              plan.deductibleColor === "red" && "text-red-500",
-              plan.deductibleColor === "green" && "text-green-500",
-              !plan.deductibleColor && "text-card-foreground",
-            )}
-          >
-            Deductible: {plan.deductible}
-          </p>
+          <p className="font-medium text-card-foreground text-sm">{pkg.deductible_text}</p>
+        </div>
+
+        {/* Price */}
+        <div className="mt-2">
+          <PriceDisplay price={pkg.actual_total_price} />
         </div>
       </CardHeader>
 
       <CardContent className="space-y-3 rounded-b-2xl bg-background p-4">
-        {plan.features.map((feature) => (
-          <div key={feature.id} className="group/feature flex items-start gap-3">
+        {features.map((feature) => (
+          <div key={feature.ref_id} className="group/feature flex items-start gap-3">
             <FeatureIcon
-              included={feature.included}
+              included={feature.display_category === "DISPLAY_CATEGORY_INCLUDED"}
               className="mt-0.5 transition-opacity group-hover/feature:opacity-100"
             />
             <span className="text-card-foreground text-sm">{feature.name}</span>

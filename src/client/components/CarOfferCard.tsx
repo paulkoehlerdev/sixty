@@ -1,8 +1,8 @@
 import { Briefcase, Gauge, Users } from "lucide-react";
+import { PriceDisplay } from "@/client/components/ui-elements/PriceDisplay.tsx";
 import { Badge } from "@/components/ui/badge";
 import type { Offer } from "@/lib/sixt/types";
 import { CarCardHeader, VehicleImageDisplay } from "./CarCard";
-import { PriceDisplay } from "@/client/components/ui-elements/PriceDisplay.tsx";
 
 interface UpgradeCardProps {
   offer: Offer;

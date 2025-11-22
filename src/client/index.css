@@ -41,8 +41,11 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 
-  --gradient-start: var(--primary);
-  --gradient-end: #ff0f7b;
+  --ai-gradient-start: var(--primary);
+  --ai-gradient-end: #ff0f7b;
+
+  --success-gradient-start: #95f9c3;
+  --success-gradient-end: #0b3866;
 }
 
 :root {

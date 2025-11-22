@@ -8,6 +8,8 @@ import type { AgentState } from "@/lib/state";
 import { cn } from "@/lib/utils";
 import { StreamingIndicator } from "./chat-streaming";
 import { CurrentBookingUI } from "./ui-elements/CurrentBookingUI";
+import { ProductsUI } from "./ui-elements/ProductsUI";
+import { ProtectionPlansUI } from "./ui-elements/ProtectionPlansUI";
 import { UpgradeOfferUI } from "./ui-elements/UpgradeOfferUI";
 
 type Props = {
@@ -77,7 +79,46 @@ function AssistantMessage({ message, agentState }: { message: UIMessage; agentSt
 
               if (offer) {
                 return (
-                  <UpgradeOfferUI className="mb-4" key={`upsell-${offer.offer_id}`} offer={offer} baseOffer={agentState.initialOffer} />
+                  <UpgradeOfferUI
+                    className="mb-4"
+                    key={`upsell-${offer.offer_id}`}
+                    offer={offer}
+                    baseOffer={agentState.initialOffer}
+                  />
+                );
+              }
+            })
+            .with({ type: "tool-showProtectionPackages" }, (part) => {
+              const packageIds = part.input.packageIds;
+              const bestValuePackageId = part.input.bestValuePackageId;
+              const availablePackages = agentState?.booking?.available_add_ons_v2.packages || [];
+              const packagesToShow = availablePackages.filter((pkg) => packageIds.includes(pkg.id));
+
+              if (packagesToShow.length > 0) {
+                return (
+                  <ProtectionPlansUI
+                    key={`packages-${index}`}
+                    packages={packagesToShow}
+                    bestValuePackageId={bestValuePackageId}
+                  />
+                );
+              }
+            })
+            .with({ type: "tool-showProducts" }, (part) => {
+              const productChargeCodes = part.input.productChargeCodes;
+              const popularProductChargeCode = part.input.popularProductChargeCode;
+              const availableProducts = agentState?.booking?.available_add_ons_v2.products || [];
+              const productsToShow = availableProducts.filter((product) =>
+                productChargeCodes.includes(product.charge_code),
+              );
+
+              if (productsToShow.length > 0) {
+                return (
+                  <ProductsUI
+                    key={`products-${index}`}
+                    products={productsToShow}
+                    popularProductId={popularProductChargeCode}
+                  />
                 );
               }
             })

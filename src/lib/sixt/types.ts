@@ -231,34 +231,34 @@ export type AddOnDescription = {
 };
 
 export type Package = {
-    id: string;
-    description: AddOnDescription;
-    actual_price: PriceBreakdown;
-    discount_percent: number;
-    quantity: number;
-    damage_excess: Price;
-    theft_excess: Price;
-    actual_total_price: PriceBreakdown;
-    deductible_text: string;
-    stars: number;
-    is_selected: boolean;
-}
+  id: string;
+  description: AddOnDescription;
+  actual_price: PriceBreakdown;
+  discount_percent: number;
+  quantity: number;
+  damage_excess: Price;
+  theft_excess: Price;
+  actual_total_price: PriceBreakdown;
+  deductible_text: string;
+  stars: number;
+  is_selected: boolean;
+};
 
 export type Product = {
-    charge_code: string;
-    internal_name: string;
-    quantity: number;
-    actual_price: PriceBreakdown;
-    discount_percent: number;
-    is_protection: boolean;
-    is_physical: boolean;
-    description: AddOnDescription;
-    is_mandatory: boolean;
-    is_selected: boolean;
-    is_included_in_package: boolean;
-    is_disabled: boolean;
-    is_selected_by_user: boolean;
-}
+  charge_code: string;
+  internal_name: string;
+  quantity: number;
+  actual_price: PriceBreakdown;
+  discount_percent: number;
+  is_protection: boolean;
+  is_physical: boolean;
+  description: AddOnDescription;
+  is_mandatory: boolean;
+  is_selected: boolean;
+  is_included_in_package: boolean;
+  is_disabled: boolean;
+  is_selected_by_user: boolean;
+};
 
 export type AddOns = {
   packages: Package[];

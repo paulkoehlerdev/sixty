@@ -1,8 +1,8 @@
 import { Calendar, MapPin } from "lucide-react";
 import { CarOfferCardContent } from "@/client/components/CarOfferCard.tsx";
+import { PriceDisplay } from "@/client/components/ui-elements/PriceDisplay.tsx";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { Offer } from "@/lib/sixt/types";
-import { PriceDisplay } from "@/client/components/ui-elements/PriceDisplay.tsx";
 
 export function CurrentBookingUI({ booking }: { booking: Offer }) {
   return (

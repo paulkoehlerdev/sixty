@@ -1,4 +1,3 @@
-import type { Offer } from "../lib/sixt/types.ts";
 import type { AgentState } from "../lib/state";
 import { formatScratchpadForPrompt } from "./scratchpad";
 
@@ -33,6 +32,13 @@ Please don't ask too many questions. Look at the offer and available upgrades ca
 You should seem interested, but not overwhelmingly so. Don't be creepy.
 `.trim();
 
+const UPSELL_PRODUCT_PROMPT = `
+# Upselling Behaviour
+
+Your goal is to upsell the user on of the available products. Use information from the booking and scratchpad to decide on the best product to upsell the user on.
+The user can only choose one product at a time.
+`;
+
 function getSubPromptForState(state: AgentState): string {
   if (state.stage === "car_type_upselling") {
     return `
@@ -40,8 +46,24 @@ ${UPSELL_CAR_PROMPT}
 
 # Available cars for upgrades 
 ${JSON.stringify(state.availableOffers)}
+
+# Current User offer information - This is the offer you want to upsell from
+${JSON.stringify(state.initialOffer)}
     `;
   }
+
+  if (state.stage === "insurance_upselling") {
+    return `
+${UPSELL_PRODUCT_PROMPT}
+
+# Current booking
+${JSON.stringify(state.booking?.offer_v2)}
+
+# Available products for upselling
+${JSON.stringify(state.booking?.available_add_ons_v2.packages)}
+    `;
+  }
+
   return "";
 }
 
@@ -55,13 +77,5 @@ ${subPrompt ? `\n${subPrompt}\n` : ""}
 # Current User Profile
 
 ${scratchpadContext}
-
-# Current User Booking information
-
-${getBookingInformationPrompt(state.initialOffer)}
 `.trim();
 };
-
-export function getBookingInformationPrompt(b: Offer): string {
-  return `This is the booking information: ${JSON.stringify(b)}`;
-}

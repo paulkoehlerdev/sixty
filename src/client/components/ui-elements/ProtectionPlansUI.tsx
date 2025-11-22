@@ -1,30 +1,25 @@
-import { defaultProtectionPlans } from "./defaultProtectionPlans";
-import type { ProtectionPlan } from "./ProtectionPlanCard";
+import type { Package } from "@/lib/sixt/types";
 import { ProtectionPlanCard } from "./ProtectionPlanCard";
 
 interface ProtectionPlansUIProps {
-  plans?: ProtectionPlan[];
-  selectedPlanId?: string;
-  onPlanSelect?: (planId: string) => void;
+  packages: Package[];
+  onPackageSelect?: (packageId: string) => void;
+  bestValuePackageId?: string;
 }
 
-export function ProtectionPlansUI({
-  plans = defaultProtectionPlans,
-  selectedPlanId,
-  onPlanSelect,
-}: ProtectionPlansUIProps) {
-  const plansWithSelection = plans.map((plan) => ({
-    ...plan,
-    isSelected: plan.id === selectedPlanId,
-  }));
-
+export function ProtectionPlansUI({ packages, onPackageSelect, bestValuePackageId }: ProtectionPlansUIProps) {
   return (
     <div className="bg-background px-5 py-4">
       <div className="mx-auto max-w-6xl">
         <h2 className="mb-6 font-bold text-foreground text-xl">Protection Plans</h2>
         <div className="grid grid-cols-1 gap-4">
-          {plansWithSelection.map((plan) => (
-            <ProtectionPlanCard key={plan.id} plan={plan} onSelect={onPlanSelect} />
+          {packages.map((pkg) => (
+            <ProtectionPlanCard
+              key={pkg.id}
+              package={pkg}
+              onSelect={onPackageSelect}
+              variant={pkg.id === bestValuePackageId ? "ai" : "normal"}
+            />
           ))}
         </div>
       </div>
