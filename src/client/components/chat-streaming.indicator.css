@@ -1,32 +1,32 @@
 @keyframes color-wave {
   0% {
-    background-color: var(--gradient-start);
+    background-color: var(--ai-gradient-start);
     transform: scale(1);
   }
   50% {
-    background-color: var(--gradient-end);
+    background-color: var(--ai-gradient-end);
     transform: scale(1.2);
   }
   100% {
-    background-color: var(--gradient-start);
+    background-color: var(--ai-gradient-start);
     transform: scale(1);
   }
 }
 
 .animate-color-wave-1 {
-  background-color: var(--gradient-start);
+  background-color: var(--ai-gradient-start);
   animation: color-wave 1.5s infinite ease-in-out;
   animation-delay: 0s;
 }
 
 .animate-color-wave-2 {
-  background-color: var(--gradient-end);
+  background-color: var(--ai-gradient-end);
   animation: color-wave 1.5s infinite ease-in-out;
   animation-delay: 0.2s;
 }
 
 .animate-color-wave-3 {
-  background-color: var(--gradient-start);
+  background-color: var(--ai-gradient-start);
   animation: color-wave 1.5s infinite ease-in-out;
   animation-delay: 0.4s;
 }
