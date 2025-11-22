@@ -29,10 +29,10 @@ export const ChatInput: React.FC<Props> = ({ placeholder, sendChatMessage }) => 
 
   return (
     <form onSubmit={onSubmit}>
-      <div className="flex w-full rounded-[40px] bg-muted p-2.5">
+      <div className="flex w-full rounded-[40px] bg-card p-2.5">
         <Input
           placeholder={placeholder}
-          className="border-none focus-visible:ring-0"
+          className="border-none shadow-none focus-visible:ring-0"
           autoFocus={true}
           value={userMessage}
           onChange={(e) => setUserMessage(e.target.value)}

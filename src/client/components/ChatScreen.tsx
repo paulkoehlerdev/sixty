@@ -5,16 +5,25 @@ import type React from "react";
 import { useState } from "react";
 import { Chat } from "@/client/components/Chat.tsx";
 import { ChatInput } from "@/client/components/ChatInput.tsx";
-
-type AgentState = {};
+import { UIElementContainer } from "@/client/components/ui-elements/UIElementContainer";
+import type { CarOffer } from "@/lib/offers";
+import type { AgentState } from "@/server/index";
+import offersData from "../../../raw_data/offers_1.json";
 
 export const ChatScreen: React.FC<{ sessionID: string }> = ({ sessionID }) => {
-  const [_agentState, setAgentState] = useState<AgentState>({});
+  const [agentState, setAgentState] = useState<AgentState>({
+    uiState: {
+      uiMode: "current",
+      booking: offersData.offers[0] as CarOffer,
+    },
+  });
 
   const agent = useAgent<AgentState>({
     agent: "sixty-agent",
     name: sessionID,
-    onStateUpdate: (newState) => setAgentState(newState),
+    onStateUpdate: (newState, _source) => {
+      setAgentState(newState);
+    },
     onOpen: () => {},
     onClose: () => {},
   });
@@ -36,25 +45,34 @@ export const ChatScreen: React.FC<{ sessionID: string }> = ({ sessionID }) => {
 
   const clearHistory = () => {
     agentChat.clearHistory();
-    agent.setState({});
+    agent.setState({ uiState: null });
   };
 
   return (
-    <div className="grid h-svh w-full grid-rows-[1fr_170px]">
+    <div className="grid h-svh w-full grid-rows-[minmax(0,1fr)_auto_auto]">
+      {/* Chat Messages - scrollable */}
       <div className="grid justify-items-center overflow-auto p-4" style={{ scrollbarGutter: "stable both-edges" }}>
         <div className="w-full max-w-[850px]">
           <Chat messages={agentChat.messages} isWaitingForResponse={agentChat.status === "submitted"} />
         </div>
       </div>
 
+      {/* UI Element - no scroll */}
+      <UIElementContainer uiState={agentState.uiState} />
+
+      {/* Chat Input - fixed */}
       <div className="grid justify-items-center p-4">
         <div className="w-full max-w-[850px]">
           <ChatInput placeholder="Send a message" sendChatMessage={sendChatMessage} />
 
           <div className="mt-2 inline-block w-full text-center text-xs">
-            <a className="cursor-pointer underline hover:text-primary" onClick={() => clearHistory()}>
+            <button
+              type="button"
+              className="cursor-pointer underline hover:text-primary"
+              onClick={() => clearHistory()}
+            >
               Or delete this conversation
-            </a>
+            </button>
           </div>
         </div>
       </div>

@@ -11,7 +11,7 @@
   position: relative;
   z-index: 0;
   border-radius: 1rem; /* matches Tailwind rounded-2xl */
-  padding: 2px;        /* border thickness */
+  padding: 2px; /* border thickness */
 }
 
 /* Actual card element */
@@ -29,16 +29,13 @@
   position: absolute;
   inset: 0;
   border-radius: calc(1rem + 2px);
-  background-image: conic-gradient(
-    from var(--angle),
-    #ff0f7b 0%,
-    #f89b29 50%,
-    #ff0f7b 100%
-  );
+  background-image: conic-gradient(from var(--angle), #ff0f7b 0%, #f89b29 50%, #ff0f7b 100%);
   z-index: -1; /* behind .ai-card-inner */
   pointer-events: none;
   animation: spin 3s linear infinite;
-  transition: filter 0.1s ease-in-out, opacity 0.1s ease-in-out;
+  transition:
+    filter 0.1s ease-in-out,
+    opacity 0.1s ease-in-out;
 }
 
 /* crisp border layer */
@@ -49,7 +46,7 @@
 
 /* optional hover boost */
 .ai-card-wrapper:hover::before {
-  filter: blur(.5rem);
+  filter: blur(0.5rem);
   opacity: 0.8;
 }
 

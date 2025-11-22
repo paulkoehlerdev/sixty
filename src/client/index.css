@@ -147,4 +147,113 @@
   button {
     @apply cursor-pointer;
   }
+
+  .prose-chat {
+    --tw-prose-body: var(--color-foreground);
+    --tw-prose-headings: var(--color-foreground);
+    --tw-prose-lead: var(--color-muted-foreground);
+    --tw-prose-links: var(--color-primary);
+    --tw-prose-bold: var(--color-foreground);
+    --tw-prose-counters: var(--color-muted-foreground);
+    --tw-prose-bullets: var(--color-muted-foreground);
+    --tw-prose-hr: var(--color-border);
+    --tw-prose-quotes: var(--color-foreground);
+    --tw-prose-quote-borders: var(--color-border);
+    --tw-prose-captions: var(--color-muted-foreground);
+    --tw-prose-kbd: var(--color-foreground);
+    --tw-prose-kbd-shadows: 24 24 24; /* rgb for #181818 */
+    --tw-prose-code: var(--color-foreground);
+    --tw-prose-pre-code: var(--color-background);
+    --tw-prose-pre-bg: rgb(0 0 0 / 80%);
+    --tw-prose-th-borders: var(--color-border);
+    --tw-prose-td-borders: var(--color-border);
+
+    color: var(--color-foreground);
+    font-size: 1rem;
+    max-width: 65ch;
+  }
+
+  .prose-chat :is(h1) {
+    --tw-tracking: var(--tracking-normal);
+    font-size: var(--text-2xl);
+    letter-spacing: var(--tracking-normal);
+    line-height: var(--tw-leading, var(--text-2xl--line-height));
+    margin-bottom: calc(var(--spacing) * 2);
+  }
+
+  .prose-chat :is(h2) {
+    font-size: var(--text-xl);
+    line-height: var(--tw-leading, var(--text-xl--line-height));
+    margin-bottom: calc(var(--spacing) * 1);
+    margin-top: calc(var(--spacing) * 4);
+  }
+
+  .prose-chat :is(h3) {
+    font-size: var(--text-lg);
+    line-height: var(--tw-leading, var(--text-lg--line-height));
+    margin-bottom: calc(var(--spacing) * 1);
+    margin-top: calc(var(--spacing) * 4);
+  }
+
+  .prose-chat :is(h4) {
+    margin-bottom: calc(var(--spacing) * 0);
+  }
+
+  .prose-chat :is(h4 + p) {
+    margin-top: calc(var(--spacing) * 0);
+  }
+
+  .prose-chat :is(blockquote) {
+    margin-bottom: calc(var(--spacing) * 2);
+    margin-top: calc(var(--spacing) * 0);
+  }
+
+  .prose-chat :is(p) {
+    margin-block: calc(var(--spacing) * 1);
+  }
+
+  .prose-chat :is(p):first-child {
+    margin-top: calc(var(--spacing) * 0);
+  }
+
+  .prose-chat :is(p):last-child {
+    margin-bottom: calc(var(--spacing) * 0);
+  }
+
+  .prose-chat :is(p + p) {
+    margin-block: calc(var(--spacing) * 4);
+  }
+
+  .prose-chat :is(ol, ul) {
+    margin: calc(var(--spacing) * 0);
+    padding-left: 2em;
+  }
+
+  .prose-chat
+    :is(ol + h1, ol + h2, ol + h3, ol + h4, ol + h5, ol + h6, ul + h1, ul + h2, ul + h3, ul + h4, ul + h5, ul + h6) {
+    margin-top: calc(var(--spacing) * 4);
+  }
+
+  .prose-chat :is(ol li, ul li) {
+    margin-block: calc(var(--spacing) * 0);
+  }
+
+  .prose-chat :is(li > ul, li > ol) {
+    margin-top: calc(var(--spacing) * 1);
+    margin-bottom: calc(var(--spacing) * 0);
+  }
+
+  .prose-chat :is(strong) {
+    --tw-font-weight: var(--font-weight-semibold);
+    font-weight: var(--font-weight-semibold);
+  }
+
+  .prose-chat :is(hr) {
+    border-color: var(--color-gray-border);
+    margin-block: calc(var(--spacing) * 7);
+  }
+
+  .prose-chat :is(hr + *) {
+    margin-top: calc(var(--spacing) * 0);
+  }
 }

@@ -40,7 +40,6 @@
         "noInferrableTypes": "error",
         "useExponentiationOperator": "error",
         "useTemplate": "error",
-        "noNonNullAssertion": "error",
         "useDefaultParameterLast": "error",
         "useImportType": "error",
         "useExportType": "error",

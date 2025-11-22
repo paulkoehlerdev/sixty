@@ -10,27 +10,13 @@ export function Card({ className, variant, ...props }: CardProps) {
     // AI variant: wrapper renders the border, inner div is the actual card
     return (
       <div className={cn("ai-card-wrapper", className)}>
-        <div
-          className={cn(
-            "ai-card-inner",
-            "rounded-2xl bg-card text-card-foreground relative z-10"
-          )}
-          {...props}
-        />
+        <div className={cn("ai-card-inner", "relative z-10 rounded-2xl bg-card text-card-foreground")} {...props} />
       </div>
-    )
+    );
   }
 
   // Normal card
-  return (
-    <div
-      className={cn(
-        "rounded-2xl bg-card text-card-foreground relative",
-        className
-      )}
-      {...props}
-    />
-  )
+  return <div className={cn("relative rounded-2xl bg-card text-card-foreground", className)} {...props} />;
 }
 
 export function CardHeader({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {

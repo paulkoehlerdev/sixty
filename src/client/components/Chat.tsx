@@ -1,6 +1,10 @@
-import type { UIMessage } from "ai";
+import type { TextUIPart, UIMessage } from "ai";
 import { DotIcon } from "lucide-react";
-import React, { useCallback, useEffect, useRef } from "react";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { match } from "ts-pattern";
+import { cn } from "@/lib/utils";
 
 type Props = {
   messages: UIMessage[];
@@ -23,16 +27,7 @@ export const Chat: React.FC<Props> = ({ messages, isWaitingForResponse }) => {
   return (
     <div className="mb-10 flex flex-col gap-8">
       {messages.map((message) => {
-        switch (message.role) {
-          case "user":
-            return <UserMessage key={message.id} message={message} />;
-
-          case "assistant":
-            return <AssistantMessage key={message.id} message={message} />;
-
-          case "system":
-            return <React.Fragment key={message.id} />;
-        }
+        return <MessageBubble key={message.id} message={message} />;
       })}
 
       <div>{isWaitingForResponse && <DotIcon className="animate-pulse stroke-8" />}</div>
@@ -42,20 +37,78 @@ export const Chat: React.FC<Props> = ({ messages, isWaitingForResponse }) => {
   );
 };
 
-const UserMessage: React.FC<{ message: UIMessage }> = ({ message }) => {
-  const text = message.parts
-    .filter((part) => part.type === "text")
-    .map((part) => part.text)
-    .join("; ");
-
+function MessageBubble({ message }: { message: UIMessage }) {
   return (
-    <div className="mt-8 flex w-full justify-end">
-      <div className="max-w-[70%] rounded-xl bg-muted px-5 py-2.5">{text}</div>
+    <div className={cn("flex gap-2", message.role === "user" ? "items-center justify-end" : "justify-start")}>
+      {match(message.role)
+        .with("user", () => <UserMessage message={message} />)
+        .with("assistant", () => <AssistantMessage message={message} />)
+        .otherwise(() => (
+          <></>
+        ))}
     </div>
   );
-};
+}
 
-const AssistantMessage: React.FC<{ message: UIMessage }> = ({ message }) => {
+function AssistantMessage({ message }: { message: UIMessage }) {
+  return (
+    <div className="w-full max-w-full space-y-2">
+      {message.parts.map((part, index) => {
+        return match(part)
+          .with({ type: "text" }, (part) => <AssistantTextMessagePart key={index} part={part} />)
+          .otherwise(() => <></>);
+      })}
+    </div>
+  );
+}
+
+function UserMessage({ message }: { message: UIMessage }) {
+  const textParts = useMemo(
+    () =>
+      message.parts
+        .filter((part) => part.type === "text")
+        .map((part) => part.text)
+        .join("")
+        .split("\n"),
+    [message.parts],
+  );
+
+  return (
+    <div className="flex max-w-[90%] flex-col items-end gap-2">
+      <div className="prose prose-chat wrap-anywhere break-[words] w-fit rounded-2xl bg-accent px-2.5 py-1.5">
+        {textParts.map((part, index) => (
+          // biome-ignore lint/suspicious/noArrayIndexKey: OK in this case, as nothing will be "moved around"
+          <React.Fragment key={index}>
+            {part}
+            {index < textParts.length - 1 && <br />}
+          </React.Fragment>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function AssistantTextMessagePart({ part }: { part: TextUIPart }) {
+  return (
+    <div className="prose prose-chat w-[90%] max-w-[90%]">
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        components={{
+          table: ({ children, ...props }) => (
+            <div className="-mx-4 overflow-x-scroll px-4">
+              <table {...props} className="min-w-full">
+                {children}
+              </table>
+            </div>
+          ),
+        }}
+      >
+        {part.text}
+      </ReactMarkdown>
+    </div>
+  );
+}
+/*const AssistantMessage: React.FC<{ message: UIMessage }> = ({ message }) => {
   return (
     <div className="grid w-full gap-3">
       {message.parts.map((part, index) => {
@@ -83,4 +136,4 @@ const AssistantMessage: React.FC<{ message: UIMessage }> = ({ message }) => {
       })}
     </div>
   );
-};
+};*/

@@ -81,9 +81,5 @@ interface CarCardProps {
 }
 
 export function CarCard({ children, variant = "normal" }: CarCardProps) {
-  return (
-      <Card variant={variant}>
-        {children}
-      </Card>
-  );
+  return <Card variant={variant}>{children}</Card>;
 }

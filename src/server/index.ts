@@ -9,14 +9,39 @@ import {
   streamText,
   type ToolSet,
 } from "ai";
-import { exampleTool } from "./tools";
+import offersData from "../../raw_data/offers_1.json";
+import type { CarOffer } from "../lib/offers";
+
+// no server tools for now
 
 const model = openai("gpt-4.1");
 
-type AgentState = {};
+export type CurrentUiState = {
+  uiMode: "current";
+  booking: CarOffer;
+};
+
+export type UpgradeUiState = {
+  uiMode: "upgrade";
+  offer: CarOffer;
+};
+
+export type AgentState = {
+  uiState: CurrentUiState | UpgradeUiState | null;
+};
 
 export class SixtyAgent extends AIChatAgent<Env, AgentState> {
-  initialState = {} satisfies AgentState;
+  initialState = {
+    uiState: {
+      uiMode: "current",
+      booking: offersData.offers[0] as CarOffer,
+    },
+  } satisfies AgentState;
+
+  constructor(ctx: unknown, env: Env) {
+    super(ctx, env);
+    this.setState(this.initialState);
+  }
 
   async onChatMessage(
     onFinish: StreamTextOnFinishCallback<ToolSet>,
@@ -24,13 +49,12 @@ export class SixtyAgent extends AIChatAgent<Env, AgentState> {
       abortSignal: AbortSignal | undefined;
     },
   ): Promise<Response | undefined> {
+    const uiStateContext = JSON.stringify(this.state.uiState ?? null);
     const result = streamText({
-      system: "You are Sixty, a helpful assistant.",
+      system: `You are Sixty, a helpful assistant.\n\nContext: The client UI state is provided as JSON below. Use it to ground your responses and reference what the user currently sees.\n\nUI_STATE_JSON: ${uiStateContext}`,
       messages: convertToModelMessages(this.messages),
       model,
-      tools: {
-        exampleTool,
-      },
+      // no tools provided
       onFinish,
       abortSignal: options?.abortSignal,
       stopWhen: stepCountIs(10),

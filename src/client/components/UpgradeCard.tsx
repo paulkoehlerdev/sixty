@@ -1,6 +1,6 @@
 import { Briefcase, Gauge, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import type { CarOffer } from "../types/offers";
+import type { CarOffer } from "../../lib/offers";
 import { CarCard, CarCardFeatures, CarCardHeader, VehicleImageDisplay } from "./CarCard";
 
 interface UpgradeCardProps {
@@ -53,25 +53,25 @@ export function UpgradeCard({ offer, variant = "normal" }: UpgradeCardProps) {
   );
 
   return (
-      <CarCard variant={variant}>
-        <CarCardHeader title={car_info.title} subline={car_info.subline} badges={badges} />
+    <CarCard variant={variant}>
+      <CarCardHeader title={car_info.title} subline={car_info.subline} badges={badges} />
 
-        {/* Vehicle Image */}
-        <div className="relative w-full">
-          <VehicleImageDisplay src={getImageUrl()} alt={car_info.title} />
+      {/* Vehicle Image */}
+      <div className="relative w-full">
+        <VehicleImageDisplay src={getImageUrl()} alt={car_info.title} />
+      </div>
+
+      {/* Features Section */}
+      {car_info.offer_highlighted_features && car_info.offer_highlighted_features.length > 0 && (
+        <CarCardFeatures features={car_info.offer_highlighted_features} offerId={offer.offer_id} />
+      )}
+
+      {/* Promo Label */}
+      {offer.promo_label && (
+        <div className="absolute top-4 right-4 z-30">
+          <Badge className="bg-primary text-primary-foreground">{offer.promo_label}</Badge>
         </div>
-
-        {/* Features Section */}
-        {car_info.offer_highlighted_features && car_info.offer_highlighted_features.length > 0 && (
-          <CarCardFeatures features={car_info.offer_highlighted_features} offerId={offer.offer_id} />
-        )}
-
-        {/* Promo Label */}
-        {offer.promo_label && (
-          <div className="absolute top-4 right-4 z-30">
-            <Badge className="bg-primary text-primary-foreground">{offer.promo_label}</Badge>
-          </div>
-        )}
-      </CarCard>
+      )}
+    </CarCard>
   );
 }
