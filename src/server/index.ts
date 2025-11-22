@@ -40,7 +40,7 @@ export class SixtyAgent extends AIChatAgent<Env, AgentState> {
         availableOffers[offer.offer_id] = offer;
       }
 
-      const initialOffer = offers[0]; // TEMP
+      const initialOffer = offers.reverse().pop(); // TEMP
 
       this.setState({ ...this.state, initialOffer, availableOffers, pickupLocation, returnLocation });
 
