@@ -39,8 +39,6 @@ export const Chat: React.FC<Props> = ({ messages, isWaitingForResponse, sendChat
     }
   }, [messages, scrollToBottom]);
 
-  console.log(messages);
-
   return (
     <div className="flex flex-col gap-4">
       {agentState?.initialOffer && <CurrentBookingUI booking={agentState.initialOffer} />}
@@ -97,6 +95,9 @@ function AssistantMessage({
   isLast: boolean;
   sendChatMessage: (message: string) => void;
 }) {
+  const doesShowWidget =
+    message.parts.filter((p) => p.type.startsWith("tool-show") && p.type !== "tool-showAnswerSuggestions").length > 0;
+
   return (
     <div className="w-full max-w-full space-y-2">
       <div className="flex items-center gap-3">
@@ -130,7 +131,7 @@ function AssistantMessage({
             .otherwise(() => <React.Fragment key={`unknown-${message.id}-${index}`} />);
         })}
 
-        {isLast && (
+        {isLast && !doesShowWidget && (
           <AssistantShowAnswerSuggestionsToolMessagePart
             part={message.parts.filter((p) => p.type === "tool-showAnswerSuggestions")[0]}
             sendChatMessage={sendChatMessage}
