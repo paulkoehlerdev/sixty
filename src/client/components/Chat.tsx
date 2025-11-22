@@ -237,7 +237,7 @@ function AssistantShowCarTypeUpsellOfferToolMessagePart({ part }: { part: ToolUI
 }
 
 function AssistantShowProtectionPackagesToolMessagePart({ part }: { part: ToolUIPart }) {
-  const { agentState } = useAgentState();
+  const { agentState, selectProtectionPackage } = useAgentState();
 
   if (!part.input || part.state === "input-streaming") {
     return;
@@ -245,13 +245,25 @@ function AssistantShowProtectionPackagesToolMessagePart({ part }: { part: ToolUI
 
   const input = part.input as ProtectionPackagesToolInput;
   const availablePackages = agentState?.booking?.available_add_ons_v2.packages || [];
-  const packagesToShow = availablePackages.filter((pkg) => input.packageIds.includes(pkg.id));
+  let packagesToShow = availablePackages.filter((pkg) => input.packageIds.includes(pkg.id));
+
+  // If any package is selected, only show the selected one
+  const selectedPackage = packagesToShow.find((pkg) => pkg.is_selected);
+  if (selectedPackage) {
+    packagesToShow = [selectedPackage];
+  }
 
   if (packagesToShow.length === 0) {
     return;
   }
 
-  return <ProtectionPlansUI packages={packagesToShow} bestValuePackageId={input.bestValuePackageId} />;
+  return (
+    <ProtectionPlansUI
+      packages={packagesToShow}
+      bestValuePackageId={input.bestValuePackageId}
+      onPackageSelect={selectProtectionPackage}
+    />
+  );
 }
 
 function AssistantShowProductsToolMessagePart({ part }: { part: ToolUIPart }) {

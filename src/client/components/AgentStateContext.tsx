@@ -5,7 +5,8 @@ import type { AgentState } from "@/lib/state.ts";
 export const AgentStateContext = createContext<{
   agentState: AgentState | null;
   acceptUpgradeOffer: (offerId: OfferId) => void;
-}>({ agentState: null, acceptUpgradeOffer: () => {} });
+  selectProtectionPackage: (packageId: string) => void;
+}>({ agentState: null, acceptUpgradeOffer: () => {}, selectProtectionPackage: () => {} });
 
 export const useAgentState = () => {
   return useContext(AgentStateContext);

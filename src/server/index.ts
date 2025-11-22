@@ -95,6 +95,10 @@ export class SixtyAgent extends AIChatAgent<Env, AgentState> {
         await this.acceptUpgrade(controlMessage.offerId);
         break;
 
+      case "SELECT_PROTECTION_PACKAGE":
+        await this.selectProtectionPackage(controlMessage.packageId);
+        break;
+
       default:
         // no control message, thus call super function so that onChatMessage is invoked
         await super.onMessage(connection, message);
@@ -120,6 +124,47 @@ export class SixtyAgent extends AIChatAgent<Env, AgentState> {
           {
             type: "text",
             text: `I accept the suggested upgrade to the offer with offer_id ${offerId}.`,
+          },
+        ],
+      },
+    ]);
+  }
+
+  async selectProtectionPackage(packageId: string) {
+    if (!this.state.booking) {
+      return;
+    }
+
+    // Find the selected package to get its name
+    const selectedPackage = this.state.booking.available_add_ons_v2.packages.find(
+      (pkg) => pkg.id === packageId,
+    );
+
+    // Set is_selected to true for the selected package
+    const updatedPackages = this.state.booking.available_add_ons_v2.packages.map((pkg) =>
+      pkg.id === packageId ? { ...pkg, is_selected: true } : { ...pkg, is_selected: false },
+    );
+
+    const updatedBooking = {
+      ...this.state.booking,
+      available_add_ons_v2: {
+        ...this.state.booking.available_add_ons_v2,
+        packages: updatedPackages,
+      },
+    };
+
+    this.setState({ ...this.state, booking: updatedBooking });
+
+    await this.saveMessages([
+      ...this.messages,
+      {
+        id: uuidv4(),
+        role: "user",
+        metadata: "hidden",
+        parts: [
+          {
+            type: "text",
+            text: `I select the protection package "${selectedPackage?.description.name || packageId}" with package_id ${packageId}.`,
           },
         ],
       },

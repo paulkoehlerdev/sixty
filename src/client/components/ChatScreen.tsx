@@ -7,7 +7,11 @@ import { AgentStateContext } from "@/client/components/AgentStateContext.tsx";
 import { Chat } from "@/client/components/Chat.tsx";
 import { ChatInput } from "@/client/components/ChatInput.tsx";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import type { AcceptUpgradeControlMessage, ChatMessageMetadata } from "@/lib/messages.ts";
+import type {
+  AcceptUpgradeControlMessage,
+  ChatMessageMetadata,
+  SelectProtectionPackageControlMessage,
+} from "@/lib/messages.ts";
 import type { OfferId } from "@/lib/sixt/types.ts";
 import type { AgentState } from "@/lib/state.ts";
 
@@ -45,8 +49,17 @@ export const ChatScreen: React.FC<{ sessionID: string; startNewSession: () => vo
     agent.send(JSON.stringify({ controlMessageType: "ACCEPT_UPGRADE", offerId } satisfies AcceptUpgradeControlMessage));
   };
 
+  const selectProtectionPackage = (packageId: string) => {
+    agent.send(
+      JSON.stringify({
+        controlMessageType: "SELECT_PROTECTION_PACKAGE",
+        packageId,
+      } satisfies SelectProtectionPackageControlMessage),
+    );
+  };
+
   return (
-    <AgentStateContext.Provider value={{ agentState, acceptUpgradeOffer }}>
+    <AgentStateContext.Provider value={{ agentState, acceptUpgradeOffer, selectProtectionPackage }}>
       <ScrollArea className="relative mx-auto h-screen max-w-lg px-2 pt-4">
         <Chat
           messages={agentChat.messages}

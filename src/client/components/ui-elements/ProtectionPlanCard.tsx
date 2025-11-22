@@ -1,6 +1,8 @@
 import { Star } from "lucide-react";
+import { useState, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { SuccessCheckmark } from "@/components/ui/success-checkmark";
 import type { Package } from "@/lib/sixt/types";
 import { cn } from "@/lib/utils";
 import { FeatureIcon } from "../shared/FeatureIcon";
@@ -14,7 +16,21 @@ interface ProtectionPlanCardProps {
 }
 
 export function ProtectionPlanCard({ package: pkg, onSelect, className, variant = "normal" }: ProtectionPlanCardProps) {
+  const [isLoading, setIsLoading] = useState(false);
+  const isSuccess = pkg.is_selected;
+
+  useEffect(() => {
+    // Reset loading state when selection is successful
+    if (isSuccess && isLoading) {
+      setIsLoading(false);
+    }
+  }, [isSuccess, isLoading]);
+
   const handleClick = () => {
+    if (isSuccess || isLoading) {
+      return;
+    }
+    setIsLoading(true);
     onSelect?.(pkg.id);
   };
 
@@ -23,29 +39,39 @@ export function ProtectionPlanCard({ package: pkg, onSelect, className, variant 
 
   return (
     <Card
-      variant={variant}
+      variant={isSuccess ? "success" : variant}
       className={cn(
-        "relative cursor-pointer border transition-all hover:border-primary dark:border",
-        variant === "ai" && "hover:border-none",
+        "relative transition-all",
+        !isSuccess && "border dark:border",
+        !isSuccess && !isLoading && "cursor-pointer hover:border-primary",
+        variant === "ai" && !isSuccess && "hover:border-none",
+        isLoading && "opacity-75",
         className,
       )}
       onClick={handleClick}
     >
-      {/* Radio button */}
-      <div className="absolute top-4 right-4 z-10">
-        <div
-          className={cn(
-            "h-5 w-5 rounded-full border-2 transition-all",
-            pkg.is_selected ? "border-primary bg-primary" : "border-muted-foreground bg-transparent opacity-50",
+      {/* Success Checkmark */}
+      {isSuccess && <SuccessCheckmark className="absolute top-4 right-4 z-10" size="md" />}
+
+      {/* Loading/Radio button */}
+      {!isSuccess && (
+        <div className="absolute top-4 right-4 z-10">
+          {isLoading ? (
+            <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+          ) : (
+            <div
+              className={cn(
+                "h-5 w-5 rounded-full border-2 transition-all",
+                "border-muted-foreground bg-transparent opacity-50",
+              )}
+            />
           )}
-        >
-          {pkg.is_selected && <div className="h-full w-full scale-50 rounded-full bg-white" />}
         </div>
-      </div>
+      )}
 
       <CardHeader className="pb-3">
         {/* Title, Stars, and Discount */}
-        <div className="flex items-center justify-between pr-8">
+        <div className="flex items-center justify-between pr-10">
           <CardTitle className="font-bold text-base text-card-foreground">{pkg.description.name}</CardTitle>
           <div className="flex items-center gap-2">
             {/* Star Rating */}
