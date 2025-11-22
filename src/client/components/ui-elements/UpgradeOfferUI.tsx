@@ -37,7 +37,10 @@ export function UpgradeOfferUI({ offer, baseOffer, booking, className, aiTextInp
 
   return (
     <div className={cn(className, "relative")}>
-      <Card variant={isSuccess ? "success" : "ai"} className="dark:border-none">
+      <Card
+        variant={isSuccess ? "success" : canUpgrade ? "ai" : "normal"}
+        className={cn("dark:border-none", !canUpgrade && !isSuccess && "opacity-50")}
+      >
         <CarOfferCardContent offer={offer} baseOffer={baseOffer} showPrice={true} isSuccess={isSuccess} />
 
         <div className="my-3 grid grid-cols-[auto_1fr] gap-y-3 px-5">

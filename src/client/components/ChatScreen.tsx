@@ -71,6 +71,17 @@ export const ChatScreen: React.FC<{ sessionID: string; startNewSession: () => vo
   return (
     <AgentStateContext.Provider value={{ agentState, acceptUpgradeOffer, selectProtectionPackage, toggleProduct }}>
       <ScrollArea className="relative mx-auto h-screen max-w-lg px-2 pt-4">
+        <div className="mb-3 flex h-20 w-full">
+          <button
+            type="button"
+            className="relative h-full w-20 cursor-pointer bg-center bg-contain bg-no-repeat"
+            style={{
+              backgroundImage: `url("/sixt.svg")`,
+            }}
+            onClick={() => startNewSession()}
+          />
+        </div>
+
         <Chat
           messages={agentChat.messages}
           isWaitingForResponse={agentChat.status === "submitted"}
@@ -80,18 +91,8 @@ export const ChatScreen: React.FC<{ sessionID: string; startNewSession: () => vo
         <div className="h-30" />
 
         <div className="fixed right-0 bottom-0 left-0 mx-auto grid max-w-lg justify-items-center bg-background">
-          <div className="w-full max-w-[850px]">
+          <div className="w-full max-w-[850px] pb-10">
             <ChatInput placeholder="Send a message" sendChatMessage={sendChatMessage} />
-
-            <div className="mt-2 inline-block w-full text-center text-xs">
-              <button
-                type="button"
-                className="cursor-pointer underline hover:text-primary"
-                onClick={() => startNewSession()}
-              >
-                New Session
-              </button>
-            </div>
           </div>
         </div>
       </ScrollArea>
