@@ -6,7 +6,7 @@ import type { Offer } from "@/lib/sixt/types";
 
 export function CurrentBookingUI({ booking }: { booking: Offer }) {
   return (
-    <Card variant="normal">
+    <Card variant="normal" className="dark:border-none">
       <CardHeader className="pb-3">
         <CardTitle className="font-bold text-[#ff5000] text-lg">Your Current Booking</CardTitle>
       </CardHeader>

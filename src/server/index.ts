@@ -24,6 +24,7 @@ export class SixtyAgent extends AIChatAgent<Env, AgentState> {
   initialState = {
     stage: "car_type_upselling",
     scratchpad: getInitialScratchpad(),
+    offer_matrix_id: uuidv4(),
   } satisfies AgentState;
 
   constructor(ctx: never, env: Env) {
@@ -46,7 +47,7 @@ export class SixtyAgent extends AIChatAgent<Env, AgentState> {
       }
 
       // fetch offers from Sixt
-      const offers = await getAvailableOffers();
+      const offers = await getAvailableOffers(this.state.offer_matrix_id);
 
       const availableOffers: Record<OfferId, Offer> = {};
       for (const offer of offers) {
@@ -96,7 +97,7 @@ export class SixtyAgent extends AIChatAgent<Env, AgentState> {
   }
 
   async acceptUpgrade(offerId: OfferId) {
-    const booking = await getBookingForOffer(offerId);
+    const booking = await getBookingForOffer(offerId, this.state.offer_matrix_id);
 
     this.setState({ ...this.state, stage: "insurance_upselling", booking });
 

@@ -19,7 +19,7 @@ interface UpgradeOfferUIProps {
 export function UpgradeOfferUI({ offer, baseOffer, className, aiTextInput, onUpgrade }: UpgradeOfferUIProps) {
   return (
     <div className={cn(className)}>
-      <Card variant="success">
+      <Card variant="success" className="dark:border-none">
         <CarOfferCardContent offer={offer} baseOffer={baseOffer} showPrice={true} />
 
         <div className="my-3 grid grid-cols-[auto_1fr] gap-y-3 px-5">

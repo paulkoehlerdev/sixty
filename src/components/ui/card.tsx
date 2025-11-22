@@ -40,12 +40,7 @@ export function Card({ className, variant, ...props }: CardProps) {
   }
 
   // Normal card
-  return (
-    <div
-      className={cn("relative rounded-2xl border bg-card text-card-foreground dark:border-none", className)}
-      {...props}
-    />
-  );
+  return <div className={cn("relative rounded-2xl border bg-card text-card-foreground", className)} {...props} />;
 }
 
 export function CardHeader({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {

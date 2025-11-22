@@ -236,12 +236,15 @@ export type Package = {
   actual_price: PriceBreakdown;
   discount_percent: number;
   quantity: number;
+  max_quantity: number;
   damage_excess: Price;
   theft_excess: Price;
   actual_total_price: PriceBreakdown;
   deductible_text: string;
   stars: number;
   is_selected: boolean;
+  discount_text: string;
+  top_pick_text: string;
 };
 
 export type Product = {
@@ -252,12 +255,17 @@ export type Product = {
   discount_percent: number;
   is_protection: boolean;
   is_physical: boolean;
+  max_quantity: number;
   description: AddOnDescription;
+  category: string;
+  deductible_text: string;
   is_mandatory: boolean;
   is_selected: boolean;
   is_included_in_package: boolean;
   is_disabled: boolean;
   is_selected_by_user: boolean;
+  damage_excess?: Price;
+  theft_excess?: Price;
 };
 
 export type AddOns = {
@@ -266,7 +274,7 @@ export type AddOns = {
 };
 
 export type Booking = {
-  available_add_ons_v2: AddOns;
   offer_v2: Offer;
+  available_add_ons_v2: AddOns;
   offer_list_price_per_day: PriceBreakdown;
 };

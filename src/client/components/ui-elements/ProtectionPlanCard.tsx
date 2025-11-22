@@ -24,12 +24,9 @@ export function ProtectionPlanCard({ package: pkg, onSelect, className, variant 
   return (
     <Card
       variant={variant}
-      className={cn(
-        "relative cursor-pointer border transition-all hover:scale-[1.02]",
-        variant === "ai" && "border-none",
-        pkg.is_selected && "ring-2 ring-primary",
-        className,
-      )}
+      className={cn("relative cursor-pointer border transition-all hover:border-primary dark:border", 
+        variant === "ai" && "hover:border-none",
+        className)}
       onClick={handleClick}
     >
       {/* Radio button */}
@@ -45,37 +42,33 @@ export function ProtectionPlanCard({ package: pkg, onSelect, className, variant 
       </div>
 
       <CardHeader className="pb-3">
+        {/* Title, Stars, and Discount */}
         <div className="flex items-center justify-between pr-8">
           <CardTitle className="font-bold text-base text-card-foreground">{pkg.description.name}</CardTitle>
-        </div>
+          <div className="flex items-center gap-2">
+            {/* Star Rating */}
+            <div className="flex items-center gap-1">
+              {[1, 2, 3].map((star) => (
+                <Star
+                  key={star}
+                  className={cn(
+                    "h-4 w-4",
+                    star <= pkg.stars ? "fill-foreground" : "fill-none text-muted-foreground opacity-50",
+                  )}
+                />
+              ))}
+            </div>
 
-        {/* Star Rating */}
-        <div className="mt-2 flex items-center gap-1">
-          {[1, 2, 3].map((star) => (
-            <Star
-              key={star}
-              className={cn(
-                "h-4 w-4",
-                star <= pkg.stars ? "fill-foreground" : "fill-none text-muted-foreground opacity-50",
-              )}
-            />
-          ))}
-        </div>
-
-        {/* Discount Badge */}
-        {pkg.discount_percent > 0 && (
-          <div className="mt-2">
-            <Badge className="border-none bg-orange-500 text-white">-{pkg.discount_percent}%</Badge>
+            {/* Discount Badge */}
+            {pkg.discount_percent > 0 && (
+              <Badge className="border-none bg-orange-500 text-white">-{pkg.discount_percent}%</Badge>
+            )}
           </div>
-        )}
-
-        {/* Deductible */}
-        <div className="mt-3">
-          <p className="font-medium text-card-foreground text-sm">{pkg.deductible_text}</p>
         </div>
 
-        {/* Price */}
-        <div className="mt-2">
+        {/* Deductible and Price */}
+        <div className="mt-3 flex items-center justify-between">
+          <p className="font-medium text-card-foreground text-sm">{pkg.deductible_text}</p>
           <PriceDisplay price={pkg.actual_total_price} />
         </div>
       </CardHeader>

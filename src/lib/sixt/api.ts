@@ -49,11 +49,11 @@ export function selectLocation(branch_location_id: string): Promise<SelectedLoca
   });
 }
 
-export async function getOfferRecommendations(req: SearchRequest): Promise<Offer[]> {
+export async function getOfferRecommendations(req: SearchRequest, offerMatrixId: string): Promise<Offer[]> {
   const response = await doGrpcRequest<{
     offers: Offer[];
   }>("com.sixt.service.rent_booking.api.BookingService/GetOfferRecommendationsV2", {
-    offer_matrix_id: uuidv4(),
+    offer_matrix_id: offerMatrixId,
     currency: "EUR",
     trip_spec: {
       pickup_datetime: { value: `${req.pickup_timestamp.toISOString().substring(0, 16)}:00` },
@@ -74,15 +74,30 @@ export async function getOfferRecommendations(req: SearchRequest): Promise<Offer
   return response.offers ?? [];
 }
 
-export async function getBookingForOffer(offer_id: string): Promise<Booking> {
-  const response = await doGrpcRequest<{
-    booking: Booking;
-  }>("com.sixt.service.rent_booking.api.BookingService/GetBookingForOffer", {
+export async function getBookingForOffer(offerId: string, offerMatrixId: string): Promise<Booking> {
+  const request = {
     booking_id: uuidv4(),
-    offer_matrix_id: uuidv4(),
-    offer_id: offer_id,
+    offer_matrix_id: offerMatrixId,
+    offer_id: offerId,
     currency: "EUR",
     feature_flags: [],
-  });
-  return response.booking;
+  };
+
+  const response = await doGrpcRequest<{
+    // biome-ignore lint/suspicious/noExplicitAny: ok here
+    booking: any;
+  }>("com.sixt.service.rent_booking.api.BookingService/GetBookingForOffer", request);
+
+  const selected = response.booking.selected;
+
+  const booking: Booking = {
+    offer_v2: selected.offer_v2,
+    available_add_ons_v2: {
+      packages: selected.available_add_ons.packages || [],
+      products: selected.available_add_ons.product_options || [],
+    },
+    offer_list_price_per_day: selected.offer_list_price_per_day,
+  };
+
+  return booking;
 }
