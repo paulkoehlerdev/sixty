@@ -76,7 +76,7 @@ function AssistantMessage({ message, agentState }: { message: UIMessage; agentSt
               const offer = agentState?.availableOffers[offerId];
 
               if (offer) {
-                return <UpgradeOfferUI key={`upsell-${offer.offer_id}`} offer={offer} />;
+                return <UpgradeOfferUI className="mb-4" key={`upsell-${offer.offer_id}`} offer={offer} />;
               }
             })
             .otherwise(() => <React.Fragment key={`unknown-${message.id}`} />);
