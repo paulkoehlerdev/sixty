@@ -1,10 +1,12 @@
 import type { Tool, ToolSet } from "ai";
 import { z } from "zod";
 import type { AgentState } from "../types/state";
+import { sixtTools } from "./tools/sixt";
 
 export const getAvailableToolsForState = (_state: AgentState): ToolSet => {
   return {
     exampleTool,
+    ...sixtTools,
   };
 };
 

@@ -13,7 +13,7 @@ import { type AgentState, getInitialState } from "../types/state";
 import { getSystemPromptForState } from "./system";
 import { getAvailableToolsForState } from "./tools";
 
-const model = openai("gpt-4.1");
+const model = openai("gpt-4.1-mini");
 
 export class SixtyAgent extends AIChatAgent<Env, AgentState> {
   initialState = getInitialState();
