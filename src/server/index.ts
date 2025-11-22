@@ -19,10 +19,16 @@ export class SixtyAgent extends AIChatAgent<Env, AgentState> {
   constructor(ctx: unknown, env: Env) {
     super(ctx, env);
 
-    // Only initialize state if this is a new agent (no state in DB)
-    // The getter will automatically load persisted state or fall back to initialState
-    if (!this.state) {
-      getInitialState().then((state) => this.setState(state));
+    if (this.messages.length === 0) {
+      this.messages.push({
+        role: "assistant",
+        parts: [{ type: "text", text: "Hey! I'm Chris, happy to help with your booking today. Are you on schedule for you pickup?" }],
+      });
+      this.saveMessages(this.messages);
+
+      if (!this.state) {
+        getInitialState().then((state) => this.setState(state));
+      }
     }
   }
 
@@ -32,14 +38,13 @@ export class SixtyAgent extends AIChatAgent<Env, AgentState> {
       abortSignal: AbortSignal | undefined;
     },
   ): Promise<Response | undefined> {
-    console.log("onChatMessage", this.messages);
-    console.log("state", this.state);
-
     const result = streamText({
       system: await getSystemPromptForState(this.state),
       messages: convertToModelMessages(this.messages),
       model,
-      tools: getAvailableToolsForState(this.state),
+      tools: {
+        ...getAvailableToolsForState(this.state),
+      },
       onFinish,
       abortSignal: options?.abortSignal,
       stopWhen: stepCountIs(2),
