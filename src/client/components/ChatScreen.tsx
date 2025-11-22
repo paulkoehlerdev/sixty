@@ -1,7 +1,7 @@
 import { useAgentChat } from "agents/ai-react";
 import { useAgent } from "agents/react";
 import type { UIMessage } from "ai";
-import React, { useEffect } from "react";
+import type React from "react";
 import { useState } from "react";
 import { AgentStateContext } from "@/client/components/AgentStateContext.tsx";
 import { Chat } from "@/client/components/Chat.tsx";
@@ -11,6 +11,7 @@ import type {
   AcceptUpgradeControlMessage,
   ChatMessageMetadata,
   SelectProtectionPackageControlMessage,
+  ToggleProductControlMessage,
 } from "@/lib/messages.ts";
 import type { OfferId } from "@/lib/sixt/types.ts";
 import type { AgentState } from "@/lib/state.ts";
@@ -58,8 +59,17 @@ export const ChatScreen: React.FC<{ sessionID: string; startNewSession: () => vo
     );
   };
 
+  const toggleProduct = (productChargeCode: string) => {
+    agent.send(
+      JSON.stringify({
+        controlMessageType: "TOGGLE_PRODUCT",
+        productChargeCode,
+      } satisfies ToggleProductControlMessage),
+    );
+  };
+
   return (
-    <AgentStateContext.Provider value={{ agentState, acceptUpgradeOffer, selectProtectionPackage }}>
+    <AgentStateContext.Provider value={{ agentState, acceptUpgradeOffer, selectProtectionPackage, toggleProduct }}>
       <ScrollArea className="relative mx-auto h-screen max-w-lg px-2 pt-4">
         <Chat
           messages={agentChat.messages}

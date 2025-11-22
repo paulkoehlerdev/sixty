@@ -6,7 +6,13 @@ export const AgentStateContext = createContext<{
   agentState: AgentState | null;
   acceptUpgradeOffer: (offerId: OfferId) => void;
   selectProtectionPackage: (packageId: string) => void;
-}>({ agentState: null, acceptUpgradeOffer: () => {}, selectProtectionPackage: () => {} });
+  toggleProduct: (productChargeCode: string) => void;
+}>({
+  agentState: null,
+  acceptUpgradeOffer: () => {},
+  selectProtectionPackage: () => {},
+  toggleProduct: () => {},
+});
 
 export const useAgentState = () => {
   return useContext(AgentStateContext);

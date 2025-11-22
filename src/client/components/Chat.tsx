@@ -267,7 +267,7 @@ function AssistantShowProtectionPackagesToolMessagePart({ part }: { part: ToolUI
 }
 
 function AssistantShowProductsToolMessagePart({ part }: { part: ToolUIPart }) {
-  const { agentState } = useAgentState();
+  const { agentState, toggleProduct } = useAgentState();
 
   if (!part.input || part.state === "input-streaming") {
     return;
@@ -281,7 +281,13 @@ function AssistantShowProductsToolMessagePart({ part }: { part: ToolUIPart }) {
     return;
   }
 
-  return <ProductsUI products={productsToShow} popularProductId={input.popularProductChargeCode} />;
+  return (
+    <ProductsUI
+      products={productsToShow}
+      popularProductChargeCodes={input.popularProductChargeCodes}
+      onProductToggle={toggleProduct}
+    />
+  );
 }
 
 function AssistantShowAnswerSuggestionsToolMessagePart({
@@ -302,15 +308,16 @@ function AssistantShowAnswerSuggestionsToolMessagePart({
   const answers = (part.input as AnswerSuggestionsToolInput).answers;
 
   return (
-    <div className="flex flex-col justify-start gap-0.5 my-5">
-      {answers.map((answer, index) => (
-        <div
-          key={`anseroption-${index}`}
-          className="border border-primary rounded-lg p-2 mb-2 bg-background text-primary w-max px-4 cursor-pointer"
+    <div className="my-5 flex flex-col justify-start gap-0.5">
+      {answers.map((answer, _index) => (
+        <button
+          key={`anseroption-${answer}`}
+          type="button"
+          className="mb-2 w-max cursor-pointer rounded-lg border border-primary bg-background p-2 px-4 text-primary"
           onClick={() => sendChatMessage(answer)}
         >
           {answer}
-        </div>
+        </button>
       ))}
     </div>
   );

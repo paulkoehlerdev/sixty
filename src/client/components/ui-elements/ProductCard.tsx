@@ -1,6 +1,7 @@
 "use client";
 
 import { Baby, Car, Fuel, Globe, Navigation, Sparkles, Users } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
@@ -42,23 +43,36 @@ const getIconForProduct = (product: Product) => {
 };
 
 export function ProductCard({ product, isSelected, onToggle, isPopular = false, className }: ProductCardProps) {
+  const [isLoading, setIsLoading] = useState(false);
   const Icon = getIconForProduct(product);
+  const currentSelected = isSelected || product.is_selected;
+  const prevSelectedRef = useRef(currentSelected);
+
+  useEffect(() => {
+    // Reset loading state when selection state changes
+    if (prevSelectedRef.current !== currentSelected) {
+      setIsLoading(false);
+      prevSelectedRef.current = currentSelected;
+    }
+  });
+
   const handleToggle = () => {
-    if (!product.is_disabled && !product.is_mandatory) {
+    if (!product.is_disabled && !product.is_mandatory && !isLoading) {
+      setIsLoading(true);
       onToggle(product.charge_code);
     }
   };
 
   return (
     <Card
+      variant={currentSelected ? "ai" : undefined}
       className={cn(
         "group relative overflow-hidden transition-all duration-300 hover:shadow-lg",
-        isSelected && "scale-[1.01] bg-primary/5 shadow-md ring-2 ring-primary",
-        !isSelected && "hover:scale-[1.005]",
         product.is_disabled && "cursor-not-allowed opacity-50",
         className,
       )}
     >
+      {/* Popular Badge */}
       {isPopular && (
         <div className="absolute top-1.5 right-1.5 z-10">
           <Badge className="border-none bg-gradient-to-r from-primary to-primary/80 px-1.5 py-0 text-[10px] text-primary-foreground shadow-md">
@@ -79,12 +93,7 @@ export function ProductCard({ product, isSelected, onToggle, isPopular = false, 
       <div className="p-2">
         <div className="flex items-center gap-2.5">
           {/* Icon */}
-          <div
-            className={cn(
-              "shrink-0 rounded-lg p-2 transition-all duration-300",
-              isSelected ? "bg-primary text-primary-foreground shadow-md" : "bg-secondary group-hover:bg-primary/10",
-            )}
-          >
+          <div className={cn("shrink-0 rounded-lg bg-muted p-2 transition-all duration-300")}>
             <Icon className="h-4 w-4" />
           </div>
 
@@ -103,12 +112,7 @@ export function ProductCard({ product, isSelected, onToggle, isPopular = false, 
 
           {/* Toggle Switch */}
           <div className="shrink-0">
-            <Switch
-              checked={isSelected || product.is_mandatory}
-              onCheckedChange={handleToggle}
-              disabled={product.is_disabled || product.is_mandatory}
-              className="data-[state=checked]:bg-primary"
-            />
+            <Switch checked={currentSelected || product.is_mandatory} onCheckedChange={handleToggle} />
           </div>
         </div>
       </div>

@@ -47,7 +47,7 @@ export type ProtectionPackagesToolInput = {
 
 export type ProductsToolInput = {
   productChargeCodes: string[];
-  popularProductChargeCode?: string;
+  popularProductChargeCodes?: string[];
 };
 
 const showCarTypeUpsellOffer = {
@@ -128,25 +128,30 @@ const showProtectionPackages = (state: AgentState, _setState: (state: AgentState
 const showProducts = (state: AgentState, _setState: (state: AgentState) => void) => {
   return {
     description:
-      "Display addon products to the user. You can specify which product charge codes to show and optionally highlight one as popular.".trim(),
+      "Display addon products to the user. You can specify which product charge codes to show and optionally mark which ones are popular.".trim(),
     inputSchema: z.object({
       productChargeCodes: z.array(z.string()).describe("Array of product charge codes to display to the user"),
-      popularProductChargeCode: z
-        .string()
+      popularProductChargeCodes: z
+        .array(z.string())
         .optional()
-        .describe("Optional product charge code to highlight as 'Popular'"),
+        .describe("Optional array of product charge codes to mark as 'Popular'"),
     }),
     execute: async ({
       productChargeCodes,
-      popularProductChargeCode,
+      popularProductChargeCodes,
     }: {
       productChargeCodes: string[];
-      popularProductChargeCode?: string;
+      popularProductChargeCodes?: string[];
     }) => {
-      const availableProducts = state.booking?.available_add_ons_v2.products || [];
+      if (!state.booking) {
+        return "Cannot display products: no booking available.";
+      }
+
+      const availableProducts = state.booking.available_add_ons_v2.products || [];
       const productsToShow = availableProducts.filter((product) => productChargeCodes.includes(product.charge_code));
 
-      return `Displaying ${productsToShow.length} addon product(s) to the user${popularProductChargeCode ? ` with product ${popularProductChargeCode} highlighted as popular` : ""}.`;
+      const popularCodes = popularProductChargeCodes || [];
+      return `Displaying ${productsToShow.length} addon product(s) to the user${popularCodes.length > 0 ? ` with ${popularCodes.length} product(s) marked as popular` : ""}.`;
     },
-  } satisfies Tool<{ productChargeCodes: string[]; popularProductChargeCode?: string }, string>;
+  } satisfies Tool<{ productChargeCodes: string[]; popularProductChargeCodes?: string[] }, string>;
 };

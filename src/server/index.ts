@@ -4,11 +4,11 @@ import { AIChatAgent } from "agents/ai-chat-agent";
 import {
   convertToModelMessages,
   createUIMessageStreamResponse,
+  hasToolCall,
   type StreamTextOnFinishCallback,
   stepCountIs,
   streamText,
   type ToolSet,
-  hasToolCall,
 } from "ai";
 import { v4 as uuidv4 } from "uuid";
 import type { ControlMessage } from "../lib/messages.ts";
@@ -99,6 +99,10 @@ export class SixtyAgent extends AIChatAgent<Env, AgentState> {
         await this.selectProtectionPackage(controlMessage.packageId);
         break;
 
+      case "TOGGLE_PRODUCT":
+        await this.toggleProduct(controlMessage.productChargeCode);
+        break;
+
       default:
         // no control message, thus call super function so that onChatMessage is invoked
         await super.onMessage(connection, message);
@@ -136,9 +140,7 @@ export class SixtyAgent extends AIChatAgent<Env, AgentState> {
     }
 
     // Find the selected package to get its name
-    const selectedPackage = this.state.booking.available_add_ons_v2.packages.find(
-      (pkg) => pkg.id === packageId,
-    );
+    const selectedPackage = this.state.booking.available_add_ons_v2.packages.find((pkg) => pkg.id === packageId);
 
     // Set is_selected to true for the selected package
     const updatedPackages = this.state.booking.available_add_ons_v2.packages.map((pkg) =>
@@ -153,7 +155,7 @@ export class SixtyAgent extends AIChatAgent<Env, AgentState> {
       },
     };
 
-    this.setState({ ...this.state, booking: updatedBooking });
+    this.setState({ ...this.state, stage: "addon_upselling", booking: updatedBooking });
 
     await this.saveMessages([
       ...this.messages,
@@ -169,6 +171,34 @@ export class SixtyAgent extends AIChatAgent<Env, AgentState> {
         ],
       },
     ]);
+  }
+
+  async toggleProduct(productChargeCode: string) {
+    if (!this.state.booking) {
+      return;
+    }
+
+    // Find the product to get its name and current selection state
+    const product = this.state.booking.available_add_ons_v2.products.find((p) => p.charge_code === productChargeCode);
+
+    if (!product) {
+      return;
+    }
+
+    // Toggle is_selected for the product
+    const updatedProducts = this.state.booking.available_add_ons_v2.products.map((p) =>
+      p.charge_code === productChargeCode ? { ...p, is_selected: !p.is_selected } : p,
+    );
+
+    const updatedBooking = {
+      ...this.state.booking,
+      available_add_ons_v2: {
+        ...this.state.booking.available_add_ons_v2,
+        products: updatedProducts,
+      },
+    };
+
+    this.setState({ ...this.state, booking: updatedBooking });
   }
 }
 
