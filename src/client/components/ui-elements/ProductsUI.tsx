@@ -15,7 +15,7 @@ export function ProductsUI({
   onProductToggle,
 }: ProductsUIProps) {
   return (
-    <div className="mt-4 grid grid-cols-1 gap-2 md:grid-cols-2">
+    <div className="my-4 grid grid-cols-1 gap-2 md:grid-cols-2">
       {products.map((product) => (
         <ProductCard
           key={product.charge_code}

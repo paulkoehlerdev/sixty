@@ -46,6 +46,9 @@
 
   --success-gradient-start: #95f9c3;
   --success-gradient-end: #0b3866;
+
+  --color-success-gradient-start: var(--success-gradient-start);
+  --color-success-gradient-end: var(--success-gradient-end);
 }
 
 :root {

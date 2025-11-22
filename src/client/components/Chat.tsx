@@ -14,6 +14,7 @@ import type {
 } from "@/server/tools.ts";
 import { useAgentState } from "./AgentStateContext";
 import { StreamingIndicator } from "./chat-streaming";
+import { BookingSummary } from "./ui-elements/BookingSummary";
 import { CurrentBookingUI } from "./ui-elements/CurrentBookingUI";
 import { ProductsUI } from "./ui-elements/ProductsUI";
 import { ProtectionPlansUI } from "./ui-elements/ProtectionPlansUI";
@@ -72,6 +73,8 @@ export const Chat: React.FC<Props> = ({ messages, isWaitingForResponse, sendChat
         })}
 
       <div>{(isWaitingForResponse || isWaitingForToolCall) && <StreamingIndicator />}</div>
+
+      {agentState && <BookingSummary state={agentState} />}
 
       <div ref={chatEndRef} />
     </div>

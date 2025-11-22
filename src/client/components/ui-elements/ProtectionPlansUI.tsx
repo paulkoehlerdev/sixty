@@ -9,7 +9,7 @@ interface ProtectionPlansUIProps {
 
 export function ProtectionPlansUI({ packages, onPackageSelect, bestValuePackageId }: ProtectionPlansUIProps) {
   return (
-    <div className="mt-4 grid grid-cols-1 gap-4">
+    <div className="my-4 grid grid-cols-1 gap-4">
       {packages.map((pkg) => (
         <ProtectionPlanCard
           key={pkg.id}
