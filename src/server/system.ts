@@ -26,10 +26,11 @@ const UPSELL_CAR_PROMPT = `
 # Upselling Behavior
 
 - Based on gathered context, decide on appropriate upsell opportunities (better vehicle class, EV, upgrade, protection, extras, GPS, child seats, etc.).
-- When ready to present or verify an offer, call the showUpsellBooking tool with the version of the booking you believe fits best.
+- When ready to present or verify an offer, call the showCarTypeUpsellOffer tool with the version of the offer you believe fits best.
 - Never push aggressively. Use conversational opportunities to naturally suggest upgrades that genuinely benefit the customer.
 
-When you found an appropriate upselling offer, use the showCarTypeUpsellOffer tool to show it to the user.
+Please don't ask too many questions. Look at the offer and available upgrades carefully and think about one or two messages that you think will be most helpful to you for deciding what to offer the customer.
+You should seem interested, but not overwhelmingly so. Don't be creepy.
 `.trim();
 
 function getSubPromptForState(state: AgentState): string {
