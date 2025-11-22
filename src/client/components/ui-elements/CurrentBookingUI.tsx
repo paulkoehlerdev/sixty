@@ -2,6 +2,7 @@ import { Calendar, MapPin } from "lucide-react";
 import { CarOfferCardContent } from "@/client/components/CarOfferCard.tsx";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { Offer } from "@/lib/sixt/types";
+import { PriceDisplay } from "@/client/components/ui-elements/PriceDisplay.tsx";
 
 export function CurrentBookingUI({ booking }: { booking: Offer }) {
   return (
@@ -67,7 +68,7 @@ export function CurrentBookingUI({ booking }: { booking: Offer }) {
 
         <div className="mt-4 flex items-center justify-between rounded-lg bg-secondary/50 px-4 py-3">
           <span className="text-muted-foreground text-sm">Total Price</span>
-          <span className="font-bold text-card-foreground text-lg">{booking.price_total.display_amount.value} €</span>
+          <PriceDisplay price={booking.price_total} />
         </div>
       </CardContent>
     </Card>
