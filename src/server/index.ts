@@ -82,7 +82,7 @@ export class SixtyAgent extends AIChatAgent<Env, AgentState> {
     });
   }
 
-  async onMessage(_connection: Connection, message: WSMessage): Promise<void> {
+  async onMessage(connection: Connection, message: WSMessage): Promise<void> {
     const controlMessage = JSON.parse(message as string) as ControlMessage;
     switch (controlMessage?.controlMessageType) {
       case "ACCEPT_UPGRADE":
@@ -90,7 +90,8 @@ export class SixtyAgent extends AIChatAgent<Env, AgentState> {
         break;
 
       default:
-        break;
+        // no control message, thus call super function so that onChatMessage is invoked
+        await super.onMessage(connection, message);
     }
   }
 
