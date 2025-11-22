@@ -25,7 +25,7 @@ export const Chat: React.FC<Props> = ({ messages, isWaitingForResponse }) => {
   }, [messages, scrollToBottom]);
 
   return (
-    <div className="mb-10 flex flex-col gap-8">
+    <div className="flex flex-col gap-1">
       {messages.map((message) => {
         return <MessageBubble key={message.id} message={message} />;
       })}
