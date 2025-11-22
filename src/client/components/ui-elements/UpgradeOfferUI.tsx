@@ -8,6 +8,7 @@ import { Check } from "lucide-react";
 interface UpgradeOfferUIProps {
   offer: Offer;
   baseOffer: Offer | undefined;
+  onUpgrade: () => void;
   className?: string;
   aiTextInput: {
     header: string;
@@ -15,7 +16,7 @@ interface UpgradeOfferUIProps {
   }[];
 }
 
-export function UpgradeOfferUI({ offer, baseOffer, className, aiTextInput }: UpgradeOfferUIProps) {
+export function UpgradeOfferUI({ offer, baseOffer, className, aiTextInput, onUpgrade }: UpgradeOfferUIProps) {
   return (
     <div className={cn(className)}>
       <Card variant="ai">
@@ -36,7 +37,9 @@ export function UpgradeOfferUI({ offer, baseOffer, className, aiTextInput }: Upg
         </div>
 
         <div className="p-3">
-          <Button className="w-full p-2">Upgrade</Button>
+          <Button className="w-full p-2" onClick={() => onUpgrade()}>
+            Upgrade
+          </Button>
         </div>
       </Card>
     </div>

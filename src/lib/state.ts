@@ -7,12 +7,9 @@ export type AgentState = {
   scratchpad: UserProfileScratchpad;
 
   initialOffer?: Offer;
-  currentOffer?: OfferId;
   availableOffers?: Record<OfferId, Offer>;
 
   booking?: Booking;
-
-  currentBooking: Booking | null;
 };
 
 export type Stage = "car_type_upselling" | "insurance_upselling" | "addon_upselling";
