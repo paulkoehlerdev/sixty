@@ -1,12 +1,12 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import type React from "react";
+import { CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { FeatureIcon } from "./shared/FeatureIcon";
 
 // Vehicle image component with spotlight effect
 export function VehicleImageDisplay({ src, alt, className }: { src: string; alt: string; className?: string }) {
   return (
     <div
-      className={cn("relative h-44 w-full", className)}
+      className={cn("relative h-50 w-full", className)}
       style={{
         backgroundImage: `url(${src || "/placeholder.svg"})`,
         backgroundSize: "cover",
@@ -27,63 +27,19 @@ interface CarCardHeaderProps {
   title: string;
   subline: string;
   badges: React.ReactNode;
-  promoBadge?: React.ReactNode;
+  titleBadges?: React.ReactNode[];
 }
 
-export function CarCardHeader({ title, subline, badges, promoBadge }: CarCardHeaderProps) {
+export function CarCardHeader({ title, subline, badges, titleBadges }: CarCardHeaderProps) {
   return (
     <CardHeader className="pb-3">
-      <div className="mb-1 flex items-center gap-2">
+      <div className="mb-1 flex w-full items-center justify-between gap-2">
         <CardTitle className="font-black text-lg uppercase leading-none tracking-tight">{title}</CardTitle>
-        {promoBadge}
+
+        <div className="flex gap-4">{titleBadges}</div>
       </div>
       <CardDescription className="mb-3 font-semibold text-xs">{subline}</CardDescription>
       <div className="flex flex-wrap items-center gap-2">{badges}</div>
     </CardHeader>
   );
-}
-
-// Car card features section
-interface CarCardFeaturesProps {
-  features: string[];
-  offerId: string;
-  className?: string;
-}
-
-export function CarCardFeatures({ features, offerId, className }: CarCardFeaturesProps) {
-  if (!features || features.length === 0) {
-    return null;
-  }
-
-  return (
-    <CardContent
-      className={cn("relative z-20 space-y-4 bg-linear-to-t from-card to-transparent px-5 pt-2 pb-6", className)}
-    >
-      {features.map((feature: string, idx: number) => {
-        const [title, ...descParts] = feature.includes(":") ? feature.split(":") : [feature, ""];
-        const desc = descParts.join(":").trim();
-
-        return (
-          <div key={`feature-${offerId}-${idx}`} className="group/feature flex items-start gap-3">
-            <FeatureIcon included={true} className="mt-0.5 transition-opacity group-hover/feature:opacity-100" />
-            <div className="flex-1">
-              <h4 className="font-bold text-[13px] text-card-foreground leading-tight">{title.trim()}</h4>
-              {desc && <p className="mt-0.5 font-medium text-[12px] text-muted-foreground leading-relaxed">{desc}</p>}
-            </div>
-          </div>
-        );
-      })}
-    </CardContent>
-  );
-}
-
-// Main car card component
-interface CarCardProps {
-  children: React.ReactNode;
-  variant?: "normal" | "ai";
-  className?: string;
-}
-
-export function CarCard({ children, variant = "normal" }: CarCardProps) {
-  return <Card variant={variant}>{children}</Card>;
 }

@@ -1,8 +1,7 @@
-import { Button } from "@/components/ui/button.tsx";
 import { Check, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button.tsx";
 import { Card } from "@/components/ui/card.tsx";
-import { SuccessCheckmark } from "@/components/ui/success-checkmark.tsx";
 import type { Booking, Offer } from "@/lib/sixt/types";
 import { cn } from "@/lib/utils.ts";
 import { CarOfferCardContent } from "../CarOfferCard.tsx";
@@ -22,6 +21,7 @@ interface UpgradeOfferUIProps {
 export function UpgradeOfferUI({ offer, baseOffer, booking, className, aiTextInput, onUpgrade }: UpgradeOfferUIProps) {
   const [isLoading, setIsLoading] = useState(false);
   const isSuccess = booking?.offer_v2?.offer_id === offer.offer_id;
+  const canUpgrade = !isSuccess && !booking;
 
   useEffect(() => {
     // Reset loading state when booking changes and matches
@@ -37,11 +37,8 @@ export function UpgradeOfferUI({ offer, baseOffer, booking, className, aiTextInp
 
   return (
     <div className={cn(className, "relative")}>
-      <Card variant={isSuccess ? "success" : undefined} className="dark:border-none">
-        {/* Success Checkmark */}
-        {isSuccess && <SuccessCheckmark className="absolute top-4 right-4 z-10" size="md" />}
-
-        <CarOfferCardContent offer={offer} baseOffer={baseOffer} showPrice={true} />
+      <Card variant={isSuccess ? "success" : "ai"} className="dark:border-none">
+        <CarOfferCardContent offer={offer} baseOffer={baseOffer} showPrice={true} isSuccess={isSuccess} />
 
         <div className="my-3 grid grid-cols-[auto_1fr] gap-y-3 px-5">
           {aiTextInput.map((input) => (
@@ -57,7 +54,7 @@ export function UpgradeOfferUI({ offer, baseOffer, booking, className, aiTextInp
           ))}
         </div>
 
-        {!isSuccess && (
+        {canUpgrade && (
           <div className="p-3">
             <Button className="w-full p-2" onClick={handleUpgrade} disabled={isLoading}>
               {isLoading ? (
@@ -71,6 +68,8 @@ export function UpgradeOfferUI({ offer, baseOffer, booking, className, aiTextInp
             </Button>
           </div>
         )}
+
+        {(isSuccess || !canUpgrade) && <div className="h-2" />}
       </Card>
     </div>
   );

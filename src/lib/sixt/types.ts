@@ -181,6 +181,7 @@ export type Offer = {
   expires_at: string;
   offer_acriss_code: string;
   is_retail_offer: boolean;
+  presentation_attributes_v3: PresentationAttribute[];
   is_young_driver_fee_applied: boolean;
   distance_to_original_location: Distance;
   has_premium_location_fee: true;
@@ -188,6 +189,20 @@ export type Offer = {
     points: number;
     gross: Price;
   };
+};
+
+export type PresentationAttribute = {
+  id:
+    | "numberOfPassengers"
+    | "bags"
+    | "largeBags"
+    | "transmissionTypeV2"
+    | "doors"
+    | "minDriverAge"
+    | "fullChargeDistance"
+    | "chargingCableIncluded";
+  name: string;
+  value: string;
 };
 
 export type SelectedLocation = {

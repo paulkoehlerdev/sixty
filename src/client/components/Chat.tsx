@@ -9,8 +9,8 @@ import { cn } from "@/lib/utils";
 import type {
   AnswerSuggestionsToolInput,
   CarUpsellOfferToolInput,
-  ProtectionPackagesToolInput,
   ProductsToolInput,
+  ProtectionPackagesToolInput,
 } from "@/server/tools.ts";
 import { useAgentState } from "./AgentStateContext";
 import { StreamingIndicator } from "./chat-streaming";
