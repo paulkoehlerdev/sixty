@@ -71,6 +71,10 @@ function AssistantMessage({ message, agentState }: { message: UIMessage; agentSt
         {message.parts.map((part, index) => {
           return match(part)
             .with({ type: "text" }, (part) => <AssistantTextMessagePart key={`text-${index}`} part={part} />)
+            .otherwise(() => <React.Fragment key={`unknown-${index}`} />);
+        })}
+        {message.parts.map((part, index) => {
+          return match(part)
             .with({ type: "tool-showCarTypeUpsellOffer" }, (part) => {
               const offerId = part.input.offerId;
               const offer = agentState?.availableOffers[offerId];
@@ -93,7 +97,7 @@ function AssistantMessage({ message, agentState }: { message: UIMessage; agentSt
               if (offer) {
                 return (
                   <UpgradeOfferUI
-                    className="mb-4"
+                    className="my-4"
                     key={`upsell-${offer.offer_id}`}
                     offer={offer}
                     baseOffer={agentState.initialOffer}
@@ -102,7 +106,7 @@ function AssistantMessage({ message, agentState }: { message: UIMessage; agentSt
                 );
               }
             })
-            .otherwise(() => <React.Fragment key={`unknown-${message.id}`} />);
+            .otherwise(() => <React.Fragment key={`unknown-${index}`} />);
         })}
       </div>
     </div>

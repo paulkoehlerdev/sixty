@@ -18,7 +18,6 @@ interface UpgradeOfferUIProps {
 export function UpgradeOfferUI({ offer, baseOffer, className, aiTextInput }: UpgradeOfferUIProps) {
   return (
     <div className={cn(className)}>
-      <h2 className="mb-4 font-bold text-foreground text-lg">Recommended Upgrade</h2>
       <Card variant="ai">
         <CarOfferCardContent offer={offer} baseOffer={baseOffer} showPrice={true} />
 
