@@ -6,6 +6,7 @@ import { useState } from "react";
 import { Chat } from "@/client/components/Chat.tsx";
 import { ChatInput } from "@/client/components/ChatInput.tsx";
 import { UIElementContainer } from "@/client/components/ui-elements/UIElementContainer";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import type { AgentState } from "@/types/state.ts";
 
 export const ChatScreen: React.FC<{ sessionID: string }> = ({ sessionID }) => {
@@ -40,19 +41,17 @@ export const ChatScreen: React.FC<{ sessionID: string }> = ({ sessionID }) => {
   };
 
   return (
-    <div className="mx-auto grid h-svh w-full max-w-lg grid-rows-[minmax(0,1fr)_auto_auto]">
+    <ScrollArea className="relative mx-auto h-screen max-w-lg pt-4">
       {/* Chat Messages - scrollable */}
-      <div className="grid justify-items-center overflow-auto p-4" style={{ scrollbarGutter: "stable both-edges" }}>
-        <div className="w-full">
-          <Chat messages={agentChat.messages} isWaitingForResponse={agentChat.status === "submitted"} />
-        </div>
-      </div>
+
+      <Chat messages={agentChat.messages} isWaitingForResponse={agentChat.status === "submitted"} />
 
       {/* UI Element - no scroll */}
       {agentState && <UIElementContainer uiState={agentState.uiState} />}
 
-      {/* Chat Input - fixed */}
-      <div className="grid justify-items-center p-4">
+      <div className="h-30"/>
+
+      <div className="fixed right-0 bottom-0 left-0 mx-auto grid max-w-lg justify-items-center bg-background">
         <div className="w-full max-w-[850px]">
           <ChatInput placeholder="Send a message" sendChatMessage={sendChatMessage} />
 
@@ -67,6 +66,6 @@ export const ChatScreen: React.FC<{ sessionID: string }> = ({ sessionID }) => {
           </div>
         </div>
       </div>
-    </div>
+    </ScrollArea>
   );
 };

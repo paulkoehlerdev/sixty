@@ -34,6 +34,9 @@ export class SixtyAgent extends AIChatAgent<Env, AgentState> {
       abortSignal: AbortSignal | undefined;
     },
   ): Promise<Response | undefined> {
+    console.log("onChatMessage", this.messages);
+    console.log("state", this.state);
+
     const result = streamText({
       system: await getSystemPromptForState(this.state),
       messages: convertToModelMessages(this.messages),

@@ -1,6 +1,6 @@
-import { Check } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { FeatureIcon } from "./shared/FeatureIcon";
 
 // Vehicle image component with spotlight effect
 export function VehicleImageDisplay({ src, alt, className }: { src: string; alt: string; className?: string }) {
@@ -61,8 +61,8 @@ export function CarCardFeatures({ features, offerId, className }: CarCardFeature
 
         return (
           <div key={`feature-${offerId}-${idx}`} className="group/feature flex items-start gap-3">
-            <Check className="mt-0.5 h-4 w-4 shrink-0 text-card-foreground opacity-70 transition-opacity group-hover/feature:opacity-100" />
-            <div>
+            <FeatureIcon included={true} className="mt-0.5 transition-opacity group-hover/feature:opacity-100" />
+            <div className="flex-1">
               <h4 className="font-bold text-[13px] text-card-foreground leading-tight">{title.trim()}</h4>
               {desc && <p className="mt-0.5 font-medium text-[12px] text-muted-foreground leading-relaxed">{desc}</p>}
             </div>
