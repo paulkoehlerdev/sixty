@@ -1,15 +1,16 @@
-import type { TextUIPart, UIMessage } from "ai";
+import type { TextUIPart, ToolUIPart, UIMessage } from "ai";
 import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { match } from "ts-pattern";
 import { Avatar, AvatarImage } from "@/components/ui/avatar.tsx";
+import type { ChatMessageMetadata } from "@/lib/messages.ts";
 import { cn } from "@/lib/utils";
+import type { CarUpsellOfferToolInput } from "@/server/tools.ts";
+import { useAgentState } from "./AgentStateContext";
 import { StreamingIndicator } from "./chat-streaming";
 import { CurrentBookingUI } from "./ui-elements/CurrentBookingUI";
 import { UpgradeOfferUI } from "./ui-elements/UpgradeOfferUI";
-import { useAgentState } from "./AgentStateContext";
-import type { ChatMessageMetadata } from "@/lib/messages.ts";
 
 type Props = {
   messages: UIMessage<ChatMessageMetadata>[];
@@ -61,8 +62,6 @@ function MessageBubble({ message }: { message: UIMessage }) {
 }
 
 function AssistantMessage({ message }: { message: UIMessage }) {
-  const { agentState, acceptUpgradeOffer } = useAgentState();
-
   return (
     <div className="w-full max-w-full space-y-2">
       <div className="flex items-center gap-3">
@@ -72,49 +71,18 @@ function AssistantMessage({ message }: { message: UIMessage }) {
         <p className="font-bold text-primary">Chris</p>
       </div>
       <div>
+        {message.parts
+          .filter((part) => part.type === "text")
+          .map((part, index) => (
+            // biome-ignore lint/suspicious/noArrayIndexKey: ignored
+            <AssistantTextMessagePart key={`text-${index}`} part={part} />
+          ))}
+
         {message.parts.map((part, index) => {
           return match(part)
-            .with({ type: "text" }, (part) => <AssistantTextMessagePart key={`text-${index}`} part={part} />)
-            .otherwise(() => <React.Fragment key={`unknown-${index}`} />);
-        })}
-        {message.parts.map((part, index) => {
-          return match(part)
-            .with({ type: "tool-showCarTypeUpsellOffer" }, (part) => {
-              const input = part.input as { offerId: string };
-              const offerId = input.offerId;
-              const offer = agentState?.availableOffers?.[offerId];
-
-              const aiText = [
-                {
-                  header: part.input.header_priority0,
-                  text: part.input.text_priority0,
-                },
-                {
-                  header: part.input.header_priority1,
-                  text: part.input.text_priority1,
-                },
-                {
-                  header: part.input.header_priority2,
-                  text: part.input.text_priority2,
-                },
-              ];
-
-              if (offer) {
-                return (
-                  <UpgradeOfferUI
-                    className="my-4"
-                    key={`upsell-${offer.offer_id}`}
-                    offer={offer}
-                    baseOffer={agentState.initialOffer}
-                    aiTextInput={aiText}
-                    onUpgrade={() => {
-                        acceptUpgradeOffer(offerId);
-                    }}
-                  />
-                );
-              }
-              return null;
-            })
+            .with({ type: "tool-showCarTypeUpsellOffer" }, (part) => (
+              <AssistantShowCarTypeUpsellOfferToolMessagePart part={part} />
+            ))
             .otherwise(() => <React.Fragment key={`unknown-${message.id}-${index}`} />);
         })}
       </div>
@@ -168,32 +136,44 @@ function AssistantTextMessagePart({ part }: { part: TextUIPart }) {
     </div>
   );
 }
-/*const AssistantMessage: React.FC<{ message: UIMessage }> = ({ message }) => {
+
+function AssistantShowCarTypeUpsellOfferToolMessagePart({ part }: { part: ToolUIPart }) {
+  const { agentState, acceptUpgradeOffer } = useAgentState();
+
+  if (!part.input || part.state === "input-streaming") {
+    return;
+  }
+
+  const input = part.input as CarUpsellOfferToolInput;
+  const offer = agentState?.availableOffers?.[input.offerId];
+
+  if (!offer) {
+    return;
+  }
+
   return (
-    <div className="grid w-full gap-3">
-      {message.parts.map((part, index) => {
-        switch (part.type) {
-          case "text":
-            return (
-              <div className="w-full whitespace-pre-wrap text-wrap" key={index}>
-                {part.text}
-              </div>
-            );
-
-          case "tool-exampleTool":
-            return <div key={part.toolCallId}>{JSON.stringify(part)}</div>;
-
-          case "step-start":
-            return <React.Fragment key={index} />;
-
-          default:
-            return (
-              <div key={index}>
-                [UNKNOWN PART TYPE: {part.type}] {JSON.stringify(part)}
-              </div>
-            );
-        }
-      })}
-    </div>
+    <UpgradeOfferUI
+      className="my-4"
+      key={`upsell-${offer.offer_id}`}
+      offer={offer}
+      baseOffer={agentState.initialOffer}
+      aiTextInput={[
+        {
+          header: input.header_priority0,
+          text: input.text_priority0,
+        },
+        {
+          header: input.header_priority1,
+          text: input.text_priority1,
+        },
+        {
+          header: input.header_priority2,
+          text: input.text_priority2,
+        },
+      ]}
+      onUpgrade={() => {
+        acceptUpgradeOffer(input.offerId);
+      }}
+    />
   );
-};*/
+}
