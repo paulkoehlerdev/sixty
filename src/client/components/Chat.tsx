@@ -108,6 +108,7 @@ function AssistantMessage({ message }: { message: UIMessage }) {
                     key={`upsell-${offer.offer_id}`}
                     offer={offer}
                     baseOffer={agentState.initialOffer}
+                    booking={agentState?.booking}
                     aiTextInput={aiText}
                     onUpgrade={() => {
                       acceptUpgradeOffer(offerId);

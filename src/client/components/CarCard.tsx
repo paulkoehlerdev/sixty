@@ -27,12 +27,16 @@ interface CarCardHeaderProps {
   title: string;
   subline: string;
   badges: React.ReactNode;
+  promoBadge?: React.ReactNode;
 }
 
-export function CarCardHeader({ title, subline, badges }: CarCardHeaderProps) {
+export function CarCardHeader({ title, subline, badges, promoBadge }: CarCardHeaderProps) {
   return (
     <CardHeader className="pb-3">
-      <CardTitle className="mb-1 font-black text-lg uppercase leading-none tracking-tight">{title}</CardTitle>
+      <div className="mb-1 flex items-center gap-2">
+        <CardTitle className="font-black text-lg uppercase leading-none tracking-tight">{title}</CardTitle>
+        {promoBadge}
+      </div>
       <CardDescription className="mb-3 font-semibold text-xs">{subline}</CardDescription>
       <div className="flex flex-wrap items-center gap-2">{badges}</div>
     </CardHeader>

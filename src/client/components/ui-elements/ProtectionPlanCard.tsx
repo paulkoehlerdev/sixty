@@ -24,9 +24,11 @@ export function ProtectionPlanCard({ package: pkg, onSelect, className, variant 
   return (
     <Card
       variant={variant}
-      className={cn("relative cursor-pointer border transition-all hover:border-primary dark:border", 
+      className={cn(
+        "relative cursor-pointer border transition-all hover:border-primary dark:border",
         variant === "ai" && "hover:border-none",
-        className)}
+        className,
+      )}
       onClick={handleClick}
     >
       {/* Radio button */}

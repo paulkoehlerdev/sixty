@@ -56,17 +56,19 @@ export function CarOfferCardContent({ offer, baseOffer, showPrice = false }: Upg
 
   return (
     <>
-      <CarCardHeader title={car_info.title} subline={car_info.subline} badges={badges} />
+      <CarCardHeader
+        title={car_info.title}
+        subline={car_info.subline}
+        badges={badges}
+        promoBadge={offer.promo_label ? <Badge variant="secondary">{offer.promo_label}</Badge> : undefined}
+      />
 
       {/* Vehicle Image */}
       <div className="relative w-full px-5">
         <VehicleImageDisplay src={getImageUrl()} alt={car_info.title} />
       </div>
 
-      <div className="absolute top-4 right-4 z-30 flex flex-col items-end gap-2">
-        {/* Promo Label */}
-        {offer.promo_label && <Badge className="bg-primary text-primary-foreground">{offer.promo_label}</Badge>}
-
+      <div className="absolute top-16 right-4 z-30 flex flex-col items-end gap-2">
         {/* Price difference */}
         {showPrice && <PriceDisplay price={offer.price_per_day} comparisonPrice={baseOffer?.price_per_day} />}
       </div>
