@@ -1,10 +1,10 @@
 import type { TextUIPart, UIMessage } from "ai";
-import { DotIcon } from "lucide-react";
 import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { match } from "ts-pattern";
 import { cn } from "@/lib/utils";
+import { StreamingIndicator } from "./chat-streaming";
 
 type Props = {
   messages: UIMessage[];
@@ -25,12 +25,12 @@ export const Chat: React.FC<Props> = ({ messages, isWaitingForResponse }) => {
   }, [messages, scrollToBottom]);
 
   return (
-    <div className="flex flex-col gap-1">
+    <div className="flex flex-col gap-2.5">
       {messages.map((message) => {
         return <MessageBubble key={message.id} message={message} />;
       })}
 
-      <div>{isWaitingForResponse && <DotIcon className="animate-pulse stroke-8" />}</div>
+      <div>{isWaitingForResponse && <StreamingIndicator />}</div>
 
       <div ref={chatEndRef} />
     </div>

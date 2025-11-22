@@ -1,0 +1,33 @@
+@keyframes color-wave {
+    0% {
+      background-color: #ff0f7b;
+      transform: scale(1);
+    }
+    50% {
+      background-color: #f89b29;
+      transform: scale(1.2);
+    }
+    100% {
+      background-color: #ff0f7b;
+      transform: scale(1);
+    }
+  }
+  
+  .animate-color-wave-1 {
+    background-color: #ff0f7b;
+    animation: color-wave 1.5s infinite ease-in-out;
+    animation-delay: 0s;
+  }
+  
+  .animate-color-wave-2 {
+    background-color: #f89b29;
+    animation: color-wave 1.5s infinite ease-in-out;
+    animation-delay: 0.2s;
+  }
+  
+  .animate-color-wave-3 {
+    background-color: #ff0f7b;
+    animation: color-wave 1.5s infinite ease-in-out;
+    animation-delay: 0.4s;
+  }
+  

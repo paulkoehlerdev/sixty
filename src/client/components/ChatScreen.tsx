@@ -40,10 +40,10 @@ export const ChatScreen: React.FC<{ sessionID: string }> = ({ sessionID }) => {
   };
 
   return (
-    <div className="grid h-svh w-full grid-rows-[minmax(0,1fr)_auto_auto]">
+    <div className="mx-auto grid h-svh w-full max-w-lg grid-rows-[minmax(0,1fr)_auto_auto]">
       {/* Chat Messages - scrollable */}
       <div className="grid justify-items-center overflow-auto p-4" style={{ scrollbarGutter: "stable both-edges" }}>
-        <div className="w-full max-w-[850px]">
+        <div className="w-full">
           <Chat messages={agentChat.messages} isWaitingForResponse={agentChat.status === "submitted"} />
         </div>
       </div>

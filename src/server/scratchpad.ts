@@ -141,7 +141,6 @@ Always update the scratchpad when you learn new information about the user.`,
     inputSchema: UserProfileUpdateSchema,
 
     execute: async (updates: z.infer<typeof UserProfileUpdateSchema>) => {
-      console.log("Updating scratchpad with updates:", updates);
       // Deep merge the updates into existing scratchpad
       const currentScratchpad = getCurrentState();
       const updatedScratchpad = deepMergeScratchpad(currentScratchpad, updates);

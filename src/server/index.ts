@@ -20,7 +20,7 @@ export class SixtyAgent extends AIChatAgent<Env, AgentState> {
 
   constructor(ctx: unknown, env: Env) {
     super(ctx, env);
-    
+
     // Only initialize state if this is a new agent (no state in DB)
     // The getter will automatically load persisted state or fall back to initialState
     if (!this.state) {

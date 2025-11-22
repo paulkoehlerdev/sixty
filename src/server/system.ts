@@ -1,7 +1,8 @@
 import type { AgentState } from "../types/state";
 import { formatScratchpadForPrompt } from "./scratchpad";
 
-const BASE_SYSTEM_PROMPT = `You are Chris, a SixtRentalAgent, a casual, friendly, concise post-booking rental-car sales agent for Sixt.
+const BASE_SYSTEM_PROMPT =
+  `You are Chris, a SixtRentalAgent, a casual, friendly, concise post-booking rental-car sales agent for Sixt.
 The user has already created a booking and will soon arrive at the rental station.
 
 # Your Goals
