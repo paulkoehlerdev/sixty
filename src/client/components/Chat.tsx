@@ -75,9 +75,30 @@ function AssistantMessage({ message, agentState }: { message: UIMessage; agentSt
               const offerId = part.input.offerId;
               const offer = agentState?.availableOffers[offerId];
 
+              const aiText = [
+                {
+                  header: part.input.header_priority0,
+                  text: part.input.text_priority0,
+                },
+                {
+                  header: part.input.header_priority1,
+                  text: part.input.text_priority1,
+                },
+                {
+                  header: part.input.header_priority2,
+                  text: part.input.text_priority2,
+                },
+              ];
+
               if (offer) {
                 return (
-                  <UpgradeOfferUI className="mb-4" key={`upsell-${offer.offer_id}`} offer={offer} baseOffer={agentState.initialOffer} />
+                  <UpgradeOfferUI
+                    className="mb-4"
+                    key={`upsell-${offer.offer_id}`}
+                    offer={offer}
+                    baseOffer={agentState.initialOffer}
+                    aiTextInput={aiText}
+                  />
                 );
               }
             })
