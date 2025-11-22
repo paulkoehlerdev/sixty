@@ -1,7 +1,7 @@
 import type { Tool } from "ai";
 import { z } from "zod";
-import { getOfferRecommendations, getSuggestedLocations, selectLocation } from "../sixt/api";
-import type { Branch, CarInfo, Distance, Image, MileagePlan, Positon, Price } from "../sixt/types";
+import { getOfferRecommendations, getSuggestedLocations, selectLocation } from "../../lib/sixt/api";
+import type { Branch, CarInfo, Distance, Image, MileagePlan, Positon, Price } from "../../lib/sixt/types.ts";
 
 type ChatBranch = {
   location_id: string;

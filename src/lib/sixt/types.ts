@@ -154,8 +154,10 @@ export type MileagePlan = {
   offer_list_price_difference_per_day_display_suffix: string;
 };
 
+export type OfferId = string;
+
 export type Offer = {
-  offer_id: string;
+  offer_id: OfferId;
   car_info: CarInfo;
   rate_code: string;
   deposit: Price;
@@ -200,66 +202,66 @@ export type SearchRequest = {
 };
 
 export type AddOnDescription = {
-    id: string;
-    category: string;
+  id: string;
+  category: string;
+  name: string;
+  description: string;
+  tags: unknown[];
+  more_information_lines: string[];
+  group_id: string;
+  more_information_lines_v2: string[];
+  additional_info: {
     name: string;
     description: string;
-    tags: unknown[];
-    more_information_lines: string[];
-    group_id: string;
-    more_information_lines_v2: string[];
-    additional_info: {
-        name: string;
-        description: string;
-        icon: {
-            id: string;
-            url: string;
-        };
-        line_item_info: {
-            name: string;
-            description: string;
-            display_category: "DISPLAY_CATEGORY_INCLUDED" | "DISPLAY_CATEGORY_EXCLUDED" | string;
-            display_group: "DISPLAY_GROUP_NON_COLLAPSIBLE" | string;
-            ref_id: string;
-        }[];
-        description_long: string;
-        promo_label: string;
+    icon: {
+      id: string;
+      url: string;
     };
+    line_item_info: {
+      name: string;
+      description: string;
+      display_category: "DISPLAY_CATEGORY_INCLUDED" | "DISPLAY_CATEGORY_EXCLUDED" | string;
+      display_group: "DISPLAY_GROUP_NON_COLLAPSIBLE" | string;
+      ref_id: string;
+    }[];
+    description_long: string;
+    promo_label: string;
+  };
 };
 
 export type AddOns = {
-    packages: {
-        id: string;
-        description: AddOnDescription;
-        actual_price: PriceBreakdown;
-        discount_percent: number;
-        quantity: number;
-        damage_excess: Price;
-        theft_excess: Price;
-        actual_total_price: PriceBreakdown;
-        deductible_text: string;
-        stars: number;
-        is_selected: boolean;
-    }[];
-    products: {
-        charge_code: string;
-        internal_name: string;
-        quantity: number;
-        actual_price: PriceBreakdown;
-        discount_percent: number;
-        is_protection: boolean;
-        is_physical: boolean;
-        description: AddOnDescription;
-        is_mandatory: boolean;
-        is_selected: boolean;
-        is_included_in_package: boolean;
-        is_disabled: boolean;
-        is_selected_by_user: boolean;
-    }[];
+  packages: {
+    id: string;
+    description: AddOnDescription;
+    actual_price: PriceBreakdown;
+    discount_percent: number;
+    quantity: number;
+    damage_excess: Price;
+    theft_excess: Price;
+    actual_total_price: PriceBreakdown;
+    deductible_text: string;
+    stars: number;
+    is_selected: boolean;
+  }[];
+  products: {
+    charge_code: string;
+    internal_name: string;
+    quantity: number;
+    actual_price: PriceBreakdown;
+    discount_percent: number;
+    is_protection: boolean;
+    is_physical: boolean;
+    description: AddOnDescription;
+    is_mandatory: boolean;
+    is_selected: boolean;
+    is_included_in_package: boolean;
+    is_disabled: boolean;
+    is_selected_by_user: boolean;
+  }[];
 };
 
 export type Booking = {
-    available_add_ons_v2: AddOns;
-    offer_v2: Offer;
-    offer_list_price_per_day: PriceBreakdown;
+  available_add_ons_v2: AddOns;
+  offer_v2: Offer;
+  offer_list_price_per_day: PriceBreakdown;
 };

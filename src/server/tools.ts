@@ -1,41 +1,29 @@
 import type { Tool, ToolSet } from "ai";
 import { z } from "zod";
-import type { AgentState } from "../types/state";
+import type { AgentState } from "../lib/state";
 import { createUpdateScratchpadTool } from "./scratchpad";
-import { sixtTools } from "./tools/sixt";
 
-export const getAvailableToolsForState = (state: AgentState, setState: (newState: AgentState) => void): ToolSet => {
-  if (!state) {
-    return {};
-  }
-
-  return {
+export const getAvailableToolsForState = (state: AgentState): ToolSet => {
+  const tools: ToolSet = {
     updateScratchpad: createUpdateScratchpadTool(
       () => state.scratchpad,
       (newScratchpad) => {
         state.scratchpad = newScratchpad;
       },
     ),
-    transitionToCarTypeUpselling: createTransitionToCarTypeUpsellingTool(state, setState),
-    ...sixtTools,
   };
+
+  if (state.stage === "car_type_upselling") {
+    tools.showCarTypeUpsellOffer = showCarTypeUpsellOffer;
+  }
+
+  return tools;
 };
 
-const createTransitionToCarTypeUpsellingTool = (state: AgentState, setState: (newState: AgentState) => void) =>
-  ({
-    description:
-      "Transition to the car type upselling state with the most like offer to show the user leading to a successful conversion.".trim(),
-    inputSchema: z.object({ offerId: z.string().describe("Offer id of the upselling car offer") }),
-    execute: async () => {
-      setState({
-        ...state,
-        uiState: {
-          stage: "welcome",
-          currentOffer: state.uiState.currentOffer,
-          upsellingOffer: undefined, // TODO
-        },
-      });
-
-      return "Transitioned to car upselling stage";
-    },
-  }) satisfies Tool<{ offerId: string }, string>;
+const showCarTypeUpsellOffer = {
+  description: "Show an car type upselling offer to the user.".trim(),
+  inputSchema: z.object({ offerId: z.string().describe("Offer ID of the upselling car offer") }),
+  execute: async () => {
+    return "Showing the upselling car offer to the user.";
+  },
+} satisfies Tool<{ offerId: string }, string>;

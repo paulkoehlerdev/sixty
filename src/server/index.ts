@@ -9,7 +9,7 @@ import {
   streamText,
   type ToolSet,
 } from "ai";
-import { type AgentState, getInitialState } from "../types/state";
+import { type AgentState, getInitialState } from "../lib/state";
 import { getSystemPromptForState } from "./system";
 import { getAvailableToolsForState } from "./tools";
 
@@ -39,7 +39,7 @@ export class SixtyAgent extends AIChatAgent<Env, AgentState> {
       system: await getSystemPromptForState(this.state),
       messages: convertToModelMessages(this.messages),
       model,
-      tools: getAvailableToolsForState(this.state, this.setState),
+      tools: getAvailableToolsForState(this.state),
       onFinish,
       abortSignal: options?.abortSignal,
       stopWhen: stepCountIs(2),

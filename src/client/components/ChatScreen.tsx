@@ -7,7 +7,7 @@ import { Chat } from "@/client/components/Chat.tsx";
 import { ChatInput } from "@/client/components/ChatInput.tsx";
 import { UIElementContainer } from "@/client/components/ui-elements/UIElementContainer";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import type { AgentState } from "@/types/state.ts";
+import type { AgentState } from "@/lib/state.ts";
 
 export const ChatScreen: React.FC<{ sessionID: string }> = ({ sessionID }) => {
   const [agentState, setAgentState] = useState<AgentState | null>(null);

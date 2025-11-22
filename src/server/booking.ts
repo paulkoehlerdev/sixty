@@ -1,5 +1,5 @@
-import { getOfferRecommendations, selectLocation } from "./sixt/api";
-import type { Offer } from "./sixt/types";
+import { getOfferRecommendations, selectLocation } from "../lib/sixt/api";
+import type { Offer } from "../lib/sixt/types.ts";
 
 export type Booking = {
   offer: Offer;

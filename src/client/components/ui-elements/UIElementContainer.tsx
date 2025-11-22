@@ -1,4 +1,4 @@
-import type { AgentState } from "@/types/state";
+import type { AgentState } from "@/lib/state.ts";
 import { CurrentBookingUI } from "./CurrentBookingUI";
 
 interface UIElementContainerProps {
