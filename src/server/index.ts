@@ -16,8 +16,6 @@ import { getAvailableToolsForState } from "./tools";
 const model = openai("gpt-4.1-mini");
 
 export class SixtyAgent extends AIChatAgent<Env, AgentState> {
-  initialState = undefined;
-
   constructor(ctx: unknown, env: Env) {
     super(ctx, env);
 
@@ -41,10 +39,10 @@ export class SixtyAgent extends AIChatAgent<Env, AgentState> {
       system: await getSystemPromptForState(this.state),
       messages: convertToModelMessages(this.messages),
       model,
-      tools: getAvailableToolsForState(this.state),
+      tools: getAvailableToolsForState(this.state, this.setState),
       onFinish,
       abortSignal: options?.abortSignal,
-      stopWhen: stepCountIs(10),
+      stopWhen: stepCountIs(2),
     });
 
     return createUIMessageStreamResponse({
