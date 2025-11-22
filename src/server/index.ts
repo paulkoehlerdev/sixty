@@ -55,7 +55,6 @@ export class SixtyAgent extends AIChatAgent<Env, AgentState> {
                 type: "text",
                 text: `
                   Hey! I'm close and want to pick up my car soon. Is everything ready?
-                  Can you tell remind me again what i have booked and are there some cheap upgrades?
                 `,
               },
             ],

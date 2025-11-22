@@ -108,7 +108,11 @@ export const UserProfileUpdateSchema = z.object({
  * Get the initial empty scratchpad
  */
 export const getInitialScratchpad = (): UserProfileScratchpad => ({
-  personalInfo: {},
+  personalInfo: {
+    name: "Simon",
+    surname: "Weckler",
+    age: 30,
+  },
   travelDetails: {},
   companions: {},
   preferences: {},
