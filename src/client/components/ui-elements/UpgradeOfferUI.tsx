@@ -1,6 +1,6 @@
+import { Button } from "@/components/ui/button.tsx";
 import { Check, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button.tsx";
 import { Card } from "@/components/ui/card.tsx";
 import { SuccessCheckmark } from "@/components/ui/success-checkmark.tsx";
 import type { Booking, Offer } from "@/lib/sixt/types";

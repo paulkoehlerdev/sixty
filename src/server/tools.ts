@@ -29,7 +29,7 @@ export const getAvailableToolsForState = (state: AgentState, setState: (state: A
   return tools;
 };
 
-type CarUpsellOffer = {
+export type CarUpsellOfferToolInput = {
   offerId: string;
   header_priority0: string;
   text_priority0: string;
@@ -60,7 +60,7 @@ const showCarTypeUpsellOffer = {
   execute: async () => {
     return "Showing the upselling car offer to the user.";
   },
-} satisfies Tool<CarUpsellOffer, string>;
+} satisfies Tool<CarUpsellOfferToolInput, string>;
 
 const abortCarTypeUpsell = (state: AgentState, setState: (state: AgentState) => void) => {
   return {
