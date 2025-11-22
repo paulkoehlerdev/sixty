@@ -7,6 +7,9 @@ import { Chat } from "@/client/components/Chat.tsx";
 import { ChatInput } from "@/client/components/ChatInput.tsx";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import type { AgentState } from "@/lib/state.ts";
+import { AgentStateContext } from "@/client/components/AgentStateContext.tsx";
+import type { OfferId } from "@/lib/sixt/types.ts";
+import type { AcceptUpgradeControlMessage } from "@/lib/messages.ts";
 
 export const ChatScreen: React.FC<{ sessionID: string; startNewSession: () => void }> = ({
   sessionID,
@@ -37,31 +40,33 @@ export const ChatScreen: React.FC<{ sessionID: string; startNewSession: () => vo
     });
   };
 
+  const acceptUpgradeOffer = (offerId: OfferId) => {
+    agent.send(JSON.stringify({ controlMessageType: "ACCEPT_UPGRADE", offerId } satisfies AcceptUpgradeControlMessage));
+  };
+
   return (
-    <ScrollArea className="relative mx-auto h-screen max-w-lg px-2 pt-4">
-      <Chat
-        messages={agentChat.messages}
-        isWaitingForResponse={agentChat.status === "submitted"}
-        agentState={agentState}
-      />
+    <AgentStateContext.Provider value={{ agentState, acceptUpgradeOffer }}>
+      <ScrollArea className="relative mx-auto h-screen max-w-lg px-2 pt-4">
+        <Chat messages={agentChat.messages} isWaitingForResponse={agentChat.status === "submitted"} />
 
-      <div className="h-30" />
+        <div className="h-30" />
 
-      <div className="fixed right-0 bottom-0 left-0 mx-auto grid max-w-lg justify-items-center bg-background">
-        <div className="w-full max-w-[850px]">
-          <ChatInput placeholder="Send a message" sendChatMessage={sendChatMessage} />
+        <div className="fixed right-0 bottom-0 left-0 mx-auto grid max-w-lg justify-items-center bg-background">
+          <div className="w-full max-w-[850px]">
+            <ChatInput placeholder="Send a message" sendChatMessage={sendChatMessage} />
 
-          <div className="mt-2 inline-block w-full text-center text-xs">
-            <button
-              type="button"
-              className="cursor-pointer underline hover:text-primary"
-              onClick={() => startNewSession()}
-            >
-              New Session
-            </button>
+            <div className="mt-2 inline-block w-full text-center text-xs">
+              <button
+                type="button"
+                className="cursor-pointer underline hover:text-primary"
+                onClick={() => startNewSession()}
+              >
+                New Session
+              </button>
+            </div>
           </div>
         </div>
-      </div>
-    </ScrollArea>
+      </ScrollArea>
+    </AgentStateContext.Provider>
   );
 };

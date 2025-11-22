@@ -4,21 +4,22 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { match } from "ts-pattern";
 import { Avatar, AvatarImage } from "@/components/ui/avatar.tsx";
-import type { AgentState } from "@/lib/state";
 import { cn } from "@/lib/utils";
 import { StreamingIndicator } from "./chat-streaming";
 import { CurrentBookingUI } from "./ui-elements/CurrentBookingUI";
 import { ProductsUI } from "./ui-elements/ProductsUI";
 import { ProtectionPlansUI } from "./ui-elements/ProtectionPlansUI";
 import { UpgradeOfferUI } from "./ui-elements/UpgradeOfferUI";
+import { useAgentState } from "./AgentStateContext";
+import type { ChatMessageMetadata } from "@/lib/messages.ts";
 
 type Props = {
-  messages: UIMessage[];
+  messages: UIMessage<ChatMessageMetadata>[];
   isWaitingForResponse: boolean;
-  agentState: AgentState | null;
 };
 
-export const Chat: React.FC<Props> = ({ messages, isWaitingForResponse, agentState }) => {
+export const Chat: React.FC<Props> = ({ messages, isWaitingForResponse }) => {
+  const { agentState } = useAgentState();
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = useCallback(() => {
@@ -33,12 +34,13 @@ export const Chat: React.FC<Props> = ({ messages, isWaitingForResponse, agentSta
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Show current booking at top */}
       {agentState?.initialOffer && <CurrentBookingUI booking={agentState.initialOffer} />}
 
-      {messages.map((message) => {
-        return <MessageBubble key={message.id} message={message} agentState={agentState} />;
-      })}
+      {messages
+        .filter((message) => !message.metadata || message.metadata !== "hidden")
+        .map((message) => {
+          return <MessageBubble key={message.id} message={message} />;
+        })}
 
       <div>{isWaitingForResponse && <StreamingIndicator />}</div>
 
@@ -47,12 +49,12 @@ export const Chat: React.FC<Props> = ({ messages, isWaitingForResponse, agentSta
   );
 };
 
-function MessageBubble({ message, agentState }: { message: UIMessage; agentState: AgentState | null }) {
+function MessageBubble({ message }: { message: UIMessage }) {
   return (
     <div className={cn("flex gap-2", message.role === "user" ? "items-center justify-end" : "justify-start")}>
       {match(message.role)
         .with("user", () => <UserMessage message={message} />)
-        .with("assistant", () => <AssistantMessage message={message} agentState={agentState} />)
+        .with("assistant", () => <AssistantMessage message={message} />)
         .otherwise(() => (
           <></>
         ))}
@@ -60,7 +62,9 @@ function MessageBubble({ message, agentState }: { message: UIMessage; agentState
   );
 }
 
-function AssistantMessage({ message, agentState }: { message: UIMessage; agentState: AgentState | null }) {
+function AssistantMessage({ message }: { message: UIMessage }) {
+  const { agentState, acceptUpgradeOffer } = useAgentState();
+
   return (
     <div className="w-full max-w-full space-y-2">
       <div className="flex items-center gap-3">
@@ -73,17 +77,41 @@ function AssistantMessage({ message, agentState }: { message: UIMessage; agentSt
         {message.parts.map((part, index) => {
           return match(part)
             .with({ type: "text" }, (part) => <AssistantTextMessagePart key={`text-${index}`} part={part} />)
+            .otherwise(() => <React.Fragment key={`unknown-${index}`} />);
+        })}
+        {message.parts.map((part, index) => {
+          return match(part)
             .with({ type: "tool-showCarTypeUpsellOffer" }, (part) => {
-              const offerId = part.input.offerId;
-              const offer = agentState?.availableOffers[offerId];
+              const input = part.input as { offerId: string };
+              const offerId = input.offerId;
+              const offer = agentState?.availableOffers?.[offerId];
+
+              const aiText = [
+                {
+                  header: part.input.header_priority0,
+                  text: part.input.text_priority0,
+                },
+                {
+                  header: part.input.header_priority1,
+                  text: part.input.text_priority1,
+                },
+                {
+                  header: part.input.header_priority2,
+                  text: part.input.text_priority2,
+                },
+              ];
 
               if (offer) {
                 return (
                   <UpgradeOfferUI
-                    className="mb-4"
+                    className="my-4"
                     key={`upsell-${offer.offer_id}`}
                     offer={offer}
                     baseOffer={agentState.initialOffer}
+                    aiTextInput={aiText}
+                    onUpgrade={() => {
+                        acceptUpgradeOffer(offerId);
+                    }}
                   />
                 );
               }
@@ -121,8 +149,9 @@ function AssistantMessage({ message, agentState }: { message: UIMessage; agentSt
                   />
                 );
               }
+              return null;
             })
-            .otherwise(() => <React.Fragment key={`unknown-${message.id}`} />);
+            .otherwise(() => <React.Fragment key={`unknown-${message.id}-${index}`} />);
         })}
       </div>
     </div>

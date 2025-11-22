@@ -74,7 +74,7 @@ export async function getOfferRecommendations(req: SearchRequest): Promise<Offer
   return response.offers ?? [];
 }
 
-export async function getBookingForOffer({ offer_id }: { offer_id: string }): Promise<Booking> {
+export async function getBookingForOffer(offer_id: string): Promise<Booking> {
   const response = await doGrpcRequest<{
     booking: Booking;
   }>("com.sixt.service.rent_booking.api.BookingService/GetBookingForOffer", {

@@ -1,5 +1,5 @@
 import { openai } from "@ai-sdk/openai";
-import { routeAgentRequest } from "agents";
+import { type Connection, routeAgentRequest, type WSMessage } from "agents";
 import { AIChatAgent } from "agents/ai-chat-agent";
 import {
   convertToModelMessages,
@@ -14,6 +14,9 @@ import { type AgentState, getAvailableOffers } from "../lib/state";
 import { getInitialScratchpad } from "./scratchpad.ts";
 import { getSystemPromptForState } from "./system";
 import { getAvailableToolsForState } from "./tools";
+import type { ControlMessage } from "../lib/messages.ts";
+import { getBookingForOffer } from "../lib/sixt/api.ts";
+import { v4 as uuidv4 } from "uuid";
 
 const model = openai("gpt-4.1-mini");
 
@@ -30,7 +33,7 @@ export class SixtyAgent extends AIChatAgent<Env, AgentState> {
       if (this.messages.length === 0) {
         await this.persistMessages([
           {
-            id: "000000",
+            id: uuidv4(),
             role: "assistant",
             parts: [
               {
@@ -52,7 +55,7 @@ export class SixtyAgent extends AIChatAgent<Env, AgentState> {
 
       const initialOffer = offers[0]; // TEMP
 
-      this.setState({ ...this.state, initialOffer, currentOffer: initialOffer.offer_id, availableOffers });
+      this.setState({ ...this.state, initialOffer, availableOffers });
     })();
   }
 
@@ -77,6 +80,39 @@ export class SixtyAgent extends AIChatAgent<Env, AgentState> {
     return createUIMessageStreamResponse({
       stream: result.toUIMessageStream(),
     });
+  }
+
+  async onMessage(_connection: Connection, message: WSMessage): Promise<void> {
+    const controlMessage = JSON.parse(message as string) as ControlMessage;
+    switch (controlMessage?.controlMessageType) {
+      case "ACCEPT_UPGRADE":
+        await this.acceptUpgrade(controlMessage.offerId);
+        break;
+
+      default:
+        break;
+    }
+  }
+
+  async acceptUpgrade(offerId: OfferId) {
+    const booking = await getBookingForOffer(offerId);
+
+    this.setState({ ...this.state, stage: "insurance_upselling", booking });
+
+    await this.saveMessages([
+      ...this.messages,
+      {
+        id: uuidv4(),
+        role: "user",
+        metadata: "hidden",
+        parts: [
+          {
+            type: "text",
+            text: `I accept the suggested upgrade to the offer with offer_id ${offerId}.`,
+          },
+        ],
+      },
+    ]);
   }
 }
 

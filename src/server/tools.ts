@@ -29,13 +29,38 @@ export const getAvailableToolsForState = (state: AgentState, setState: (state: A
   return tools;
 };
 
+type CarUpsellOffer = {
+  offerId: string;
+  header_priority0: string;
+  text_priority0: string;
+  header_priority1: string;
+  text_priority1: string;
+  header_priority2: string;
+  text_priority2: string;
+};
+
 const showCarTypeUpsellOffer = {
-  description: "Show an car type upselling offer to the user.".trim(),
-  inputSchema: z.object({ offerId: z.string().describe("Offer ID of the upselling car offer") }),
+  description: `
+    Show an car type upselling offer to the user.
+    Please provide information about the Upsell: Why should the user upgrade? What benefits will they get?
+    You should combine the information into 3 prioritized points with a short header and a longer description (text) for each point.
+    The text should focus on the specific things that are different from the current offer.
+    The priority is descending, 0 is the most important.
+    (Use header_priority0, text_priority0, header_priority1, text_priority1, header_priority2, text_priority2)
+  `.trim(),
+  inputSchema: z.object({
+    offerId: z.string().describe("Offer ID of the upselling car offer"),
+    header_priority0: z.string().max(40).describe("The header for the priority 0 upgrade reason. (max 40 chars)"),
+    text_priority0: z.string().max(100).describe("The text for the priority 0 upgrade reason.  (max 100 chars)"),
+    header_priority1: z.string().max(40).describe("The header for the priority 1 upgrade reason. (max 40 chars)"),
+    text_priority1: z.string().max(100).describe("The text for the priority 0 upgrade reason.  (max 100 chars)"),
+    header_priority2: z.string().max(40).describe("The header for the priority 2 upgrade reason. (max 40 chars)"),
+    text_priority2: z.string().max(100).describe("The text for the priority 0 upgrade reason. (max 100 chars)"),
+  }),
   execute: async () => {
     return "Showing the upselling car offer to the user.";
   },
-} satisfies Tool<{ offerId: string }, string>;
+} satisfies Tool<CarUpsellOffer, string>;
 
 const abortCarTypeUpsell = (state: AgentState, setState: (state: AgentState) => void) => {
   return {
