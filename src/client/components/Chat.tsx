@@ -6,7 +6,11 @@ import { match } from "ts-pattern";
 import { Avatar, AvatarImage } from "@/components/ui/avatar.tsx";
 import type { ChatMessageMetadata } from "@/lib/messages.ts";
 import { cn } from "@/lib/utils";
-import type { CarUpsellOfferToolInput } from "@/server/tools.ts";
+import type {
+  CarUpsellOfferToolInput,
+  ProtectionPackagesToolInput,
+  ProductsToolInput,
+} from "@/server/tools.ts";
 import { useAgentState } from "./AgentStateContext";
 import { StreamingIndicator } from "./chat-streaming";
 import { CurrentBookingUI } from "./ui-elements/CurrentBookingUI";
@@ -83,43 +87,23 @@ function AssistantMessage({ message }: { message: UIMessage }) {
         {message.parts.map((part, index) => {
           return match(part)
             .with({ type: "tool-showCarTypeUpsellOffer" }, (part) => (
-              <AssistantShowCarTypeUpsellOfferToolMessagePart part={part} />
+              <AssistantShowCarTypeUpsellOfferToolMessagePart
+                key={part.toolCallId || `upsell-${index}`}
+                part={part}
+              />
             ))
-            .with({ type: "tool-showProtectionPackages" }, (part) => {
-              const packageIds = part.input.packageIds;
-              const bestValuePackageId = part.input.bestValuePackageId;
-              const availablePackages = agentState?.booking?.available_add_ons_v2.packages || [];
-              const packagesToShow = availablePackages.filter((pkg) => packageIds.includes(pkg.id));
-
-              if (packagesToShow.length > 0) {
-                return (
-                  <ProtectionPlansUI
-                    key={`packages-${index}`}
-                    packages={packagesToShow}
-                    bestValuePackageId={bestValuePackageId}
-                  />
-                );
-              }
-            })
-            .with({ type: "tool-showProducts" }, (part) => {
-              const productChargeCodes = part.input.productChargeCodes;
-              const popularProductChargeCode = part.input.popularProductChargeCode;
-              const availableProducts = agentState?.booking?.available_add_ons_v2.products || [];
-              const productsToShow = availableProducts.filter((product) =>
-                productChargeCodes.includes(product.charge_code),
-              );
-
-              if (productsToShow.length > 0) {
-                return (
-                  <ProductsUI
-                    key={`products-${index}`}
-                    products={productsToShow}
-                    popularProductId={popularProductChargeCode}
-                  />
-                );
-              }
-              return null;
-            })
+            .with({ type: "tool-showProtectionPackages" }, (part) => (
+              <AssistantShowProtectionPackagesToolMessagePart
+                key={part.toolCallId || `packages-${index}`}
+                part={part}
+              />
+            ))
+            .with({ type: "tool-showProducts" }, (part) => (
+              <AssistantShowProductsToolMessagePart
+                key={part.toolCallId || `products-${index}`}
+                part={part}
+              />
+            ))
             .otherwise(() => <React.Fragment key={`unknown-${message.id}-${index}`} />);
         })}
       </div>
@@ -191,9 +175,9 @@ function AssistantShowCarTypeUpsellOfferToolMessagePart({ part }: { part: ToolUI
   return (
     <UpgradeOfferUI
       className="my-4"
-      key={`upsell-${offer.offer_id}`}
       offer={offer}
       baseOffer={agentState.initialOffer}
+      booking={agentState?.booking}
       aiTextInput={[
         {
           header: input.header_priority0,
@@ -212,5 +196,47 @@ function AssistantShowCarTypeUpsellOfferToolMessagePart({ part }: { part: ToolUI
         acceptUpgradeOffer(input.offerId);
       }}
     />
+  );
+}
+
+function AssistantShowProtectionPackagesToolMessagePart({ part }: { part: ToolUIPart }) {
+  const { agentState } = useAgentState();
+
+  if (!part.input || part.state === "input-streaming") {
+    return;
+  }
+
+  const input = part.input as ProtectionPackagesToolInput;
+  const availablePackages = agentState?.booking?.available_add_ons_v2.packages || [];
+  const packagesToShow = availablePackages.filter((pkg) => input.packageIds.includes(pkg.id));
+
+  if (packagesToShow.length === 0) {
+    return;
+  }
+
+  return (
+    <ProtectionPlansUI packages={packagesToShow} bestValuePackageId={input.bestValuePackageId} />
+  );
+}
+
+function AssistantShowProductsToolMessagePart({ part }: { part: ToolUIPart }) {
+  const { agentState } = useAgentState();
+
+  if (!part.input || part.state === "input-streaming") {
+    return;
+  }
+
+  const input = part.input as ProductsToolInput;
+  const availableProducts = agentState?.booking?.available_add_ons_v2.products || [];
+  const productsToShow = availableProducts.filter((product) =>
+    input.productChargeCodes.includes(product.charge_code),
+  );
+
+  if (productsToShow.length === 0) {
+    return;
+  }
+
+  return (
+    <ProductsUI products={productsToShow} popularProductId={input.popularProductChargeCode} />
   );
 }

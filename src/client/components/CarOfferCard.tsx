@@ -68,10 +68,14 @@ export function CarOfferCardContent({ offer, baseOffer, showPrice = false }: Upg
         <VehicleImageDisplay src={getImageUrl()} alt={car_info.title} />
       </div>
 
-      <div className="absolute top-16 right-4 z-30 flex flex-col items-end gap-2">
-        {/* Price difference */}
-        {showPrice && <PriceDisplay price={offer.price_per_day} comparisonPrice={baseOffer?.price_per_day} />}
-      </div>
+      {/* Price difference - positioned below the image */}
+      {showPrice && (
+        <div className="px-5 pb-3">
+          <div className="flex justify-end">
+            <PriceDisplay price={offer.price_per_day} comparisonPrice={baseOffer?.price_per_day} />
+          </div>
+        </div>
+      )}
     </>
   );
 }

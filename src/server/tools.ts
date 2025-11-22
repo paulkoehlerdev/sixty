@@ -39,6 +39,16 @@ export type CarUpsellOfferToolInput = {
   text_priority2: string;
 };
 
+export type ProtectionPackagesToolInput = {
+  packageIds: string[];
+  bestValuePackageId?: string;
+};
+
+export type ProductsToolInput = {
+  productChargeCodes: string[];
+  popularProductChargeCode?: string;
+};
+
 const showCarTypeUpsellOffer = {
   description: `
     Show an car type upselling offer to the user.
