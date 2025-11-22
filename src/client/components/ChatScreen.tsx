@@ -40,9 +40,7 @@ export const ChatScreen: React.FC<{ sessionID: string }> = ({ sessionID }) => {
   };
 
   return (
-    <ScrollArea className="relative mx-auto h-screen max-w-lg pt-4">
-      {/* Chat Messages - scrollable */}
-
+    <ScrollArea className="relative mx-auto h-screen max-w-lg px-2 pt-4">
       <Chat
         messages={agentChat.messages}
         isWaitingForResponse={agentChat.status === "submitted"}

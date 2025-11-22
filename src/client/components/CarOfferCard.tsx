@@ -1,15 +1,13 @@
 import { Briefcase, Gauge, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import type { Offer } from "@/lib/sixt/types";
-import { CarCard, CarCardHeader, VehicleImageDisplay } from "./CarCard";
+import { CarCardHeader, VehicleImageDisplay } from "./CarCard";
 
 interface UpgradeCardProps {
   offer: Offer;
-  variant?: "normal" | "ai";
 }
 
-
-export function CarOfferCard({ offer, variant = "normal" }: UpgradeCardProps) {
+export function CarOfferCardContent({ offer }: UpgradeCardProps) {
   const { car_info } = offer;
 
   // Get the best image URL (prefer frontview from v2, fallback to regular images)
@@ -54,7 +52,7 @@ export function CarOfferCard({ offer, variant = "normal" }: UpgradeCardProps) {
   );
 
   return (
-    <CarCard variant={variant}>
+    <>
       <CarCardHeader title={car_info.title} subline={car_info.subline} badges={badges} />
 
       {/* Vehicle Image */}
@@ -63,11 +61,11 @@ export function CarOfferCard({ offer, variant = "normal" }: UpgradeCardProps) {
       </div>
 
       {/* Promo Label */}
-      {variant === "ai" && offer.promo_label && (
+      {offer.promo_label && (
         <div className="absolute top-4 right-4 z-30">
           <Badge className="bg-primary text-primary-foreground">{offer.promo_label}</Badge>
         </div>
       )}
-    </CarCard>
+    </>
   );
 }

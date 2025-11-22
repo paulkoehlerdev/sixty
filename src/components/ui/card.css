@@ -29,7 +29,12 @@
   position: absolute;
   inset: 0;
   border-radius: calc(1rem + 2px);
-  background-image: conic-gradient(from var(--angle), var(--gradient-start) 0%, var(--gradient-end) 50%, var(--gradient-start) 100%);
+  background-image: conic-gradient(
+    from var(--angle),
+    var(--gradient-start) 0%,
+    var(--gradient-end) 50%,
+    var(--gradient-start) 100%
+  );
   z-index: -1; /* behind .ai-card-inner */
   pointer-events: none;
   animation: spin 3s linear infinite;

@@ -1,5 +1,5 @@
 import { Calendar, MapPin } from "lucide-react";
-import { CarOfferCard } from "@/client/components/CarOfferCard.tsx";
+import { CarOfferCardContent } from "@/client/components/CarOfferCard.tsx";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { Offer } from "@/lib/sixt/types";
 
@@ -12,11 +12,9 @@ export function CurrentBookingUI({ booking }: { booking: Offer }) {
 
       <div className="mt-[-15px]" />
 
-      <CarOfferCard offer={booking} variant="normal" />
+      <CarOfferCardContent offer={booking} />
 
       <CardContent className="space-y-4 px-5 pb-5">
-        <div className="mb-4 border-muted border-t" />
-
         <div className="grid grid-cols-2 gap-4">
           <div className="flex items-start gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary">

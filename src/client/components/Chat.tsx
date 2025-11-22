@@ -29,7 +29,7 @@ export const Chat: React.FC<Props> = ({ messages, isWaitingForResponse, agentSta
   }, [messages, scrollToBottom]);
 
   return (
-    <div className="flex flex-col gap-2.5">
+    <div className="flex flex-col gap-4">
       {/* Show current booking at top */}
       {agentState?.initialOffer && <CurrentBookingUI booking={agentState.initialOffer} />}
 

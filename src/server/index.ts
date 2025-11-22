@@ -9,11 +9,11 @@ import {
   streamText,
   type ToolSet,
 } from "ai";
+import type { Offer, OfferId } from "../lib/sixt/types.ts";
 import { type AgentState, getAvailableOffers } from "../lib/state";
+import { getInitialScratchpad } from "./scratchpad.ts";
 import { getSystemPromptForState } from "./system";
 import { getAvailableToolsForState } from "./tools";
-import type { Offer, OfferId } from "../lib/sixt/types.ts";
-import { getInitialScratchpad } from "./scratchpad.ts";
 
 const model = openai("gpt-4.1-mini");
 
