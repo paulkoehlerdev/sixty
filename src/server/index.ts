@@ -70,10 +70,12 @@ export class SixtyAgent extends AIChatAgent<Env, AgentState> {
       abortSignal: AbortSignal | undefined;
     },
   ): Promise<Response | undefined> {
-    const tools = getAvailableToolsForState(this.state, this.setState);
+    const tools = getAvailableToolsForState(this.state, (newState) => this.setState(newState));
+
+    const prompt = await getSystemPromptForState(this.state);
 
     const result = streamText({
-      system: await getSystemPromptForState(this.state),
+      system: prompt,
       messages: convertToModelMessages(this.messages),
       model,
       tools: tools,
@@ -126,7 +128,7 @@ export class SixtyAgent extends AIChatAgent<Env, AgentState> {
         parts: [
           {
             type: "text",
-            text: `I accept the suggested upgrade to the offer with offer_id ${offerId}.`,
+            text: `I upgraded to the offer with offer_id ${offerId}.`,
           },
         ],
       },
@@ -165,7 +167,7 @@ export class SixtyAgent extends AIChatAgent<Env, AgentState> {
         parts: [
           {
             type: "text",
-            text: `I select the protection package "${selectedPackage?.description.name || packageId}" with package_id ${packageId}.`,
+            text: `I upgraded to the protection package "${selectedPackage?.description.name || packageId}" with package_id ${packageId}.`,
           },
         ],
       },

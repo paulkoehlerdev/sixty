@@ -15,11 +15,11 @@ export type AgentState = {
   booking?: Booking;
 };
 
-export type Stage = "car_type_upselling" | "insurance_upselling" | "addon_upselling";
+export type Stage = "car_type_upselling" | "insurance_upselling" | "addon_upselling" | "completed";
 
 const demoLocation = "BRANCH:11"; // Munich Airport
-const demoPickupTime = new Date("2025-11-24T10:00:00Z");
-const demoReturnTime = new Date("2025-11-27T10:00:00Z");
+const demoPickupTime = new Date("2025-12-04T10:00:00Z");
+const demoReturnTime = new Date("2025-12-10T10:00:00Z");
 
 export async function getAvailableOffers(
   offerMatrixId: string,

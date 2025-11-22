@@ -9,13 +9,9 @@ interface ProductsUIProps {
   onProductToggle?: (productId: string) => void;
 }
 
-export function ProductsUI({
-  products,
-  selectedProductIds = [],
-  onProductToggle,
-}: ProductsUIProps) {
+export function ProductsUI({ products, selectedProductIds = [], onProductToggle }: ProductsUIProps) {
   return (
-    <div className="my-4 grid grid-cols-1 gap-2 md:grid-cols-2">
+    <div className="my-4 grid grid-cols-1 gap-2">
       {products.map((product) => (
         <ProductCard
           key={product.charge_code}

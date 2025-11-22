@@ -14,6 +14,7 @@ import type {
 } from "@/server/tools.ts";
 import { useAgentState } from "./AgentStateContext";
 import { StreamingIndicator } from "./chat-streaming";
+import { ToolCallShimmer } from "./ToolCallShimmer";
 import { BookingSummary } from "./ui-elements/BookingSummary";
 import { CurrentBookingUI } from "./ui-elements/CurrentBookingUI";
 import { ProductsUI } from "./ui-elements/ProductsUI";
@@ -40,10 +41,80 @@ export const Chat: React.FC<Props> = ({ messages, isWaitingForResponse, sendChat
     }
   }, [messages, scrollToBottom]);
 
-  const isWaitingForToolCall =
-    messages.length > 0 &&
-    messages[messages.length - 1].parts.reverse().find((part) => part.type.startsWith("tool-"))?.state ===
-      "input-streaming";
+  // Check if we should show the streaming indicator
+  const shouldShowStreamingIndicator = useMemo(() => {
+    if (isWaitingForResponse) {
+      return true;
+    }
+
+    // Define which tool calls render content when finished
+    const contentRenderingTools = [
+      "tool-showCarTypeUpsellOffer",
+      "tool-showProtectionPackages",
+      "tool-showProducts",
+      "tool-showAnswerSuggestions",
+    ];
+
+    // Find the last user message index
+    let lastUserMessageIndex = -1;
+    for (let i = messages.length - 1; i >= 0; i--) {
+      if (messages[i].role === "user") {
+        lastUserMessageIndex = i;
+        break;
+      }
+    }
+
+    // If no user message found, show indicator
+    if (lastUserMessageIndex === -1) {
+      return true;
+    }
+
+    let hasStreamingToolCall = false;
+    let hasCompletedContentRenderingTool = false;
+
+    // Check messages after the last user message
+    for (let i = lastUserMessageIndex + 1; i < messages.length; i++) {
+      const message = messages[i];
+      if (message.role !== "assistant") {
+        continue;
+      }
+
+      // Check parts
+      for (const part of message.parts) {
+        // If there's a text part, hide the indicator
+        if (part.type === "text" && part.text && part.text.trim().length > 0) {
+          return false;
+        }
+
+        // Check if it's a tool call
+        if (part.type.startsWith("tool-")) {
+          const isContentRenderingTool = contentRenderingTools.includes(part.type);
+
+          // Check if tool is still streaming (input-streaming or input-available)
+          if ("state" in part && (part.state === "input-streaming" || part.state === "input-available")) {
+            hasStreamingToolCall = true;
+          }
+          // Check if it's a completed content-rendering tool
+          else if ("state" in part && isContentRenderingTool && part.state === "output-available") {
+            hasCompletedContentRenderingTool = true;
+          }
+        }
+      }
+    }
+
+    // If there's a streaming tool call, hide indicator (show tool shimmer instead)
+    if (hasStreamingToolCall) {
+      return false;
+    }
+
+    // If there's a completed content-rendering tool, hide indicator (content is shown)
+    if (hasCompletedContentRenderingTool) {
+      return false;
+    }
+
+    // If we only have completed non-rendering tools, show indicator (still waiting for content)
+    return true;
+  }, [isWaitingForResponse, messages]);
 
   return (
     <div className="flex flex-col gap-4">
@@ -72,9 +143,9 @@ export const Chat: React.FC<Props> = ({ messages, isWaitingForResponse, sendChat
           );
         })}
 
-      <div>{(isWaitingForResponse || isWaitingForToolCall) && <StreamingIndicator />}</div>
+      <div>{shouldShowStreamingIndicator && <StreamingIndicator />}</div>
 
-      {agentState && <BookingSummary state={agentState} />}
+      {agentState && agentState.stage === "completed" && <BookingSummary state={agentState} />}
 
       <div ref={chatEndRef} />
     </div>
@@ -137,6 +208,40 @@ function AssistantMessage({
           return match(part)
             .with({ type: "text" }, (part) => (
               <AssistantTextMessagePart key={`${message.id}-text-${index}`} part={part} />
+            ))
+            .with({ type: "tool-getAvailableCarUpgrades" }, (part) => (
+              <AssistantGetAvailableCarUpgradesToolMessagePart
+                key={part.toolCallId || `upgrades-${index}`}
+                part={part}
+              />
+            ))
+            .with({ type: "tool-abortCarTypeUpsell" }, (part) => (
+              <AssistantAbortToolMessagePart
+                key={part.toolCallId || `abort-car-${index}`}
+                part={part}
+                message="Got it"
+              />
+            ))
+            .with({ type: "tool-abortProtectionUpselling" }, (part) => (
+              <AssistantAbortToolMessagePart
+                key={part.toolCallId || `abort-protection-${index}`}
+                part={part}
+                message="Understood"
+              />
+            ))
+            .with({ type: "tool-abortAddonUpselling" }, (part) => (
+              <AssistantAbortToolMessagePart
+                key={part.toolCallId || `abort-addon-${index}`}
+                part={part}
+                message="Finalizing your booking"
+              />
+            ))
+            .with({ type: "tool-endChat" }, (part) => (
+              <AssistantAbortToolMessagePart
+                key={part.toolCallId || `end-chat-${index}`}
+                part={part}
+                message="Preparing your booking summary"
+              />
             ))
             .with({ type: "tool-showCarTypeUpsellOffer" }, (part) => (
               <AssistantShowCarTypeUpsellOfferToolMessagePart key={part.toolCallId || `upsell-${index}`} part={part} />
@@ -214,11 +319,31 @@ function AssistantTextMessagePart({ part }: { part: TextUIPart }) {
   );
 }
 
+function AssistantGetAvailableCarUpgradesToolMessagePart({ part }: { part: ToolUIPart }) {
+  // Show shimmer while tool is executing
+  if (part.state === "input-streaming" || part.state === "input-available") {
+    return <ToolCallShimmer message="Checking available car upgrades" />;
+  }
+
+  // Don't render anything after tool completes - the LLM will use the data
+  return null;
+}
+
+function AssistantAbortToolMessagePart({ part, message }: { part: ToolUIPart; message: string }) {
+  // Show shimmer while tool is executing
+  if (part.state === "input-streaming" || part.state === "input-available") {
+    return <ToolCallShimmer message={message} />;
+  }
+
+  // Don't render anything after tool completes
+  return null;
+}
+
 function AssistantShowCarTypeUpsellOfferToolMessagePart({ part }: { part: ToolUIPart }) {
   const { agentState, acceptUpgradeOffer } = useAgentState();
 
   if (!part.input || part.state === "input-streaming") {
-    return;
+    return <ToolCallShimmer message="Finding the perfect upgrade options for you" />;
   }
 
   const input = part.input as CarUpsellOfferToolInput;
@@ -259,7 +384,7 @@ function AssistantShowProtectionPackagesToolMessagePart({ part }: { part: ToolUI
   const { agentState, selectProtectionPackage } = useAgentState();
 
   if (!part.input || part.state === "input-streaming") {
-    return;
+    return <ToolCallShimmer message="Preparing protection packages" />;
   }
 
   const input = part.input as ProtectionPackagesToolInput;
@@ -289,7 +414,7 @@ function AssistantShowProductsToolMessagePart({ part }: { part: ToolUIPart }) {
   const { agentState, toggleProduct } = useAgentState();
 
   if (!part.input || part.state === "input-streaming") {
-    return;
+    return <ToolCallShimmer message="Loading available add-ons" />;
   }
 
   const input = part.input as ProductsToolInput;

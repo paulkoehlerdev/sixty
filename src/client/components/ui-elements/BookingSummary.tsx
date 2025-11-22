@@ -1,11 +1,10 @@
 import { CheckCircle2, Package, Shield } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { Product, Package as ProtectionPackage } from "@/lib/sixt/types";
 import type { AgentState } from "@/lib/state";
-import { PriceDisplay } from "./PriceDisplay";
 import { CarOfferCardContent } from "../CarOfferCard";
-import { Button } from "@/components/ui/button";
-
+import { PriceDisplay } from "./PriceDisplay";
 
 interface BookingSummaryProps {
   state: AgentState;
@@ -33,7 +32,6 @@ export function BookingSummary({ state }: BookingSummaryProps) {
       <CardHeader className="pb-0">
         <CardTitle className="font-bold text-[#ff5000] text-lg">Booking Summary</CardTitle>
       </CardHeader>
-
 
       <CarOfferCardContent offer={offer} />
 
@@ -87,9 +85,7 @@ export function BookingSummary({ state }: BookingSummaryProps) {
           <PriceDisplay price={offer.price_total} displaySuffix={false} />
         </div>
 
-        <Button className="w-full">
-          Unlock Car
-        </Button>
+        <Button className="w-full">Unlock Car</Button>
       </CardContent>
     </Card>
   );

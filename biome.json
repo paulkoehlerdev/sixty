@@ -45,12 +45,6 @@
         "useExportType": "error",
         "noUselessElse": "off",
         "useShorthandFunctionType": "error",
-        "useFilenamingConvention": {
-          "level": "error",
-          "options": {
-            "filenameCases": ["kebab-case"]
-          }
-        },
         "useBlockStatements": "error",
         "useCollapsedElseIf": "error",
         "useConsistentArrayType": "error",

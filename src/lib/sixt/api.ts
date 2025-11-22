@@ -3,7 +3,7 @@ import type { Booking, Location, Offer, SearchRequest, SelectedLocation } from "
 
 const baseUrl = "https://grpc-prod.orange.sixt.com";
 
-async function doGrpcRequest<T>(method: string, body: any): Promise<T> {
+async function doGrpcRequest<T>(method: string, body: unknown): Promise<T> {
   const response = await fetch(`${baseUrl}/${method}`, {
     method: "POST",
     headers: {

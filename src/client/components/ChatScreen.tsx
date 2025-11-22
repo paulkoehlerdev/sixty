@@ -91,8 +91,19 @@ export const ChatScreen: React.FC<{ sessionID: string; startNewSession: () => vo
         <div className="h-30" />
 
         <div className="fixed right-0 bottom-0 left-0 mx-auto grid max-w-lg justify-items-center bg-background">
-          <div className="w-full max-w-[850px] pb-10">
-            <ChatInput placeholder="Send a message" sendChatMessage={sendChatMessage} />
+          {agentState?.stage !== "completed" && (
+            <div className="w-full max-w-[850px]">
+              <ChatInput placeholder="Send a message" sendChatMessage={sendChatMessage} />
+            </div>
+          )}
+          <div className="mt-2 inline-block w-full text-center text-xs">
+            <button
+              type="button"
+              className="cursor-pointer underline hover:text-primary"
+              onClick={() => startNewSession()}
+            >
+              New Session
+            </button>
           </div>
         </div>
       </ScrollArea>

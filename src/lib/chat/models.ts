@@ -24,7 +24,7 @@ type ChatBranch = {
   is_e_vehicle_available: boolean;
 };
 
-function mapApiBranchToChatBranch(b: Branch): ChatBranch {
+function _mapApiBranchToChatBranch(b: Branch): ChatBranch {
   return {
     location_id: b.location_id,
     title: b.title,
