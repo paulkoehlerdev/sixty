@@ -5,11 +5,10 @@ import type React from "react";
 import { useState } from "react";
 import { Chat } from "@/client/components/Chat.tsx";
 import { ChatInput } from "@/client/components/ChatInput.tsx";
-
-type AgentState = {};
+import { type AgentState, getInitialState } from "@/types/state.ts";
 
 export const ChatScreen: React.FC<{ sessionID: string }> = ({ sessionID }) => {
-  const [_agentState, setAgentState] = useState<AgentState>({});
+  const [_agentState, setAgentState] = useState<AgentState | null>(null);
 
   const agent = useAgent<AgentState>({
     agent: "sixty-agent",
@@ -36,7 +35,7 @@ export const ChatScreen: React.FC<{ sessionID: string }> = ({ sessionID }) => {
 
   const clearHistory = () => {
     agentChat.clearHistory();
-    agent.setState({});
+    agent.setState(getInitialState());
   };
 
   return (

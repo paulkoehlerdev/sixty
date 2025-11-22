@@ -9,14 +9,14 @@ import {
   streamText,
   type ToolSet,
 } from "ai";
-import { exampleTool } from "./tools";
+import { type AgentState, getInitialState } from "../types/state";
+import { getSystemPromptForState } from "./system";
+import { getAvailableToolsForState } from "./tools";
 
 const model = openai("gpt-4.1");
 
-type AgentState = {};
-
 export class SixtyAgent extends AIChatAgent<Env, AgentState> {
-  initialState = {} satisfies AgentState;
+  initialState = getInitialState();
 
   async onChatMessage(
     onFinish: StreamTextOnFinishCallback<ToolSet>,
@@ -25,12 +25,10 @@ export class SixtyAgent extends AIChatAgent<Env, AgentState> {
     },
   ): Promise<Response | undefined> {
     const result = streamText({
-      system: "You are Sixty, a helpful assistant.",
+      system: getSystemPromptForState(this.state),
       messages: convertToModelMessages(this.messages),
       model,
-      tools: {
-        exampleTool,
-      },
+      tools: getAvailableToolsForState(this.state),
       onFinish,
       abortSignal: options?.abortSignal,
       stopWhen: stepCountIs(10),
