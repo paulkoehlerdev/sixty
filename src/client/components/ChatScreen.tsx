@@ -3,13 +3,13 @@ import { useAgent } from "agents/react";
 import type { UIMessage } from "ai";
 import type React from "react";
 import { useState } from "react";
+import { AgentStateContext } from "@/client/components/AgentStateContext.tsx";
 import { Chat } from "@/client/components/Chat.tsx";
 import { ChatInput } from "@/client/components/ChatInput.tsx";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import type { AgentState } from "@/lib/state.ts";
-import { AgentStateContext } from "@/client/components/AgentStateContext.tsx";
-import type { OfferId } from "@/lib/sixt/types.ts";
 import type { AcceptUpgradeControlMessage } from "@/lib/messages.ts";
+import type { OfferId } from "@/lib/sixt/types.ts";
+import type { AgentState } from "@/lib/state.ts";
 
 export const ChatScreen: React.FC<{ sessionID: string; startNewSession: () => void }> = ({
   sessionID,

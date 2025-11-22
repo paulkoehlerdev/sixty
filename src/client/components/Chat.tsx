@@ -4,14 +4,14 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { match } from "ts-pattern";
 import { Avatar, AvatarImage } from "@/components/ui/avatar.tsx";
+import type { ChatMessageMetadata } from "@/lib/messages.ts";
 import { cn } from "@/lib/utils";
+import { useAgentState } from "./AgentStateContext";
 import { StreamingIndicator } from "./chat-streaming";
 import { CurrentBookingUI } from "./ui-elements/CurrentBookingUI";
 import { ProductsUI } from "./ui-elements/ProductsUI";
 import { ProtectionPlansUI } from "./ui-elements/ProtectionPlansUI";
 import { UpgradeOfferUI } from "./ui-elements/UpgradeOfferUI";
-import { useAgentState } from "./AgentStateContext";
-import type { ChatMessageMetadata } from "@/lib/messages.ts";
 
 type Props = {
   messages: UIMessage<ChatMessageMetadata>[];
@@ -110,7 +110,7 @@ function AssistantMessage({ message }: { message: UIMessage }) {
                     baseOffer={agentState.initialOffer}
                     aiTextInput={aiText}
                     onUpgrade={() => {
-                        acceptUpgradeOffer(offerId);
+                      acceptUpgradeOffer(offerId);
                     }}
                   />
                 );

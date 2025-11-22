@@ -9,14 +9,14 @@ import {
   streamText,
   type ToolSet,
 } from "ai";
+import { v4 as uuidv4 } from "uuid";
+import type { ControlMessage } from "../lib/messages.ts";
+import { getBookingForOffer } from "../lib/sixt/api.ts";
 import type { Offer, OfferId } from "../lib/sixt/types.ts";
 import { type AgentState, getAvailableOffers } from "../lib/state";
 import { getInitialScratchpad } from "./scratchpad.ts";
 import { getSystemPromptForState } from "./system";
 import { getAvailableToolsForState } from "./tools";
-import type { ControlMessage } from "../lib/messages.ts";
-import { getBookingForOffer } from "../lib/sixt/api.ts";
-import { v4 as uuidv4 } from "uuid";
 
 const model = openai("gpt-4.1-mini");
 
