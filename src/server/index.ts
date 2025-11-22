@@ -96,6 +96,10 @@ export class SixtyAgent extends AIChatAgent<Env, AgentState> {
   }
 
   async acceptUpgrade(offerId: OfferId) {
+    if (this.state.booking || this.state.stage !== "car_type_upselling") {
+      return;
+    }
+
     const booking = await getBookingForOffer(offerId);
 
     this.setState({ ...this.state, stage: "insurance_upselling", booking });
