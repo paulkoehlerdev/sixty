@@ -1,5 +1,5 @@
 import type { CarOffer } from "../../../lib/offers";
-import { UpgradeCard } from "../UpgradeCard";
+import { CarOfferCard } from "../CarOfferCard.tsx";
 
 interface UpgradeOfferUIProps {
   offer: CarOffer;
@@ -10,7 +10,7 @@ export function UpgradeOfferUI({ offer }: UpgradeOfferUIProps) {
     <div className="bg-background px-5 py-4">
       <div className="mx-auto max-w-md">
         <h2 className="mb-4 font-bold text-foreground text-lg">AI Recommended Upgrade</h2>
-        <UpgradeCard offer={offer} variant="ai" />
+        <CarOfferCard offer={offer} variant="ai" />
       </div>
     </div>
   );

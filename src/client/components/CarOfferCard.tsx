@@ -8,7 +8,7 @@ interface UpgradeCardProps {
   variant?: "normal" | "ai";
 }
 
-export function UpgradeCard({ offer, variant = "normal" }: UpgradeCardProps) {
+export function CarOfferCard({ offer, variant = "normal" }: UpgradeCardProps) {
   const { car_info } = offer;
 
   // Get the best image URL (prefer frontview from v2, fallback to regular images)
@@ -57,7 +57,7 @@ export function UpgradeCard({ offer, variant = "normal" }: UpgradeCardProps) {
       <CarCardHeader title={car_info.title} subline={car_info.subline} badges={badges} />
 
       {/* Vehicle Image */}
-      <div className="relative w-full">
+      <div className="relative w-full px-5">
         <VehicleImageDisplay src={getImageUrl()} alt={car_info.title} />
       </div>
 
@@ -67,7 +67,7 @@ export function UpgradeCard({ offer, variant = "normal" }: UpgradeCardProps) {
       )}
 
       {/* Promo Label */}
-      {offer.promo_label && (
+      {variant === "ai" && offer.promo_label && (
         <div className="absolute top-4 right-4 z-30">
           <Badge className="bg-primary text-primary-foreground">{offer.promo_label}</Badge>
         </div>
