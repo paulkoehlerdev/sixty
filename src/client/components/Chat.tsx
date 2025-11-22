@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { StreamingIndicator } from "./chat-streaming";
 import { CurrentBookingUI } from "./ui-elements/CurrentBookingUI";
 import { UpgradeOfferUI } from "./ui-elements/UpgradeOfferUI";
+import { Avatar, AvatarImage } from "@/components/ui/avatar.tsx";
 
 type Props = {
   messages: UIMessage[];
@@ -60,19 +61,27 @@ function MessageBubble({ message, agentState }: { message: UIMessage; agentState
 function AssistantMessage({ message, agentState }: { message: UIMessage; agentState: AgentState }) {
   return (
     <div className="w-full max-w-full space-y-2">
-      {message.parts.map((part, index) => {
-        return match(part)
-          .with({ type: "text" }, (part) => <AssistantTextMessagePart key={`text-${index}`} part={part} />)
-          .with({ type: "tool-showCarTypeUpsellOffer" }, (part) => {
-            const offerId = part.input.offerId;
-            const offer = agentState?.availableOffers[offerId];
+      <div className="flex items-center gap-3">
+        <Avatar className="h-7 w-7">
+          <AvatarImage src="/favicon.svg" />
+        </Avatar>
+        <p className="text-[#ff5000] font-bold">Chris</p>
+      </div>
+      <div>
+        {message.parts.map((part, index) => {
+          return match(part)
+            .with({ type: "text" }, (part) => <AssistantTextMessagePart key={`text-${index}`} part={part} />)
+            .with({ type: "tool-showCarTypeUpsellOffer" }, (part) => {
+              const offerId = part.input.offerId;
+              const offer = agentState?.availableOffers[offerId];
 
-            if (offer) {
-              return <UpgradeOfferUI key={`upsell-${offer.offer_id}`} offer={offer} />;
-            }
-          })
-          .otherwise(() => <React.Fragment key={`unknown-${message.id}`} />);
-      })}
+              if (offer) {
+                return <UpgradeOfferUI key={`upsell-${offer.offer_id}`} offer={offer} />;
+              }
+            })
+            .otherwise(() => <React.Fragment key={`unknown-${message.id}`} />);
+        })}
+      </div>
     </div>
   );
 }

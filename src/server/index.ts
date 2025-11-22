@@ -50,7 +50,7 @@ export class SixtyAgent extends AIChatAgent<Env, AgentState> {
         availableOffers[offer.offer_id] = offer;
       }
 
-      const initialOffer = availableOffers[0]; // TEMP
+      const initialOffer = offers[0]; // TEMP
 
       this.setState({ ...this.state, initialOffer, currentOffer: initialOffer.offer_id, availableOffers });
     })();
@@ -67,7 +67,7 @@ export class SixtyAgent extends AIChatAgent<Env, AgentState> {
       messages: convertToModelMessages(this.messages),
       model,
       tools: {
-        ...getAvailableToolsForState(this.state),
+        ...getAvailableToolsForState(this.state, this.setState),
       },
       onFinish,
       abortSignal: options?.abortSignal,

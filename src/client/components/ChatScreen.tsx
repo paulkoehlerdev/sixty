@@ -8,7 +8,10 @@ import { ChatInput } from "@/client/components/ChatInput.tsx";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import type { AgentState } from "@/lib/state.ts";
 
-export const ChatScreen: React.FC<{ sessionID: string }> = ({ sessionID }) => {
+export const ChatScreen: React.FC<{ sessionID: string; startNewSession: () => void }> = ({
+  sessionID,
+  startNewSession,
+}) => {
   const [agentState, setAgentState] = useState<AgentState | null>(null);
 
   const agent = useAgent<AgentState>({
@@ -34,11 +37,6 @@ export const ChatScreen: React.FC<{ sessionID: string }> = ({ sessionID }) => {
     });
   };
 
-  const clearHistory = () => {
-    agentChat.clearHistory();
-    // agent.setState({});
-  };
-
   return (
     <ScrollArea className="relative mx-auto h-screen max-w-lg px-2 pt-4">
       <Chat
@@ -57,9 +55,9 @@ export const ChatScreen: React.FC<{ sessionID: string }> = ({ sessionID }) => {
             <button
               type="button"
               className="cursor-pointer underline hover:text-primary"
-              onClick={() => clearHistory()}
+              onClick={() => startNewSession()}
             >
-              Or delete this conversation
+              New Session
             </button>
           </div>
         </div>

@@ -10,5 +10,10 @@ export const App: React.FC = () => {
 
   localStorage.setItem(LOCAL_STORAGE_SESSION_KEY, sessionID);
 
-  return <ChatScreen sessionID={sessionID} />;
+  const newSession = () => {
+    localStorage.removeItem(LOCAL_STORAGE_SESSION_KEY);
+    window.location.reload();
+  };
+
+  return <ChatScreen sessionID={sessionID} startNewSession={newSession} />;
 };

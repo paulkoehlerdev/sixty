@@ -1,6 +1,6 @@
+import type {Booking, Offer, OfferId} from "./sixt/types.ts";
 import { getOfferRecommendations, selectLocation } from "../lib/sixt/api.ts";
 import type { UserProfileScratchpad } from "../server/scratchpad.ts";
-import type { Offer, OfferId } from "./sixt/types.ts";
 
 export type AgentState = {
   stage: Stage;
@@ -9,6 +9,8 @@ export type AgentState = {
   initialOffer?: Offer;
   currentOffer?: OfferId;
   availableOffers?: Record<OfferId, Offer>;
+
+  currentBooking: Booking | null;
 };
 
 export type Stage = "car_type_upselling" | "insurance_upselling" | "addon_upselling";
