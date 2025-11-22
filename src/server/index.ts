@@ -8,6 +8,7 @@ import {
   stepCountIs,
   streamText,
   type ToolSet,
+  hasToolCall,
 } from "ai";
 import { v4 as uuidv4 } from "uuid";
 import type { ControlMessage } from "../lib/messages.ts";
@@ -66,16 +67,16 @@ export class SixtyAgent extends AIChatAgent<Env, AgentState> {
       abortSignal: AbortSignal | undefined;
     },
   ): Promise<Response | undefined> {
+    const tools = getAvailableToolsForState(this.state, this.setState);
+
     const result = streamText({
       system: await getSystemPromptForState(this.state),
       messages: convertToModelMessages(this.messages),
       model,
-      tools: {
-        ...getAvailableToolsForState(this.state, this.setState),
-      },
+      tools: tools,
       onFinish,
       abortSignal: options?.abortSignal,
-      stopWhen: stepCountIs(2),
+      stopWhen: [hasToolCall("showAnswerSuggestions"), stepCountIs(5)],
     });
 
     return createUIMessageStreamResponse({

@@ -5,6 +5,7 @@ import { createUpdateScratchpadTool } from "./scratchpad";
 
 export const getAvailableToolsForState = (state: AgentState, setState: (state: AgentState) => void): ToolSet => {
   const tools: ToolSet = {
+    showAnswerSuggestions,
     updateScratchpad: createUpdateScratchpadTool(
       () => state.scratchpad,
       (newScratchpad) => {
@@ -71,6 +72,26 @@ const showCarTypeUpsellOffer = {
     return "Showing the upselling car offer to the user.";
   },
 } satisfies Tool<CarUpsellOfferToolInput, string>;
+
+export type AnswerSuggestionsToolInput = {
+  answers: string[];
+};
+
+const showAnswerSuggestions = {
+  description: `
+    Show the user answers to choose from.
+    We need you to provide a list of 4 suggestions for the user to choose from.
+    This is important for a quick conversation and to allow you to get more targeted answers.
+    The max length for each answer is 50 characters.
+    The options are presented to the user and he will be able to send them back to you.
+  `.trim(),
+  inputSchema: z.object({
+    answers: z.array(z.string()).max(4).min(2).describe("The prefilled user's answers to your message questions"),
+  }),
+  execute: async () => {
+    return "";
+  },
+} satisfies Tool<AnswerSuggestionsToolInput, string>;
 
 const abortCarTypeUpsell = (state: AgentState, setState: (state: AgentState) => void) => {
   return {

@@ -1,7 +1,7 @@
 import { useAgentChat } from "agents/ai-react";
 import { useAgent } from "agents/react";
 import type { UIMessage } from "ai";
-import type React from "react";
+import React, { useEffect } from "react";
 import { useState } from "react";
 import { AgentStateContext } from "@/client/components/AgentStateContext.tsx";
 import { Chat } from "@/client/components/Chat.tsx";
@@ -29,7 +29,7 @@ export const ChatScreen: React.FC<{ sessionID: string; startNewSession: () => vo
 
   const isAgentReadyForNextMessage = agentChat.status === "ready";
 
-  const sendChatMessage = (message: string) => {
+  const sendChatMessage = (message: string, metadata?: ChatMessageMetadata) => {
     if (!isAgentReadyForNextMessage) {
       return;
     }
@@ -37,6 +37,7 @@ export const ChatScreen: React.FC<{ sessionID: string; startNewSession: () => vo
     agentChat.sendMessage({
       role: "user",
       parts: [{ type: "text", text: message }],
+      metadata,
     });
   };
 
@@ -47,7 +48,11 @@ export const ChatScreen: React.FC<{ sessionID: string; startNewSession: () => vo
   return (
     <AgentStateContext.Provider value={{ agentState, acceptUpgradeOffer }}>
       <ScrollArea className="relative mx-auto h-screen max-w-lg px-2 pt-4">
-        <Chat messages={agentChat.messages} isWaitingForResponse={agentChat.status === "submitted"} />
+        <Chat
+          messages={agentChat.messages}
+          isWaitingForResponse={agentChat.status === "submitted"}
+          sendChatMessage={sendChatMessage}
+        />
 
         <div className="h-30" />
 

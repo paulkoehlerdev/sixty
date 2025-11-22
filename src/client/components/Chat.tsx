@@ -7,6 +7,7 @@ import { Avatar, AvatarImage } from "@/components/ui/avatar.tsx";
 import type { ChatMessageMetadata } from "@/lib/messages.ts";
 import { cn } from "@/lib/utils";
 import type {
+  AnswerSuggestionsToolInput,
   CarUpsellOfferToolInput,
   ProtectionPackagesToolInput,
   ProductsToolInput,
@@ -21,9 +22,10 @@ import { UpgradeOfferUI } from "./ui-elements/UpgradeOfferUI";
 type Props = {
   messages: UIMessage<ChatMessageMetadata>[];
   isWaitingForResponse: boolean;
+  sendChatMessage: (message: string) => void;
 };
 
-export const Chat: React.FC<Props> = ({ messages, isWaitingForResponse }) => {
+export const Chat: React.FC<Props> = ({ messages, isWaitingForResponse, sendChatMessage }) => {
   const { agentState } = useAgentState();
   const chatEndRef = useRef<HTMLDivElement>(null);
 
@@ -37,14 +39,23 @@ export const Chat: React.FC<Props> = ({ messages, isWaitingForResponse }) => {
     }
   }, [messages, scrollToBottom]);
 
+  console.log(messages);
+
   return (
     <div className="flex flex-col gap-4">
       {agentState?.initialOffer && <CurrentBookingUI booking={agentState.initialOffer} />}
 
       {messages
         .filter((message) => !message.metadata || message.metadata !== "hidden")
-        .map((message) => {
-          return <MessageBubble key={message.id} message={message} />;
+        .map((message, index, arr) => {
+          return (
+            <MessageBubble
+              key={message.id}
+              message={message}
+              isLast={index === arr.length - 1}
+              sendChatMessage={sendChatMessage}
+            />
+          );
         })}
 
       <div>{isWaitingForResponse && <StreamingIndicator />}</div>
@@ -54,12 +65,22 @@ export const Chat: React.FC<Props> = ({ messages, isWaitingForResponse }) => {
   );
 };
 
-function MessageBubble({ message }: { message: UIMessage }) {
+function MessageBubble({
+  message,
+  isLast,
+  sendChatMessage,
+}: {
+  message: UIMessage;
+  isLast: boolean;
+  sendChatMessage: (message: string) => void;
+}) {
   return (
     <div className={cn("flex gap-2", message.role === "user" ? "items-center justify-end" : "justify-start")}>
       {match(message.role)
         .with("user", () => <UserMessage message={message} />)
-        .with("assistant", () => <AssistantMessage message={message} />)
+        .with("assistant", () => (
+          <AssistantMessage message={message} isLast={isLast} sendChatMessage={sendChatMessage} />
+        ))
         .otherwise(() => (
           <></>
         ))}
@@ -67,7 +88,15 @@ function MessageBubble({ message }: { message: UIMessage }) {
   );
 }
 
-function AssistantMessage({ message }: { message: UIMessage }) {
+function AssistantMessage({
+  message,
+  isLast,
+  sendChatMessage,
+}: {
+  message: UIMessage;
+  isLast: boolean;
+  sendChatMessage: (message: string) => void;
+}) {
   return (
     <div className="w-full max-w-full space-y-2">
       <div className="flex items-center gap-3">
@@ -87,10 +116,7 @@ function AssistantMessage({ message }: { message: UIMessage }) {
         {message.parts.map((part, index) => {
           return match(part)
             .with({ type: "tool-showCarTypeUpsellOffer" }, (part) => (
-              <AssistantShowCarTypeUpsellOfferToolMessagePart
-                key={part.toolCallId || `upsell-${index}`}
-                part={part}
-              />
+              <AssistantShowCarTypeUpsellOfferToolMessagePart key={part.toolCallId || `upsell-${index}`} part={part} />
             ))
             .with({ type: "tool-showProtectionPackages" }, (part) => (
               <AssistantShowProtectionPackagesToolMessagePart
@@ -99,13 +125,17 @@ function AssistantMessage({ message }: { message: UIMessage }) {
               />
             ))
             .with({ type: "tool-showProducts" }, (part) => (
-              <AssistantShowProductsToolMessagePart
-                key={part.toolCallId || `products-${index}`}
-                part={part}
-              />
+              <AssistantShowProductsToolMessagePart key={part.toolCallId || `products-${index}`} part={part} />
             ))
             .otherwise(() => <React.Fragment key={`unknown-${message.id}-${index}`} />);
         })}
+
+        {isLast && (
+          <AssistantShowAnswerSuggestionsToolMessagePart
+            part={message.parts.filter((p) => p.type === "tool-showAnswerSuggestions")[0]}
+            sendChatMessage={sendChatMessage}
+          />
+        )}
       </div>
     </div>
   );
@@ -214,9 +244,7 @@ function AssistantShowProtectionPackagesToolMessagePart({ part }: { part: ToolUI
     return;
   }
 
-  return (
-    <ProtectionPlansUI packages={packagesToShow} bestValuePackageId={input.bestValuePackageId} />
-  );
+  return <ProtectionPlansUI packages={packagesToShow} bestValuePackageId={input.bestValuePackageId} />;
 }
 
 function AssistantShowProductsToolMessagePart({ part }: { part: ToolUIPart }) {
@@ -228,15 +256,43 @@ function AssistantShowProductsToolMessagePart({ part }: { part: ToolUIPart }) {
 
   const input = part.input as ProductsToolInput;
   const availableProducts = agentState?.booking?.available_add_ons_v2.products || [];
-  const productsToShow = availableProducts.filter((product) =>
-    input.productChargeCodes.includes(product.charge_code),
-  );
+  const productsToShow = availableProducts.filter((product) => input.productChargeCodes.includes(product.charge_code));
 
   if (productsToShow.length === 0) {
     return;
   }
 
+  return <ProductsUI products={productsToShow} popularProductId={input.popularProductChargeCode} />;
+}
+
+function AssistantShowAnswerSuggestionsToolMessagePart({
+  part,
+  sendChatMessage,
+}: {
+  part: ToolUIPart;
+  sendChatMessage: (message: string) => void;
+}) {
+  if (!part) {
+    return;
+  }
+
+  if (!part.input || part.state === "input-streaming") {
+    return;
+  }
+
+  const answers = (part.input as AnswerSuggestionsToolInput).answers;
+
   return (
-    <ProductsUI products={productsToShow} popularProductId={input.popularProductChargeCode} />
+    <div className="flex flex-col justify-start gap-0.5 my-5">
+      {answers.map((answer, index) => (
+        <div
+          key={`anseroption-${index}`}
+          className="border border-primary rounded-lg p-2 mb-2 bg-background text-primary w-max px-4 cursor-pointer"
+          onClick={() => sendChatMessage(answer)}
+        >
+          {answer}
+        </div>
+      ))}
+    </div>
   );
 }
