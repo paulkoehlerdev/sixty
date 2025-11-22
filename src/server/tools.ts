@@ -2,6 +2,7 @@ import type { Tool, ToolSet } from "ai";
 import { z } from "zod";
 import type { AgentState } from "../types/state";
 import { createUpdateScratchpadTool } from "./scratchpad";
+import { sixtTools } from "./tools/sixt";
 
 export const getAvailableToolsForState = (state: AgentState): ToolSet => {
   return {
@@ -12,6 +13,7 @@ export const getAvailableToolsForState = (state: AgentState): ToolSet => {
       },
     ),
     exampleTool,
+    ...sixtTools,
   };
 };
 

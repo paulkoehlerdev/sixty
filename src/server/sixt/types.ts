@@ -29,6 +29,10 @@ export type Branch = {
       policy: "OUT_OF_HOURS_POLICY_NOT_ALLOWED" | "OUT_OF_HOURS_POLICY_ALLOWED" | string;
       information: string;
     };
+    return: {
+      policy: "OUT_OF_HOURS_POLICY_NOT_ALLOWED" | "OUT_OF_HOURS_POLICY_ALLOWED" | string;
+      information: string;
+    };
   };
   timezone_id: string;
   is_e_vehicle_available: boolean;
@@ -104,10 +108,10 @@ export type CarInfo = {
   navigation_included: boolean;
   is_electric: boolean;
   charging_cable: string;
-  is_luxury: false;
+  is_luxury: boolean;
   doors_count: number;
   subline_transmission_type_ab: string;
-  is_hybrid: false;
+  is_hybrid: boolean;
 };
 
 export type Price = {
@@ -137,7 +141,7 @@ export type MileagePlan = {
   distance: Distance;
   total_amount: PriceBreakdown;
   base_amount: PriceBreakdown;
-  extra_mileage_amount: PriceBreakdown;
+  extra_mileage_amount: PriceBreakdown | undefined;
   total_price_difference: Price;
   total_price_difference_display_suffix: string;
   total_price_difference_per_day: Price;
@@ -191,6 +195,6 @@ export type SelectedLocation = {
 export type SearchRequest = {
   pickup_timestamp: Date;
   return_timestamp: Date;
-  pickup_location: SelectedLocation;
-  return_location: SelectedLocation;
+  pickup_location_selection_id: string;
+  return_location_selection_id: string;
 };
