@@ -47,7 +47,6 @@ export type ProtectionPackagesToolInput = {
 
 export type ProductsToolInput = {
   productChargeCodes: string[];
-  popularProductChargeCodes?: string[];
 };
 
 const showCarTypeUpsellOffer = {
@@ -128,20 +127,14 @@ const showProtectionPackages = (state: AgentState, _setState: (state: AgentState
 const showProducts = (state: AgentState, _setState: (state: AgentState) => void) => {
   return {
     description:
-      "Display addon products to the user. You can specify which product charge codes to show and optionally mark which ones are popular.".trim(),
+      "Display addon products to the user. You can specify which product charge codes to show.".trim(),
     inputSchema: z.object({
       productChargeCodes: z.array(z.string()).describe("Array of product charge codes to display to the user"),
-      popularProductChargeCodes: z
-        .array(z.string())
-        .optional()
-        .describe("Optional array of product charge codes to mark as 'Popular'"),
     }),
     execute: async ({
       productChargeCodes,
-      popularProductChargeCodes,
     }: {
       productChargeCodes: string[];
-      popularProductChargeCodes?: string[];
     }) => {
       if (!state.booking) {
         return "Cannot display products: no booking available.";
@@ -150,8 +143,7 @@ const showProducts = (state: AgentState, _setState: (state: AgentState) => void)
       const availableProducts = state.booking.available_add_ons_v2.products || [];
       const productsToShow = availableProducts.filter((product) => productChargeCodes.includes(product.charge_code));
 
-      const popularCodes = popularProductChargeCodes || [];
-      return `Displaying ${productsToShow.length} addon product(s) to the user${popularCodes.length > 0 ? ` with ${popularCodes.length} product(s) marked as popular` : ""}.`;
+      return `Displaying ${productsToShow.length} addon product(s) to the user.`;
     },
-  } satisfies Tool<{ productChargeCodes: string[]; popularProductChargeCodes?: string[] }, string>;
+  } satisfies Tool<{ productChargeCodes: string[] }, string>;
 };

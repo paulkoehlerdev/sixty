@@ -1,6 +1,6 @@
 "use client";
 
-import { Baby, Car, Fuel, Globe, Navigation, Sparkles, Users } from "lucide-react";
+import { Baby, Car, Fuel, Globe, Navigation, Users } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -13,7 +13,6 @@ interface ProductCardProps {
   product: Product;
   isSelected: boolean;
   onToggle: (productId: string) => void;
-  isPopular?: boolean;
   className?: string;
 }
 
@@ -42,7 +41,7 @@ const getIconForProduct = (product: Product) => {
   return Car;
 };
 
-export function ProductCard({ product, isSelected, onToggle, isPopular = false, className }: ProductCardProps) {
+export function ProductCard({ product, isSelected, onToggle, className }: ProductCardProps) {
   const [isLoading, setIsLoading] = useState(false);
   const Icon = getIconForProduct(product);
   const currentSelected = isSelected || product.is_selected;
@@ -72,16 +71,6 @@ export function ProductCard({ product, isSelected, onToggle, isPopular = false, 
         className,
       )}
     >
-      {/* Popular Badge */}
-      {isPopular && (
-        <div className="absolute top-1.5 right-1.5 z-10">
-          <Badge className="border-none bg-gradient-to-r from-primary to-primary/80 px-1.5 py-0 text-[10px] text-primary-foreground shadow-md">
-            <Sparkles className="mr-1 h-2.5 w-2.5" />
-            Beliebt
-          </Badge>
-        </div>
-      )}
-
       {product.discount_percent > 0 && (
         <div className="absolute top-1.5 left-1.5 z-10">
           <Badge className="border-none bg-orange-500 px-1.5 py-0 text-[10px] text-white">

@@ -104,6 +104,9 @@ function AssistantMessage({
   const doesShowWidget =
     message.parts.filter((p) => p.type.startsWith("tool-show") && p.type !== "tool-showAnswerSuggestions").length > 0;
 
+  // Find answer suggestions part to handle separately
+  const answerSuggestionsPart = message.parts.find((p) => p.type === "tool-showAnswerSuggestions");
+
   return (
     <div className="w-full max-w-full space-y-2">
       <div className="flex items-center gap-3">
@@ -113,15 +116,16 @@ function AssistantMessage({
         <p className="font-bold text-primary">Chris</p>
       </div>
       <div>
-        {message.parts
-          .filter((part) => part.type === "text")
-          .map((part, index) => (
-            // biome-ignore lint/suspicious/noArrayIndexKey: ignored
-            <AssistantTextMessagePart key={`text-${index}`} part={part} />
-          ))}
-
         {message.parts.map((part, index) => {
+          // Skip answer suggestions here - they're handled separately at the end
+          if (part.type === "tool-showAnswerSuggestions") {
+            return null;
+          }
+
           return match(part)
+            .with({ type: "text" }, (part) => (
+              <AssistantTextMessagePart key={`${message.id}-text-${index}`} part={part} />
+            ))
             .with({ type: "tool-showCarTypeUpsellOffer" }, (part) => (
               <AssistantShowCarTypeUpsellOfferToolMessagePart key={part.toolCallId || `upsell-${index}`} part={part} />
             ))
@@ -137,9 +141,9 @@ function AssistantMessage({
             .otherwise(() => <React.Fragment key={`unknown-${message.id}-${index}`} />);
         })}
 
-        {isLast && !doesShowWidget && (
+        {isLast && !doesShowWidget && answerSuggestionsPart && answerSuggestionsPart.type === "tool-showAnswerSuggestions" && (
           <AssistantShowAnswerSuggestionsToolMessagePart
-            part={message.parts.filter((p) => p.type === "tool-showAnswerSuggestions")[0]}
+            part={answerSuggestionsPart as ToolUIPart}
             sendChatMessage={sendChatMessage}
           />
         )}
@@ -284,7 +288,6 @@ function AssistantShowProductsToolMessagePart({ part }: { part: ToolUIPart }) {
   return (
     <ProductsUI
       products={productsToShow}
-      popularProductChargeCodes={input.popularProductChargeCodes}
       onProductToggle={toggleProduct}
     />
   );
