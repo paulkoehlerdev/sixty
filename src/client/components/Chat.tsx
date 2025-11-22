@@ -39,6 +39,11 @@ export const Chat: React.FC<Props> = ({ messages, isWaitingForResponse, sendChat
     }
   }, [messages, scrollToBottom]);
 
+  const isWaitingForToolCall =
+    messages.length > 0 &&
+    messages[messages.length - 1].parts.reverse().find((part) => part.type.startsWith("tool-"))?.state ===
+      "input-streaming";
+
   return (
     <div className="flex flex-col gap-4">
       {agentState?.initialOffer && (
@@ -66,7 +71,7 @@ export const Chat: React.FC<Props> = ({ messages, isWaitingForResponse, sendChat
           );
         })}
 
-      <div>{isWaitingForResponse && <StreamingIndicator />}</div>
+      <div>{(isWaitingForResponse || isWaitingForToolCall) && <StreamingIndicator />}</div>
 
       <div ref={chatEndRef} />
     </div>
@@ -145,12 +150,15 @@ function AssistantMessage({
             .otherwise(() => <React.Fragment key={`unknown-${message.id}-${index}`} />);
         })}
 
-        {isLast && !doesShowWidget && answerSuggestionsPart && answerSuggestionsPart.type === "tool-showAnswerSuggestions" && (
-          <AssistantShowAnswerSuggestionsToolMessagePart
-            part={answerSuggestionsPart as ToolUIPart}
-            sendChatMessage={sendChatMessage}
-          />
-        )}
+        {isLast &&
+          !doesShowWidget &&
+          answerSuggestionsPart &&
+          answerSuggestionsPart.type === "tool-showAnswerSuggestions" && (
+            <AssistantShowAnswerSuggestionsToolMessagePart
+              part={answerSuggestionsPart as ToolUIPart}
+              sendChatMessage={sendChatMessage}
+            />
+          )}
       </div>
     </div>
   );
@@ -289,12 +297,7 @@ function AssistantShowProductsToolMessagePart({ part }: { part: ToolUIPart }) {
     return;
   }
 
-  return (
-    <ProductsUI
-      products={productsToShow}
-      onProductToggle={toggleProduct}
-    />
-  );
+  return <ProductsUI products={productsToShow} onProductToggle={toggleProduct} />;
 }
 
 function AssistantShowAnswerSuggestionsToolMessagePart({
