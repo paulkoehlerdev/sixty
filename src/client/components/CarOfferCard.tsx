@@ -1,16 +1,16 @@
 import { Briefcase, Gauge, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import type { Offer, Price, PriceBreakdown } from "@/lib/sixt/types";
+import type { Offer } from "@/lib/sixt/types";
 import { CarCardHeader, VehicleImageDisplay } from "./CarCard";
-import { Button } from "@/components/ui/button.tsx";
 import { PriceDisplay } from "@/client/components/ui-elements/PriceDisplay.tsx";
 
 interface UpgradeCardProps {
   offer: Offer;
-  baseOffer: Offer | undefined;
+  baseOffer?: Offer;
+  showPrice?: boolean;
 }
 
-export function CarOfferCardContent({ offer, baseOffer }: UpgradeCardProps) {
+export function CarOfferCardContent({ offer, baseOffer, showPrice = false }: UpgradeCardProps) {
   const { car_info } = offer;
 
   // Get the best image URL (prefer frontview from v2, fallback to regular images)
@@ -68,11 +68,7 @@ export function CarOfferCardContent({ offer, baseOffer }: UpgradeCardProps) {
         {offer.promo_label && <Badge className="bg-primary text-primary-foreground">{offer.promo_label}</Badge>}
 
         {/* Price difference */}
-        <PriceDisplay price={offer.price_per_day} comparisonPrice={baseOffer?.price_per_day} />
-      </div>
-
-      <div className="p-3">
-        <Button className="w-full p-2">Upgrade</Button>
+        {showPrice && <PriceDisplay price={offer.price_per_day} comparisonPrice={baseOffer?.price_per_day} />}
       </div>
     </>
   );

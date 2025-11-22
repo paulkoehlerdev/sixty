@@ -68,7 +68,7 @@ export function CurrentBookingUI({ booking }: { booking: Offer }) {
 
         <div className="mt-4 flex items-center justify-between rounded-lg bg-secondary/50 px-4 py-3">
           <span className="text-muted-foreground text-sm">Total Price</span>
-          <PriceDisplay price={booking.price_total} />
+          <PriceDisplay price={booking.price_total} displaySuffix={false} />
         </div>
       </CardContent>
     </Card>

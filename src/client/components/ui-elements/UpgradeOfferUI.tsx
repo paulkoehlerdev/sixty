@@ -2,6 +2,7 @@ import { Card } from "@/components/ui/card.tsx";
 import type { Offer } from "@/lib/sixt/types";
 import { cn } from "@/lib/utils.ts";
 import { CarOfferCardContent } from "../CarOfferCard.tsx";
+import { Button } from "@/components/ui/button.tsx";
 
 interface UpgradeOfferUIProps {
   offer: Offer;
@@ -14,7 +15,11 @@ export function UpgradeOfferUI({ offer, baseOffer, className }: UpgradeOfferUIPr
     <div className={cn(className)}>
       <h2 className="mb-4 font-bold text-foreground text-lg">Recommended Upgrade</h2>
       <Card variant="ai">
-        <CarOfferCardContent offer={offer} baseOffer={baseOffer} />
+        <CarOfferCardContent offer={offer} baseOffer={baseOffer} showPrice={true} />
+
+        <div className="p-3">
+          <Button className="w-full p-2">Upgrade</Button>
+        </div>
       </Card>
     </div>
   );

@@ -1,8 +1,8 @@
 import type { PriceBreakdown } from "@/lib/sixt/types.ts";
 
-export type PriceDisplayProps = { price: PriceBreakdown; comparisonPrice?: PriceBreakdown };
+export type PriceDisplayProps = { price: PriceBreakdown; comparisonPrice?: PriceBreakdown; displaySuffix?: boolean };
 
-export function PriceDisplay({ price, comparisonPrice }: PriceDisplayProps) {
+export function PriceDisplay({ price, comparisonPrice, displaySuffix = true }: PriceDisplayProps) {
   let value = price.display_amount.value;
 
   if (comparisonPrice) {
@@ -17,7 +17,7 @@ export function PriceDisplay({ price, comparisonPrice }: PriceDisplayProps) {
         {left}
       </span>
       <span className="text-sm">
-        ,{right} € {price.display_suffix}
+        ,{right} € {displaySuffix && price.display_suffix}
       </span>
     </p>
   );

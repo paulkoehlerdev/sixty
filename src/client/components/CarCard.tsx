@@ -10,7 +10,7 @@ export function VehicleImageDisplay({ src, alt, className }: { src: string; alt:
       style={{
         backgroundImage: `url(${src || "/placeholder.svg"})`,
         backgroundSize: "cover",
-        backgroundPosition: "50% 75%",
+        backgroundPosition: "50% 65%",
         backgroundRepeat: "no-repeat",
       }}
       role="img"
