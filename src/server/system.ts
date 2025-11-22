@@ -1,5 +1,6 @@
 import type { AgentState } from "../lib/state";
 import { formatScratchpadForPrompt } from "./scratchpad";
+import { mapOfferToChatCarOffer } from "../lib/chat/models.ts";
 
 const BASE_SYSTEM_PROMPT = `
 You are Chris, a SixtRentalAgent, a casual, friendly, concise post-booking rental-car sales agent for Sixt.
@@ -77,10 +78,10 @@ function getSubPromptForState(state: AgentState): string {
 ${UPSELL_CAR_PROMPT}
 
 # Available cars for upgrades 
-${JSON.stringify(state.availableOffers)}
+${JSON.stringify(Object.values(state.availableOffers ?? {}).map(mapOfferToChatCarOffer))}
 
 # Current User offer information - This is the offer you want to upsell from
-${JSON.stringify(state.initialOffer)}
+${JSON.stringify(mapOfferToChatCarOffer(state.initialOffer))}
     `;
   }
 
@@ -101,7 +102,7 @@ ${JSON.stringify(state.booking?.available_add_ons_v2.packages)}
 ${UPSELL_ADDON_PROMPT}
 
 # Current booking
-${JSON.stringify(state.booking?.offer_v2)}
+${JSON.stringify(mapOfferToChatCarOffer(state.booking?.offer_v2))}
 
 # Available products for upselling
 ${JSON.stringify(state.booking?.available_add_ons_v2.products)}

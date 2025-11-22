@@ -1,6 +1,6 @@
 import { getOfferRecommendations, selectLocation } from "../lib/sixt/api.ts";
 import type { UserProfileScratchpad } from "../server/scratchpad.ts";
-import type { Booking, Location, Offer, OfferId, SelectedLocation } from "./sixt/types.ts";
+import type { Booking, Location, Offer, OfferId } from "./sixt/types.ts";
 
 export type AgentState = {
   stage: Stage;

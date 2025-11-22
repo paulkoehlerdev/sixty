@@ -1,7 +1,4 @@
-import type { Tool } from "ai";
-import { z } from "zod";
-import { getOfferRecommendations, getSuggestedLocations, selectLocation } from "../../lib/sixt/api";
-import type { Branch, CarInfo, Distance, Image, MileagePlan, Positon, Price } from "../../lib/sixt/types.ts";
+import type { Branch, CarInfo, Distance, Image, MileagePlan, Offer, Positon, Price } from "../sixt/types.ts";
 
 type ChatBranch = {
   location_id: string;
@@ -43,32 +40,6 @@ function mapApiBranchToChatBranch(b: Branch): ChatBranch {
     is_e_vehicle_available: b.is_e_vehicle_available,
   };
 }
-
-export const getSuggestedBranchesByName = {
-  description:
-    "Get the Pick Up and return Locations available with SIXT by the name. The query **must** be provided in german.",
-  inputSchema: z.object({
-    query: z.string().describe("The location name to search for."),
-  }),
-  execute: async ({ query }, { toolCallId }): Promise<ChatBranch[]> => {
-    return (await getSuggestedLocations(query)).map((l) => l.branch).map(mapApiBranchToChatBranch);
-  },
-} satisfies Tool<{ query: string }, ChatBranch[]>;
-
-export const selectBranch = {
-  description:
-    "Select a branch from the list of suggested locations. (You will need to find locations with the getSuggestedLocationsByName tool call.)",
-  inputSchema: z.object({
-    branch_location_id: z.string().describe("The location name to search for."),
-  }),
-  execute: async ({ branch_location_id }, { toolCallId }) => {
-    const { location_selection_id, selected_location } = await selectLocation(branch_location_id);
-    return {
-      branch_uuid: location_selection_id,
-      branch: mapApiBranchToChatBranch(selected_location.branch),
-    };
-  },
-} satisfies Tool<{ branch_location_id: string }, { branch_uuid: string; branch: ChatBranch }>;
 
 type ChatMileagePlan = {
   is_unlimited: boolean;
@@ -158,52 +129,23 @@ function mapCarInfoToChatCarInfo(c: CarInfo): ChatCarInfo {
 }
 
 type ChatCarOffer = {
+  offer_id: string;
   price_total: Price;
   price_per_day: Price;
   mileage_plans: ChatMileagePlan[];
   car_info: ChatCarInfo;
 };
 
-type BookingDetails = {
-  pickup_timestamp: string;
-  return_timestamp: string;
-  pickup_location_branch_uuid: string;
-  return_location_branch_uuid: string;
-};
+export function mapOfferToChatCarOffer(o?: Offer): ChatCarOffer | undefined {
+  if (!o) {
+    return undefined;
+  }
 
-export const getCarAlternatives = {
-  description: "Get car alternatives based on the given booking details.",
-  inputSchema: z.object({
-    pickup_timestamp: z.string().describe("The pickup timestamp in ISO 8601 format."),
-    return_timestamp: z.string().describe("The return timestamp in ISO 8601 format."),
-    pickup_location_branch_uuid: z
-      .string()
-      .describe(
-        "The branch_uuid from the selectBranch tool call. (Do not use the branch_location_id from the getSuggestedBranchesByName tool call. Use the branch_uuid from the selectBranch tool call.)",
-      ),
-    return_location_branch_uuid: z
-      .string()
-      .describe(
-        "The return branch_uuid from the selectBranch tool call. (Do not use the branch_location_id from the getSuggestedBranchesByName tool call. Use the branch_uuid from the selectBranch tool call.)",
-      ),
-  }),
-  execute: async (details, { toolCallId }): Promise<ChatCarOffer[]> => {
-    return (
-      await getOfferRecommendations({
-        pickup_timestamp: new Date(details.pickup_timestamp),
-        return_timestamp: new Date(details.return_timestamp),
-        pickup_location_selection_id: details.pickup_location_branch_uuid,
-        return_location_selection_id: details.return_location_branch_uuid,
-      })
-    ).map((offer) => {
-      return {
-        price_total: offer.price_total.display_amount,
-        price_per_day: offer.price_per_day.display_amount,
-        mileage_plans: offer.mileage_plans.map(mapMileagePlanToChatMileagePlan),
-        car_info: mapCarInfoToChatCarInfo(offer.car_info),
-      };
-    });
-  },
-} satisfies Tool<BookingDetails, ChatCarOffer[]>;
-
-export const sixtTools = { getSuggestedBranchesByName, selectBranch, getCarAlternatives };
+  return {
+    offer_id: o.offer_id,
+    price_total: o.price_total.display_amount,
+    price_per_day: o.price_per_day.display_amount,
+    mileage_plans: o.mileage_plans.map(mapMileagePlanToChatMileagePlan),
+    car_info: mapCarInfoToChatCarInfo(o.car_info),
+  };
+}
