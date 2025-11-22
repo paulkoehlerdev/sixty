@@ -7,7 +7,7 @@ import { AgentStateContext } from "@/client/components/AgentStateContext.tsx";
 import { Chat } from "@/client/components/Chat.tsx";
 import { ChatInput } from "@/client/components/ChatInput.tsx";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import type { AcceptUpgradeControlMessage } from "@/lib/messages.ts";
+import type { AcceptUpgradeControlMessage, ChatMessageMetadata } from "@/lib/messages.ts";
 import type { OfferId } from "@/lib/sixt/types.ts";
 import type { AgentState } from "@/lib/state.ts";
 
@@ -25,7 +25,7 @@ export const ChatScreen: React.FC<{ sessionID: string; startNewSession: () => vo
     onClose: () => {},
   });
 
-  const agentChat = useAgentChat<AgentState, UIMessage>({ agent });
+  const agentChat = useAgentChat<AgentState, UIMessage<ChatMessageMetadata>>({ agent });
 
   const isAgentReadyForNextMessage = agentChat.status === "ready";
 
