@@ -33,10 +33,10 @@ const abortCarTypeUpsell = (state: AgentState, setState: (state: AgentState) => 
   return {
     description:
       "Transition to the next stage of upselling. You should only use this if you are sure you won't be able to upsell the user!".trim(),
-    inputSchema: z.void(),
+    inputSchema: z.object({}),
     execute: async () => {
       setState({ ...state, stage: "insurance_upselling" });
       return "Showing the upselling car offer to the user.";
     },
-  } satisfies Tool<void, string>;
+  } satisfies Tool<Record<string, never>, string>;
 };
