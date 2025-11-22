@@ -67,7 +67,7 @@ export class SixtyAgent extends AIChatAgent<Env, AgentState> {
       messages: convertToModelMessages(this.messages),
       model,
       tools: {
-        ...getAvailableToolsForState(this.state),
+        ...getAvailableToolsForState(this.state, this.setState),
       },
       onFinish,
       abortSignal: options?.abortSignal,
