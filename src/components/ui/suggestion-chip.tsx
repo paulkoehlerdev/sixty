@@ -18,8 +18,15 @@ export function SuggestionChip({ suggestion, className, ...props }: SuggestionCh
         type="button"
         tabIndex={0}
         className={cn(
-          "shrinkwrap-target text-sm",
-          "before:-mx-2.5 before:-my-1.5 before:translate-y-px before:rounded-lg before:border-[1.25px] before:border-transparent before:bg-[linear-gradient(var(--suggestion-chip-bg),var(--suggestion-chip-bg)),linear-gradient(var(--ai-gradient-start),var(--ai-gradient-end))] before:[background-clip:padding-box,border-box] before:[background-origin:border-box]",
+          "shrinkwrap-target cursor-pointer text-sm",
+          // Before pseudo-element positioning and styling
+          "before:-mx-2.5 before:-my-1.5 before:translate-y-px before:rounded-lg",
+          "before:border-[1.25px] before:border-transparent",
+          // Before background gradients
+          "before:bg-[linear-gradient(var(--suggestion-chip-bg),var(--suggestion-chip-bg)),linear-gradient(var(--ai-gradient-start),var(--ai-gradient-end))]",
+          // Before background properties
+          "before:[background-clip:padding-box,border-box]",
+          "before:bg-origin-border",
           className,
         )}
         {...props}

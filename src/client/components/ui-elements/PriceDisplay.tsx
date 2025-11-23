@@ -30,7 +30,7 @@ const priceDisplayMainTextVariants = cva("", {
 const priceDisplayDecimalVariants = cva("", {
   variants: {
     size: {
-      xl: "text-sm",
+      xl: "text-base",
       sm: "text-[10px]",
     },
   },

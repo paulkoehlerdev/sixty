@@ -9,6 +9,7 @@ import type { ChatMessageMetadata } from "@/lib/messages.ts";
 import type { Offer } from "@/lib/sixt/types";
 import { cn } from "@/lib/utils";
 import type {
+  AddProductToolInput,
   AddProtectionPackageToolInput,
   AnswerSuggestionsToolInput,
   CarUpsellOfferToolInput,
@@ -20,6 +21,7 @@ import { StreamingIndicator } from "./chat-streaming";
 import { ToolCallShimmer } from "./ToolCallShimmer";
 import { BookingSummary } from "./ui-elements/BookingSummary";
 import { CurrentBookingUI } from "./ui-elements/CurrentBookingUI";
+import { ProductCard } from "./ui-elements/ProductCard";
 import { ProductsUI } from "./ui-elements/ProductsUI";
 import { ProtectionPlansUI } from "./ui-elements/ProtectionPlansUI";
 import { UpgradeOfferUI } from "./ui-elements/UpgradeOfferUI";
@@ -55,6 +57,8 @@ export const Chat: React.FC<Props> = ({ messages, isWaitingForResponse, sendChat
       "tool-showCarTypeUpsellOffer",
       "tool-showProtectionPackages",
       "tool-showProducts",
+      "tool-addProtectionPackage",
+      "tool-addProduct",
       "tool-showAnswerSuggestions",
     ];
 
@@ -502,13 +506,30 @@ function AssistantAddProtectionPackageToolMessagePart({ part }: { part: ToolUIPa
 }
 
 function AssistantAddProductToolMessagePart({ part }: { part: ToolUIPart }) {
-  // Show shimmer while tool is executing
-  if (part.state === "input-streaming" || part.state === "input-available") {
+  const { agentState, toggleProduct } = useAgentState();
+
+  if (!part.input || part.state === "input-streaming") {
     return <ToolCallShimmer message="Adding product to your booking" />;
   }
 
-  // Don't render anything after tool completes - the LLM will confirm the action
-  return null;
+  const input = part.input as AddProductToolInput;
+  const availableProducts = agentState?.booking?.available_add_ons_v2.products || [];
+  const productToShow = availableProducts.find((product) => product.charge_code === input.productChargeCode);
+
+  if (!productToShow) {
+    return null;
+  }
+
+  // Render the product that was added (it should already be marked as selected in the state)
+  return (
+    <div className="my-4">
+      <ProductCard
+        product={productToShow}
+        isSelected={productToShow.is_selected}
+        onToggle={toggleProduct}
+      />
+    </div>
+  );
 }
 
 function AssistantShowAnswerSuggestionsToolMessagePart({

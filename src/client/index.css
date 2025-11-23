@@ -50,7 +50,6 @@
   --color-success-gradient-start: var(--success-gradient-start);
   --color-success-gradient-end: var(--success-gradient-end);
 
-  --suggestion-chip-bg: #f2f7ff;
 }
 
 html {
@@ -104,6 +103,9 @@ html {
   
 
   --chat-width: calc(min(100dvw, 32rem) - 6*var(--spacing));
+
+
+  --suggestion-chip-bg: #FCDBC9;
 }
 
 .dark {
@@ -148,7 +150,7 @@ html {
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.408 0.123 38.172);
 
-  --suggestion-chip-bg: oklch(0.21 0.006 285.885);
+  --suggestion-chip-bg: var(--background);
 }
 
 @layer base {
