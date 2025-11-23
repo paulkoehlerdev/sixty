@@ -10,10 +10,7 @@ if (process.env.NODE_ENV !== "production") {
   process.on("unhandledRejection", (reason, promise) => {
     // Ignore errors related to Fetch API and WebSocket URLs
     // This is a known issue with the agents library in development
-    if (
-      reason instanceof TypeError &&
-      reason.message?.includes("Fetch API cannot load: ws://")
-    ) {
+    if (reason instanceof TypeError && reason.message?.includes("Fetch API cannot load: ws://")) {
       // Silently ignore this specific error as it doesn't affect functionality
       // The WebSocket connection will be established properly from the client side
       return;

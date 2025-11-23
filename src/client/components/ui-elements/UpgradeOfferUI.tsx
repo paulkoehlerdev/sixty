@@ -1,3 +1,4 @@
+import { motion } from "framer-motion";
 import { Check, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button.tsx";
@@ -61,10 +62,38 @@ export function UpgradeOfferUI({ offer, baseOffer, booking, className, aiTextInp
           <div className="p-3">
             <Button className="w-full p-2" onClick={handleUpgrade} disabled={isLoading}>
               {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Loading...
-                </>
+                <motion.div
+                  className="flex items-center"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <div className="relative mr-2">
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{
+                        duration: 1,
+                        repeat: Number.POSITIVE_INFINITY,
+                        ease: "linear",
+                      }}
+                    >
+                      <Loader2 className="h-4 w-4 text-primary-foreground" />
+                    </motion.div>
+                    <motion.div
+                      className="absolute inset-0 rounded-full border-2 border-primary-foreground/20"
+                      animate={{
+                        scale: [1, 1.2, 1],
+                        opacity: [0.5, 0.8, 0.5],
+                      }}
+                      transition={{
+                        duration: 2,
+                        repeat: Number.POSITIVE_INFINITY,
+                        ease: "easeInOut",
+                      }}
+                    />
+                  </div>
+                  <span>Loading...</span>
+                </motion.div>
               ) : (
                 "Upgrade"
               )}

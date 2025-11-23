@@ -16,6 +16,8 @@ export type AgentState = {
 
   answerSuggestions?: string[];
   suggestionsMessageID?: string;
+  paymentCompleted?: boolean;
+  carUnlocked?: boolean;
 };
 
 export type Stage = "car_type_upselling" | "insurance_upselling" | "addon_upselling" | "completed";

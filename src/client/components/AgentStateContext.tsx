@@ -8,12 +8,16 @@ export const AgentStateContext = createContext<{
   selectProtectionPackage: (packageId: string) => void;
   toggleProduct: (productChargeCode: string) => void;
   unlockCar: () => void;
+  revertToInitialOffer: () => void;
+  processPayment: (paymentMethod: "apple" | "google" | "card") => Promise<void>;
 }>({
   agentState: null,
   acceptUpgradeOffer: () => {},
   selectProtectionPackage: () => {},
   toggleProduct: () => {},
   unlockCar: () => {},
+  revertToInitialOffer: () => {},
+  processPayment: async () => {},
 });
 
 export const useAgentState = () => {

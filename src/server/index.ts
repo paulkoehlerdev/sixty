@@ -185,6 +185,18 @@ export class SixtyAgent extends AIChatAgent<Env, AgentState> {
         await this.toggleProduct(controlMessage.productChargeCode);
         break;
 
+      case "REVERT_TO_INITIAL_OFFER":
+        await this.revertToInitialOffer();
+        break;
+
+      case "PROCESS_PAYMENT":
+        await this.processPayment(controlMessage.paymentMethod);
+        break;
+
+      case "UNLOCK_CAR":
+        await this.unlockCar();
+        break;
+
       default:
         // no control message, thus call super function so that onChatMessage is invoked
         await super.onMessage(connection, message);
@@ -281,6 +293,91 @@ export class SixtyAgent extends AIChatAgent<Env, AgentState> {
     };
 
     this.setState({ ...this.state, booking: updatedBooking });
+  }
+
+  async revertToInitialOffer() {
+    if (!this.state.booking || !this.state.initialOffer) {
+      return;
+    }
+
+    // Delete the booking and revert to initial offer
+    // Fetch booking for the initial offer to get available add-ons
+    const booking = await getBookingForOffer(this.state.initialOffer.offer_id, this.state.offer_matrix_id);
+
+    this.setState({
+      ...this.state,
+      booking,
+      stage: "completed",
+      paymentCompleted: false,
+      carUnlocked: false,
+    });
+
+    await this.saveMessages([
+      ...this.messages,
+      {
+        id: uuidv4(),
+        role: "user",
+        metadata: "hidden",
+        parts: [
+          {
+            type: "text",
+            text: "I decided to cancel the upgrade and keep my original booking.",
+          },
+        ],
+      },
+    ]);
+  }
+
+  async processPayment(paymentMethod: "apple" | "google" | "card") {
+    if (!this.state.booking) {
+      return;
+    }
+
+    // Mark the booking as paid and complete
+    this.setState({
+      ...this.state,
+      stage: "completed",
+      paymentCompleted: true,
+      carUnlocked: false,
+    });
+
+    await this.saveMessages([
+      ...this.messages,
+      {
+        id: uuidv4(),
+        role: "user",
+        metadata: "hidden",
+        parts: [
+          {
+            type: "text",
+            text: `I completed the payment using ${paymentMethod === "apple" ? "Apple Pay" : paymentMethod === "google" ? "Google Pay" : "Credit Card"}.`,
+          },
+        ],
+      },
+    ]);
+  }
+
+  async unlockCar() {
+    // Mark the car as unlocked
+    this.setState({
+      ...this.state,
+      carUnlocked: true,
+    });
+
+    await this.saveMessages([
+      ...this.messages,
+      {
+        id: uuidv4(),
+        role: "user",
+        metadata: "hidden",
+        parts: [
+          {
+            type: "text",
+            text: "I unlocked my car.",
+          },
+        ],
+      },
+    ]);
   }
 }
 

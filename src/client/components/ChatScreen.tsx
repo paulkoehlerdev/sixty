@@ -4,7 +4,6 @@ import type { UIMessage } from "ai";
 import { MessageCircle, Moon, Sun } from "lucide-react";
 import type React from "react";
 import { useState } from "react";
-import { toast } from "sonner";
 import { AgentStateContext } from "@/client/components/AgentStateContext.tsx";
 import { Chat } from "@/client/components/Chat.tsx";
 import { ChatInput } from "@/client/components/ChatInput.tsx";
@@ -15,8 +14,11 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import type {
   AcceptUpgradeControlMessage,
   ChatMessageMetadata,
+  ProcessPaymentControlMessage,
+  RevertToInitialOfferControlMessage,
   SelectProtectionPackageControlMessage,
   ToggleProductControlMessage,
+  UnlockCarControlMessage,
 } from "@/lib/messages.ts";
 import type { OfferId } from "@/lib/sixt/types.ts";
 import type { AgentState } from "@/lib/state.ts";
@@ -75,12 +77,41 @@ export const ChatScreen: React.FC<{ sessionID: string; startNewSession: () => vo
   };
 
   const unlockCar = () => {
-    toast.success("Car has been unlocked successfully");
+    agent.send(
+      JSON.stringify({
+        controlMessageType: "UNLOCK_CAR",
+      } satisfies UnlockCarControlMessage),
+    );
+  };
+
+  const revertToInitialOffer = () => {
+    agent.send(
+      JSON.stringify({
+        controlMessageType: "REVERT_TO_INITIAL_OFFER",
+      } satisfies RevertToInitialOfferControlMessage),
+    );
+  };
+
+  const processPayment = async (paymentMethod: "apple" | "google" | "card") => {
+    agent.send(
+      JSON.stringify({
+        controlMessageType: "PROCESS_PAYMENT",
+        paymentMethod,
+      } satisfies ProcessPaymentControlMessage),
+    );
   };
 
   return (
     <AgentStateContext.Provider
-      value={{ agentState, acceptUpgradeOffer, selectProtectionPackage, toggleProduct, unlockCar }}
+      value={{
+        agentState,
+        acceptUpgradeOffer,
+        selectProtectionPackage,
+        toggleProduct,
+        unlockCar,
+        revertToInitialOffer,
+        processPayment,
+      }}
     >
       <div className="mx-auto min-h-dvh w-[calc(min(100dvw,32rem))] overflow-hidden px-3 pb-8">
         <BookingsPage
