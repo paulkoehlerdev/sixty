@@ -4,11 +4,12 @@ import type { UIMessage } from "ai";
 import { AnimatePresence, motion } from "framer-motion";
 import { MessageCircle, Moon, Sun, X } from "lucide-react";
 import type React from "react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AgentStateContext } from "@/client/components/AgentStateContext.tsx";
 import { Chat } from "@/client/components/Chat.tsx";
 import { ChatInput } from "@/client/components/ChatInput.tsx";
 import { BookingSummary } from "@/client/components/ui-elements/BookingSummary.tsx";
+import { useChatScroll } from "@/client/components/useChatScroll.ts";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import type {
@@ -259,14 +260,35 @@ type ChatContentProps = {
 };
 
 const ChatContent: React.FC<ChatContentProps> = ({ agentChat, agentState, sendChatMessage }) => {
+  const { viewportRef, onNewUserMessage } = useChatScroll();
+
+  const userMessageCountRef = useRef(0);
+
+  // Track user messages to notify scroller
+  useEffect(() => {
+    // do only consider VISIBLE user messages
+    const userMessageCount = agentChat.messages.filter((m) => m.role === "user" && m.metadata !== "hidden").length;
+
+    if (userMessageCountRef.current < userMessageCount) {
+      onNewUserMessage();
+      userMessageCountRef.current = userMessageCount;
+    }
+  }, [agentChat.messages, onNewUserMessage]);
+
+  // Reset following when user sends a message
+  const handleSendMessage = (message: string) => {
+    sendChatMessage(message);
+    // The MutationObserver will detect the new user message and call onNewUserMessage
+  };
+
   return (
     <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden">
-      <ScrollArea className="flex-1 px-2">
+      <ScrollArea className="flex-1 px-2" viewportRef={viewportRef}>
         <div className="mx-auto w-(--chat-width) max-w-(--chat-width) py-4">
           <Chat
             messages={agentChat.messages}
             isWaitingForResponse={agentChat.status === "submitted"}
-            sendChatMessage={sendChatMessage}
+            sendChatMessage={handleSendMessage}
           />
 
           {/* Spacer to prevent content from being hidden behind input */}

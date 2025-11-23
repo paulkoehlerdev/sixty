@@ -1,5 +1,5 @@
 import type { TextUIPart, ToolUIPart, UIMessage } from "ai";
-import React, { useCallback, useEffect, useMemo, useRef } from "react";
+import React, { useMemo } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { match } from "ts-pattern";
@@ -33,17 +33,6 @@ const ignoredToolCalls = ["tool-updateScratchpad"];
 
 export const Chat: React.FC<Props> = ({ messages, isWaitingForResponse, sendChatMessage }) => {
   const { agentState } = useAgentState();
-  const chatEndRef = useRef<HTMLDivElement>(null);
-
-  const scrollToBottom = useCallback(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, []);
-
-  useEffect(() => {
-    if (messages.length > 0) {
-      scrollToBottom();
-    }
-  }, [messages, scrollToBottom]);
 
   // Check if we should show the streaming indicator
   const shouldShowStreamingIndicator = useMemo(() => {
@@ -141,8 +130,6 @@ export const Chat: React.FC<Props> = ({ messages, isWaitingForResponse, sendChat
       <div>{shouldShowStreamingIndicator && <StreamingIndicator />}</div>
 
       {agentState && agentState.stage === "completed" && <BookingSummary state={agentState} />}
-
-      <div ref={chatEndRef} />
     </div>
   );
 };
@@ -159,7 +146,11 @@ const MessageBubble = React.memo(function MessageBubble({
   lastUserMessageId?: string;
 }) {
   return (
-    <div className={cn("flex gap-2", message.role === "user" ? "items-center justify-end" : "justify-start")}>
+    <div
+      className={cn("flex gap-2", message.role === "user" ? "items-center justify-end" : "justify-start")}
+      data-message-id={message.id}
+      data-message-role={message.role}
+    >
       {match(message.role)
         .with("user", () => <UserMessage message={message} />)
         .with("assistant", () => (
