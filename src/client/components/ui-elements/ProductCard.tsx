@@ -88,7 +88,9 @@ export function ProductCard({ product, isSelected, onToggle, className }: Produc
 
           {/* Title and Description */}
           <div className="min-w-0 flex-1">
-            <h3 className="text-balance font-semibold text-sm leading-tight">{product.description.name}</h3>
+            <h3 className="line-clamp-1 text-balance font-semibold text-sm leading-tight">
+              {product.description.name}
+            </h3>
             <p className="mt-0.5 line-clamp-1 text-muted-foreground text-xs leading-snug">
               {product.description.description}
             </p>
@@ -96,12 +98,8 @@ export function ProductCard({ product, isSelected, onToggle, className }: Produc
 
           {/* Price */}
           <div className="shrink-0 text-right">
-            <PriceDisplay price={product.actual_price} />
-          </div>
-
-          {/* Toggle Switch */}
-          <div className="shrink-0">
             <Switch checked={currentSelected || product.is_mandatory} onCheckedChange={handleToggle} />
+            <PriceDisplay size="sm" price={product.actual_price} className="font-semibold" />
           </div>
         </div>
       </div>

@@ -416,9 +416,9 @@ function AssistantShowCarTypeUpsellOfferToolMessagePart({ part }: { part: ToolUI
 
   // Multiple offers - show horizontal scroll
   return (
-    <div className="flex max-w-lg flex-row gap-4 overflow-x-scroll py-4">
+    <div className="scrollbar-none flex w-(--chat-width) max-w-lg flex-row gap-4 overflow-x-scroll py-4">
       {offerData.map(({ offer, aiTextInput }) => (
-        <div key={offer.offer_id} className="max-w-120 shrink-0">
+        <div key={offer.offer_id} className="max-w-[calc(0.95*var(--chat-width))] shrink-0">
           <UpgradeOfferUI
             offer={offer}
             baseOffer={agentState?.initialOffer}

@@ -101,6 +101,9 @@ html {
   --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
   --sidebar-border: oklch(0.92 0.004 286.32);
   --sidebar-ring: oklch(0.75 0.183 55.934);
+  
+
+  --chat-width: calc(min(100dvw, 32rem) - 6*var(--spacing));
 }
 
 .dark {
@@ -315,5 +318,15 @@ html {
       position: static; /* 2 */
       display: inline;  /* 2 */
     }
+  }
+
+
+  .scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
   }
 }

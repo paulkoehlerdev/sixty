@@ -82,7 +82,7 @@ export const ChatScreen: React.FC<{ sessionID: string; startNewSession: () => vo
     <AgentStateContext.Provider
       value={{ agentState, acceptUpgradeOffer, selectProtectionPackage, toggleProduct, unlockCar }}
     >
-      <div className="mx-auto h-dvh w-[calc(min(100dvw,32rem))] overflow-hidden px-3">
+      <div className="mx-auto min-h-dvh w-[calc(min(100dvw,32rem))] overflow-hidden px-3 pb-8">
         <BookingsPage
           agentState={agentState}
           onOpenChat={() => setIsDrawerOpen(true)}
@@ -196,14 +196,14 @@ type ChatContentProps = {
 
 const ChatContent: React.FC<ChatContentProps> = ({ agentChat, agentState, sendChatMessage }) => {
   return (
-    <ScrollArea className="relative mx-auto h-[96vh] max-w-lg px-3 pt-4">
+    <ScrollArea className="relative mx-auto h-[96vh] w-(--chat-width) pt-4">
       <Chat
         messages={agentChat.messages}
         isWaitingForResponse={agentChat.status === "submitted"}
         sendChatMessage={sendChatMessage}
       />
 
-      {agentState?.stage !== "completed" && <div className="h-30" />}
+      {agentState?.stage !== "completed" && <div className="h-16" />}
 
       <div className="fixed right-3 bottom-0 left-3 mx-auto grid max-w-lg justify-items-center">
         {agentState?.stage !== "completed" && (
