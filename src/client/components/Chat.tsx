@@ -1,5 +1,5 @@
 import type { TextUIPart, ToolUIPart, UIMessage } from "ai";
-import React, { useCallback, useEffect, useMemo, useRef } from "react";
+import React, { useMemo } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { match } from "ts-pattern";
@@ -27,23 +27,13 @@ type Props = {
   messages: UIMessage<ChatMessageMetadata>[];
   isWaitingForResponse: boolean;
   sendChatMessage: (message: string) => void;
+  chatEndRef?: React.RefObject<HTMLDivElement | null>;
 };
 
 const ignoredToolCalls = ["tool-updateScratchpad"];
 
-export const Chat: React.FC<Props> = ({ messages, isWaitingForResponse, sendChatMessage }) => {
+export const Chat: React.FC<Props> = ({ messages, isWaitingForResponse, sendChatMessage, chatEndRef }) => {
   const { agentState } = useAgentState();
-  const chatEndRef = useRef<HTMLDivElement>(null);
-
-  const scrollToBottom = useCallback(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, []);
-
-  useEffect(() => {
-    if (messages.length > 0) {
-      scrollToBottom();
-    }
-  }, [messages, scrollToBottom]);
 
   // Check if we should show the streaming indicator
   const shouldShowStreamingIndicator = useMemo(() => {
@@ -501,9 +491,9 @@ function AssistantShowCarTypeUpsellOfferToolMessagePart({
 
   // Multiple offers - show horizontal scroll
   return (
-    <div className="scrollbar-none flex w-(--chat-width) max-w-lg snap-x snap-mandatory flex-row gap-4 overflow-x-scroll py-4">
+    <div className="scrollbar-none flex w-(--chat-width) max-w-lg snap-x snap-mandatory flex-row overflow-x-scroll py-4">
       {offerData.map(({ offer, aiTextInput }) => (
-        <div key={offer.offer_id} className="max-w-[calc(0.95*var(--chat-width))] shrink-0 snap-center">
+        <div key={offer.offer_id} className="mr-4 max-w-[calc(0.95*var(--chat-width))] shrink-0 snap-center">
           <UpgradeOfferUI
             offer={offer}
             baseOffer={agentState?.initialOffer}

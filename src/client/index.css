@@ -103,8 +103,7 @@ html {
   --sidebar-ring: oklch(0.75 0.183 55.934);
   
 
-  --chat-width: calc(min(100dvw, 32rem) - 6*var(--spacing));
-
+  --chat-width: calc(min(100dvw, 32rem) - 4*var(--spacing));
 
   --suggestion-chip-bg: #FCDBC9;
 }

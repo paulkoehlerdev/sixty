@@ -260,15 +260,15 @@ type ChatContentProps = {
 
 const ChatContent: React.FC<ChatContentProps> = ({ agentChat, agentState, sendChatMessage }) => {
   return (
-    <div className="relative flex min-h-0 flex-1 flex-col">
-      <ScrollArea className="flex-1 px-4">
-        <div className="mx-auto max-w-2xl py-4">
+    <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden">
+      <ScrollArea className="flex-1 px-2">
+        <div className="mx-auto w-(--chat-width) max-w-(--chat-width) py-4">
           <Chat
             messages={agentChat.messages}
             isWaitingForResponse={agentChat.status === "submitted"}
             sendChatMessage={sendChatMessage}
           />
-          
+
           {/* Spacer to prevent content from being hidden behind input */}
           {agentState?.stage !== "completed" && <div className="h-24" />}
         </div>
@@ -281,11 +281,11 @@ const ChatContent: React.FC<ChatContentProps> = ({ agentChat, agentState, sendCh
 
       {/* Chat input at bottom - absolutely positioned */}
       {agentState?.stage !== "completed" && (
-        <div 
+        <div
           className="fixed inset-x-0 bottom-0 z-20 px-4 py-4"
           style={{ paddingBottom: "max(1rem, env(safe-area-inset-bottom))" }}
         >
-          <div className="mx-auto max-w-2xl">
+          <div className="mx-auto" style={{ maxWidth: "var(--chat-width)" }}>
             <ChatInput placeholder="Send a message" sendChatMessage={sendChatMessage} />
           </div>
         </div>
