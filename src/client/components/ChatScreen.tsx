@@ -267,7 +267,7 @@ const ChatContent: React.FC<ChatContentProps> = ({ agentChat, agentState, sendCh
   // Track user messages to notify scroller
   useEffect(() => {
     // do only consider VISIBLE user messages
-    const userMessageCount = agentChat.messages.filter((m) => m.role === "user" && m.metadata !== "hidden").length;
+    const userMessageCount = agentChat.messages.filter((m) => m.role === "user").length;
 
     if (userMessageCountRef.current < userMessageCount) {
       onNewUserMessage();

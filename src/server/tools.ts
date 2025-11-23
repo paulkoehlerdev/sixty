@@ -236,7 +236,7 @@ const addProtectionPackage = (state: AgentState, setState: (state: AgentState) =
         return "Cannot add protection package: no booking available.";
       }
 
-      // Update the booking state to mark the package as selected
+      // Set is_selected to true for the selected package
       const updatedPackages = state.booking.available_add_ons_v2.packages.map((pkg) =>
         pkg.id === packageId ? { ...pkg, is_selected: true } : { ...pkg, is_selected: false },
       );
@@ -249,10 +249,8 @@ const addProtectionPackage = (state: AgentState, setState: (state: AgentState) =
         },
       };
 
-      setState({ ...state, booking: updatedBooking });
-
-      const selectedPackage = updatedPackages.find((pkg) => pkg.id === packageId);
-      return `Successfully added protection package "${selectedPackage?.description.name || packageId}" to the booking.`;
+      setState({ ...state, stage: "addon_upselling", booking: updatedBooking });
+      return `Displaying 1 protection package(s) to the user with package ${packageId} highlighted as best value.`;
     },
   } satisfies Tool<AddProtectionPackageToolInput, string>;
 };
