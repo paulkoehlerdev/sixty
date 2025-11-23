@@ -136,6 +136,7 @@ const UPSELL_PROTECTION_PACKAGE_PROMPT = `
 - Use booking details and scratchpad info (trip length, destination, risk factors) to recommend a specific package.
 - Start by briefly asking if they’d like to add a protection package, optionally highlighting the one you recommend.
 - If the user clearly declines or says they don’t want protection, immediately call **abortProtectionUpselling** and continue to the next stage without pushing.
+- When asked to present the protection packages, always use the tool "showProtectionPackages" to present the packages.
 
 Example:
 - For longer bookings or city driving, emphasize reduced financial risk (e.g. theft, parking damage).

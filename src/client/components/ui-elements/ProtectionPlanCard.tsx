@@ -40,8 +40,9 @@ export function ProtectionPlanCard({ package: pkg, onSelect, className, variant 
   return (
     <Card
       variant={isSuccess ? "success" : variant}
+      bg="muted"
       className={cn(
-        "relative transition-all",
+        "relative bg-muted transition-all dark:bg-card",
         !isSuccess && "border dark:border",
         !isSuccess && !isLoading && "cursor-pointer hover:border-primary",
         variant === "ai" && !isSuccess && "hover:border-none",

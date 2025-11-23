@@ -4,9 +4,10 @@ import { cn } from "@/lib/utils";
 
 interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   variant?: "normal" | "ai" | "success";
+  bg?: "card" | "muted";
 }
 
-export function Card({ className, variant, ...props }: CardProps) {
+export function Card({ className, variant, bg = "card", ...props }: CardProps) {
   // AI variant: animated gradient border (orange/primary colors)
   if (variant === "ai") {
     return (
@@ -19,7 +20,13 @@ export function Card({ className, variant, ...props }: CardProps) {
           } as React.CSSProperties
         }
       >
-        <div className={cn("relative z-10 overflow-hidden rounded-2xl bg-card text-card-foreground")} {...props} />
+        <div
+          className={cn(
+            "relative z-10 overflow-hidden rounded-2xl bg-card text-card-foreground",
+            bg === "muted" && "bg-muted",
+          )}
+          {...props}
+        />
       </div>
     );
   }
@@ -35,13 +42,28 @@ export function Card({ className, variant, ...props }: CardProps) {
           } as React.CSSProperties
         }
       >
-        <div className={cn("relative z-10 overflow-hidden rounded-2xl bg-card text-card-foreground")} {...props} />
+        <div
+          className={cn(
+            "relative z-10 overflow-hidden rounded-2xl bg-card text-card-foreground",
+            bg === "muted" && "bg-muted",
+          )}
+          {...props}
+        />
       </div>
     );
   }
 
   // Normal card
-  return <div className={cn("relative rounded-2xl border bg-card text-card-foreground", className)} {...props} />;
+  return (
+    <div
+      className={cn(
+        "relative rounded-2xl border bg-card text-card-foreground",
+        bg === "muted" && "bg-muted",
+        className,
+      )}
+      {...props}
+    />
+  );
 }
 
 export function CardHeader({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {

@@ -9,6 +9,7 @@ import type { ChatMessageMetadata } from "@/lib/messages.ts";
 import type { Offer } from "@/lib/sixt/types";
 import { cn } from "@/lib/utils";
 import type {
+  AddProtectionPackageToolInput,
   AnswerSuggestionsToolInput,
   CarUpsellOfferToolInput,
   ProductsToolInput,
@@ -57,6 +58,9 @@ export const Chat: React.FC<Props> = ({ messages, isWaitingForResponse, sendChat
       "tool-showAnswerSuggestions",
     ];
 
+    // Define which tool calls should be ignored for streaming indicator logic
+    const ignoredToolCalls = ["tool-updateScratchpad"];
+
     // Find the last user message index
     let lastUserMessageIndex = -1;
     for (let i = messages.length - 1; i >= 0; i--) {
@@ -90,6 +94,11 @@ export const Chat: React.FC<Props> = ({ messages, isWaitingForResponse, sendChat
 
         // Check if it's a tool call
         if (part.type.startsWith("tool-")) {
+          // Skip ignored tool calls
+          if (ignoredToolCalls.includes(part.type)) {
+            continue;
+          }
+
           const isContentRenderingTool = contentRenderingTools.includes(part.type);
 
           // Check if tool is still streaming (input-streaming or input-available)
@@ -474,13 +483,22 @@ function AssistantShowProductsToolMessagePart({ part }: { part: ToolUIPart }) {
 }
 
 function AssistantAddProtectionPackageToolMessagePart({ part }: { part: ToolUIPart }) {
-  // Show shimmer while tool is executing
-  if (part.state === "input-streaming" || part.state === "input-available") {
+  const { agentState, selectProtectionPackage } = useAgentState();
+
+  if (!part.input || part.state === "input-streaming") {
     return <ToolCallShimmer message="Adding protection package to your booking" />;
   }
 
-  // Don't render anything after tool completes - the LLM will confirm the action
-  return null;
+  const input = part.input as AddProtectionPackageToolInput;
+  const availablePackages = agentState?.booking?.available_add_ons_v2.packages || [];
+  const packageToShow = availablePackages.find((pkg) => pkg.id === input.packageId);
+
+  if (!packageToShow) {
+    return null;
+  }
+
+  // Render the package that was added (it should already be marked as selected in the state)
+  return <ProtectionPlansUI packages={[packageToShow]} onPackageSelect={selectProtectionPackage} />;
 }
 
 function AssistantAddProductToolMessagePart({ part }: { part: ToolUIPart }) {
