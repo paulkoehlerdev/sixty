@@ -173,6 +173,7 @@ const getAvailableCarUpgrades = (state: AgentState) => {
       const availableOffers = Object.values(state.availableOffers ?? {})
         .map(mapOfferToChatCarOffer)
         .map(cleanOfferForPrompt)
+        .filter((o) => (state.initialOffer?.price_total.display_amount.value ?? 0) < (o?.price_total.value ?? 0))
         .filter((o) => o !== undefined);
 
       const currentOffer = cleanOfferForPrompt(mapOfferToChatCarOffer(state.initialOffer));
