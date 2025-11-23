@@ -1,5 +1,5 @@
 import type { TextUIPart, ToolUIPart, UIMessage } from "ai";
-import React, { useMemo } from "react";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { match } from "ts-pattern";
@@ -27,13 +27,23 @@ type Props = {
   messages: UIMessage<ChatMessageMetadata>[];
   isWaitingForResponse: boolean;
   sendChatMessage: (message: string) => void;
-  chatEndRef?: React.RefObject<HTMLDivElement | null>;
 };
 
 const ignoredToolCalls = ["tool-updateScratchpad"];
 
-export const Chat: React.FC<Props> = ({ messages, isWaitingForResponse, sendChatMessage, chatEndRef }) => {
+export const Chat: React.FC<Props> = ({ messages, isWaitingForResponse, sendChatMessage }) => {
   const { agentState } = useAgentState();
+  const chatEndRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = useCallback(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, []);
+
+  useEffect(() => {
+    if (messages.length > 0) {
+      scrollToBottom();
+    }
+  }, [messages, scrollToBottom]);
 
   // Check if we should show the streaming indicator
   const shouldShowStreamingIndicator = useMemo(() => {
