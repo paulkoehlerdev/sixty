@@ -4,10 +4,10 @@
 
 A seamless post-booking solution for SIXT, delivering the same exceptional quality as in-store. Enjoy a fast, intuitive experience with personalized recommendations for your journey.
 
-<video width="600" controls>
-  <source src="docs/demo.mp4" type="video/mp4">
-  Your browser does not support the video tag.
-</video>
+Watch the demo here:
+<a href="https://www.youtube.com/watch?v=EKURZo3pxAA">
+  <img src="https://img.youtube.com/vi/EKURZo3pxAA/maxresdefault.jpg" width="600">
+</a>
 
 ## Overview
 
