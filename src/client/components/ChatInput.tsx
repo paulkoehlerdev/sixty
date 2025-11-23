@@ -33,7 +33,7 @@ export const ChatInput: React.FC<Props> = ({ placeholder, sendChatMessage }) => 
         <Input
           placeholder={placeholder}
           className="border-none shadow-none focus-visible:ring-0"
-          autoFocus={true}
+          // autoFocus={true}
           value={userMessage}
           onChange={(e) => setUserMessage(e.target.value)}
         />
