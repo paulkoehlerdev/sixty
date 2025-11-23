@@ -31,7 +31,7 @@ export class SixtyAgent extends AIChatAgent<Env, AgentState> {
   constructor(ctx: never, env: Env) {
     super(ctx, env);
 
-    (async () => {
+    const fetch = async () => {
       // fetch offers from Sixt
       const { offers, pickupLocation, returnLocation } = await getAvailableOffers(this.state.offer_matrix_id);
 
@@ -84,7 +84,11 @@ export class SixtyAgent extends AIChatAgent<Env, AgentState> {
           },
         ]);
       }
-    })();
+    };
+
+    if(this.state.initialOffer === undefined) {
+      fetch();
+    }
   }
 
   async onChatMessage(
