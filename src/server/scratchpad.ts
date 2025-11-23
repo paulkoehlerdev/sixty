@@ -15,6 +15,7 @@ export interface UserProfileScratchpad {
 
   // Travel Details
   travelDetails: {
+    pickupLocation?: string;
     destination?: string;
     travelDates?: {
       departure?: string;
@@ -66,6 +67,7 @@ export const UserProfileUpdateSchema = z.object({
   travelDetails: z
     .object({
       destination: z.string().optional(),
+      pickupLocation: z.string().optional(),
       travelDates: z
         .object({
           departure: z.string().optional(),

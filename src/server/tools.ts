@@ -65,7 +65,7 @@ export type AddProtectionPackageToolInput = {
 };
 
 export type AddProductToolInput = {
-  productChargeCode: string;
+  productChargeCodes: string[];
 };
 
 const showCarTypeUpsellOffer = {
@@ -257,18 +257,21 @@ const addProtectionPackage = (state: AgentState, setState: (state: AgentState) =
 const addProduct = (state: AgentState, setState: (state: AgentState) => void) => {
   return {
     description:
-      "Add an addon product to the user's booking. Use this tool when the user explicitly wants to add a specific addon product to their booking. This will toggle/add the selected product to the booking.".trim(),
+      "Add one or more addon products to the user's booking. ONLY use this tool when the user explicitly has given permission to add products. This will add the selected products to the booking.".trim(),
     inputSchema: z.object({
-      productChargeCode: z.string().describe("The charge code of the addon product to add to the booking"),
+      productChargeCodes: z
+        .array(z.string())
+        .min(1)
+        .describe("Array of charge codes of the addon products to add to the booking"),
     }),
-    execute: async ({ productChargeCode }: { productChargeCode: string }) => {
+    execute: async ({ productChargeCodes }: { productChargeCodes: string[] }) => {
       if (!state.booking) {
-        return "Cannot add product: no booking available.";
+        return "Cannot add products: no booking available.";
       }
 
-      // Toggle the product selection state
+      // Add the products (set is_selected to true for all specified products)
       const updatedProducts = state.booking.available_add_ons_v2.products.map((product) =>
-        product.charge_code === productChargeCode ? { ...product, is_selected: !product.is_selected } : product,
+        productChargeCodes.includes(product.charge_code) ? { ...product, is_selected: true } : product,
       );
 
       const updatedBooking = {
@@ -281,9 +284,12 @@ const addProduct = (state: AgentState, setState: (state: AgentState) => void) =>
 
       setState({ ...state, booking: updatedBooking });
 
-      const selectedProduct = updatedProducts.find((product) => product.charge_code === productChargeCode);
-      const action = selectedProduct?.is_selected ? "added" : "removed";
-      return `Successfully ${action} addon product "${selectedProduct?.description.name || productChargeCode}" ${action === "added" ? "to" : "from"} the booking.`;
+      const addedProducts = updatedProducts.filter(
+        (product) => productChargeCodes.includes(product.charge_code) && product.is_selected,
+      );
+      const productNames = addedProducts.map((p) => p.description.name || p.charge_code).join(", ");
+      const count = addedProducts.length;
+      return `Successfully added ${count} addon product${count === 1 ? "" : "s"} "${productNames}" to the booking.`;
     },
   } satisfies Tool<AddProductToolInput, string>;
 };

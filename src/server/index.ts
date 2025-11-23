@@ -45,7 +45,27 @@ export class SixtyAgent extends AIChatAgent<Env, AgentState> {
       // remove the initial offer from the available offers
       delete availableOffers[initialOffer.offer_id];
 
-      this.setState({ ...this.state, initialOffer, availableOffers, pickupLocation, returnLocation });
+      const updatedScratchpad = {
+        ...this.state.scratchpad,
+        travelDetails: {
+          ...this.state.scratchpad.travelDetails,
+          duration: initialOffer.calculated_rental_days,
+          pickupLocation: pickupLocation.branch.title,
+          travelDates: {
+            departure: initialOffer.pickup_datetime.value,
+            return: initialOffer.return_datetime.value,
+          },
+        },
+      };
+
+      this.setState({
+        ...this.state,
+        initialOffer,
+        availableOffers,
+        pickupLocation,
+        returnLocation,
+        scratchpad: updatedScratchpad,
+      });
 
       if (this.messages.length === 0) {
         await this.saveMessages([

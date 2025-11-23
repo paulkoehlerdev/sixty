@@ -20,7 +20,6 @@ import { StreamingIndicator } from "./chat-streaming";
 import { ToolCallShimmer } from "./ToolCallShimmer";
 import { BookingSummary } from "./ui-elements/BookingSummary";
 import { CurrentBookingUI } from "./ui-elements/CurrentBookingUI";
-import { ProductCard } from "./ui-elements/ProductCard";
 import { ProductsUI } from "./ui-elements/ProductsUI";
 import { ProtectionPlansUI } from "./ui-elements/ProtectionPlansUI";
 import { UpgradeOfferUI } from "./ui-elements/UpgradeOfferUI";
@@ -166,20 +165,20 @@ const MessageBubble = React.memo(function MessageBubble({
 
 // Helper function to check if there are subsequent parts that would render something
 // Only these tool calls actually render UI: addProduct, addProtectionPackage, showProducts, showProtectionPackages, showCarTypeUpsellOffer
-function hasSubsequentRenderingParts(parts: UIMessage['parts'], currentIndex: number): boolean {
+function hasSubsequentRenderingParts(parts: UIMessage["parts"], currentIndex: number): boolean {
   for (let i = currentIndex + 1; i < parts.length; i++) {
     const part = parts[i];
-    
+
     // Skip answer suggestions as they're handled separately
     if (part.type === "tool-showAnswerSuggestions") {
       continue;
     }
-    
+
     // Text parts always render
     if (part.type === "text") {
       return true;
     }
-    
+
     // Only these specific tool calls render something
     if (
       part.type === "tool-addProduct" ||
@@ -191,7 +190,7 @@ function hasSubsequentRenderingParts(parts: UIMessage['parts'], currentIndex: nu
       return true;
     }
   }
-  
+
   return false;
 }
 
@@ -212,12 +211,14 @@ function AssistantMessage({
 
   return (
     <div className="w-full max-w-full space-y-2">
-      {<div className="flex items-center gap-3">
-        {/*<Avatar className="h-7 w-7">
+      {
+        <div className="flex items-center gap-3">
+          {/*<Avatar className="h-7 w-7">
           <AvatarImage src="/favicon.svg" />
         </Avatar>*/}
-        <p className="font-bold text-primary">Chris</p>
-      </div>}
+          <p className="font-bold text-primary">Chris</p>
+        </div>
+      }
       <div>
         {message.parts.map((part, index) => {
           // Skip answer suggestions here - they're handled separately at the end
@@ -637,35 +638,31 @@ function AssistantAddProductToolMessagePart({
   const { agentState, toggleProduct } = useAgentState();
 
   if (part.state === "input-streaming") {
-    return <ToolCallShimmer message="Adding product to your booking" />;
+    return <ToolCallShimmer message="Adding products to your booking" />;
   }
 
   if (!part.input) {
     // Keep showing shimmer if no subsequent parts
     if (!hasSubsequentParts) {
-      return <ToolCallShimmer message="Adding product to your booking" />;
+      return <ToolCallShimmer message="Adding products to your booking" />;
     }
     return null;
   }
 
   const input = part.input as AddProductToolInput;
   const availableProducts = agentState?.booking?.available_add_ons_v2.products || [];
-  const productToShow = availableProducts.find((product) => product.charge_code === input.productChargeCode);
+  const productsToShow = availableProducts.filter((product) => input.productChargeCodes.includes(product.charge_code));
 
-  if (!productToShow) {
-    // Keep showing shimmer if product not found and no subsequent parts
+  if (productsToShow.length === 0) {
+    // Keep showing shimmer if no products found and no subsequent parts
     if (!hasSubsequentParts) {
-      return <ToolCallShimmer message="Adding product to your booking" />;
+      return <ToolCallShimmer message="Adding products to your booking" />;
     }
     return null;
   }
 
-  // Render the product that was added (it should already be marked as selected in the state)
-  return (
-    <div className="my-4">
-      <ProductCard product={productToShow} isSelected={productToShow.is_selected} onToggle={toggleProduct} />
-    </div>
-  );
+  // Render the products that were added (they should already be marked as selected in the state)
+  return <ProductsUI products={productsToShow} onProductToggle={toggleProduct} />;
 }
 
 function AssistantShowAnswerSuggestionsToolMessagePart({
