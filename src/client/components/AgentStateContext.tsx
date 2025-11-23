@@ -7,11 +7,13 @@ export const AgentStateContext = createContext<{
   acceptUpgradeOffer: (offerId: OfferId) => void;
   selectProtectionPackage: (packageId: string) => void;
   toggleProduct: (productChargeCode: string) => void;
+  unlockCar: () => void;
 }>({
   agentState: null,
   acceptUpgradeOffer: () => {},
   selectProtectionPackage: () => {},
   toggleProduct: () => {},
+  unlockCar: () => {},
 });
 
 export const useAgentState = () => {

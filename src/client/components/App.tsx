@@ -1,7 +1,9 @@
+import { ThemeProvider } from "next-themes";
 import type React from "react";
 import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { ChatScreen } from "@/client/components/ChatScreen";
+import { Toaster } from "@/components/ui/sonner";
 
 const LOCAL_STORAGE_SESSION_KEY = "sixty-session-id";
 
@@ -15,5 +17,10 @@ export const App: React.FC = () => {
     window.location.reload();
   };
 
-  return <ChatScreen sessionID={sessionID} startNewSession={newSession} />;
+  return (
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem={true}>
+      <ChatScreen sessionID={sessionID} startNewSession={newSession} />
+      <Toaster />
+    </ThemeProvider>
+  );
 };

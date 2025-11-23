@@ -1,9 +1,10 @@
 import { useAgentChat } from "agents/ai-react";
 import { useAgent } from "agents/react";
 import type { UIMessage } from "ai";
-import { MessageCircle } from "lucide-react";
+import { MessageCircle, Moon, Sun } from "lucide-react";
 import type React from "react";
 import { useState } from "react";
+import { toast } from "sonner";
 import { AgentStateContext } from "@/client/components/AgentStateContext.tsx";
 import { Chat } from "@/client/components/Chat.tsx";
 import { ChatInput } from "@/client/components/ChatInput.tsx";
@@ -73,8 +74,14 @@ export const ChatScreen: React.FC<{ sessionID: string; startNewSession: () => vo
     );
   };
 
+  const unlockCar = () => {
+    toast.success("Car has been unlocked successfully");
+  };
+
   return (
-    <AgentStateContext.Provider value={{ agentState, acceptUpgradeOffer, selectProtectionPackage, toggleProduct }}>
+    <AgentStateContext.Provider
+      value={{ agentState, acceptUpgradeOffer, selectProtectionPackage, toggleProduct, unlockCar }}
+    >
       <div className="mx-auto h-dvh w-[calc(min(100dvw,32rem))] overflow-hidden px-3">
         <BookingsPage
           agentState={agentState}
@@ -100,18 +107,38 @@ type BookingsPageProps = {
 };
 
 const BookingsPage: React.FC<BookingsPageProps> = ({ agentState, onOpenChat, startNewSession }) => {
+  const toggleTheme = () => {
+    const html = document.documentElement;
+    if (html.classList.contains("dark")) {
+      html.classList.remove("dark");
+    } else {
+      html.classList.add("dark");
+    }
+  };
+
   return (
     <>
       <div className="mb-6 flex items-center justify-between">
         <h1 className="font-bold text-3xl">BOOKINGS</h1>
-        <button
-          type="button"
-          className="relative h-20 w-20 cursor-pointer bg-center bg-contain bg-no-repeat"
-          style={{
-            backgroundImage: `url("/sixt.svg")`,
-          }}
-          onClick={() => startNewSession()}
-        />
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={toggleTheme}
+            className="relative flex h-10 w-10 items-center justify-center rounded-full border border-border bg-background transition-colors hover:bg-accent"
+            aria-label="Toggle theme"
+          >
+            <Sun className="dark:-rotate-90 h-5 w-5 rotate-0 scale-100 transition-all dark:scale-0" />
+            <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+          </button>
+          <button
+            type="button"
+            className="relative h-20 w-20 cursor-pointer bg-center bg-contain bg-no-repeat"
+            onClick={() => startNewSession()}
+          >
+            <img src="/sixt_dark.svg" alt="Sixt" className="hidden h-full w-full dark:block" />
+            <img src="/sixt_light.svg" alt="Sixt" className="block h-full w-full dark:hidden" />
+          </button>
+        </div>
       </div>
 
       <ChatNotificationButton onOpenChat={onOpenChat} />
@@ -128,7 +155,7 @@ type ChatNotificationButtonProps = {
 const ChatNotificationButton: React.FC<ChatNotificationButtonProps> = ({ onOpenChat }) => {
   return (
     <button type="button" onClick={onOpenChat} className="mb-6 w-full">
-      <Card variant="ai" className="cursor-pointer shadow-lg transition-transform">
+      <Card variant="ai" className="cursor-pointer transition-transform">
         <CardContent className="flex items-center gap-4 p-5">
           <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary/10">
             <MessageCircle className="h-6 w-6 text-primary" />
@@ -176,9 +203,7 @@ const ChatContent: React.FC<ChatContentProps> = ({ agentChat, agentState, sendCh
         sendChatMessage={sendChatMessage}
       />
 
-      {agentState?.stage !== "completed" && (
-        <div className="h-30" />
-      )}
+      {agentState?.stage !== "completed" && <div className="h-30" />}
 
       <div className="fixed right-3 bottom-0 left-3 mx-auto grid max-w-lg justify-items-center">
         {agentState?.stage !== "completed" && (

@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { Product, Package as ProtectionPackage } from "@/lib/sixt/types";
 import type { AgentState } from "@/lib/state";
+import { useAgentState } from "../AgentStateContext";
 import { CarOfferCardContent } from "../CarOfferCard";
 import { PriceDisplay } from "./PriceDisplay";
 
@@ -11,6 +12,7 @@ interface BookingSummaryProps {
 }
 
 export function BookingSummary({ state }: BookingSummaryProps) {
+  const { unlockCar } = useAgentState();
   // Use booking if available, otherwise use initialOffer
   const offer = state.booking?.offer_v2 ?? state.initialOffer;
   const addOns = state.booking?.available_add_ons_v2;
@@ -85,7 +87,9 @@ export function BookingSummary({ state }: BookingSummaryProps) {
           <PriceDisplay price={offer.price_total} displaySuffix={false} />
         </div>
 
-        <Button className="w-full">Unlock Car</Button>
+        <Button className="w-full" onClick={unlockCar}>
+          Unlock Car
+        </Button>
       </CardContent>
     </Card>
   );
