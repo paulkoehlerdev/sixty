@@ -340,21 +340,6 @@ export class SixtyAgent extends AIChatAgent<Env, AgentState> {
       paymentCompleted: true,
       carUnlocked: false,
     });
-
-    await this.saveMessages([
-      ...this.messages,
-      {
-        id: uuidv4(),
-        role: "user",
-        metadata: "hidden",
-        parts: [
-          {
-            type: "text",
-            text: `I completed the payment using ${paymentMethod === "apple" ? "Apple Pay" : paymentMethod === "google" ? "Google Pay" : "Credit Card"}.`,
-          },
-        ],
-      },
-    ]);
   }
 
   async unlockCar() {
@@ -363,21 +348,6 @@ export class SixtyAgent extends AIChatAgent<Env, AgentState> {
       ...this.state,
       carUnlocked: true,
     });
-
-    await this.saveMessages([
-      ...this.messages,
-      {
-        id: uuidv4(),
-        role: "user",
-        metadata: "hidden",
-        parts: [
-          {
-            type: "text",
-            text: "I unlocked my car.",
-          },
-        ],
-      },
-    ]);
   }
 }
 
