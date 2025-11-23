@@ -26,11 +26,13 @@ export const getAvailableToolsForState = (state: AgentState, setState: (state: A
 
   if (state.stage === "insurance_upselling") {
     tools.showProtectionPackages = showProtectionPackages(state, setState);
+    tools.addProtectionPackage = addProtectionPackage(state, setState);
     tools.abortProtectionUpselling = abortProtectionUpselling(state, setState);
   }
 
   if (state.stage === "addon_upselling") {
     tools.showProducts = showProducts(state, setState);
+    tools.addProduct = addProduct(state, setState);
     tools.abortAddonUpselling = abortAddonUpselling(state, setState);
   }
 
@@ -58,9 +60,17 @@ export type ProductsToolInput = {
   productChargeCodes: string[];
 };
 
+export type AddProtectionPackageToolInput = {
+  packageId: string;
+};
+
+export type AddProductToolInput = {
+  productChargeCode: string;
+};
+
 const showCarTypeUpsellOffer = {
   description: `
-    Show car type upselling offers to the user. You can show 1-4 offers at once.
+    Show car type upselling offers to the user. You can show 1-3 offers at once (maximum 3).
     For each offer, provide specific information about that particular upgrade: Why should the user upgrade to THIS car? What benefits will they get?
     **IMPORTANT: Each offer must have its own tailored headers and texts. Do NOT use generic text - be specific to each car's features.**
     For each offer, combine the information into 3 prioritized points with a short header and a longer description (text) for each point.
@@ -99,13 +109,13 @@ const showCarTypeUpsellOffer = {
         }),
       )
       .min(1)
-      .max(4)
+      .max(3)
       .describe(
-        "Array of 1-4 car upgrade offers to show. Each offer needs its own specific headers and texts. If showing multiple, they will be displayed in a carousel.",
+        "Array of 1-3 car upgrade offers to show. Each offer needs its own specific headers and texts. If showing multiple, they will be displayed in a horizontal scroll.",
       ),
   }),
   execute: async () => {
-    return "Showing the upselling car offer to the user.";
+    return "Showing the upselling car offers to the user.";
   },
 } satisfies Tool<CarUpsellOfferToolInput, string>;
 
@@ -116,13 +126,13 @@ export type AnswerSuggestionsToolInput = {
 const showAnswerSuggestions = {
   description: `
     Show the user answers to choose from.
-    We need you to provide a list of 4 suggestions for the user to choose from.
+    We need you to provide a list of up to 3 suggestions for the user to choose from.
     This is important for a quick conversation and to allow you to get more targeted answers.
     The max length for each answer is 50 characters.
     The options are presented to the user and he will be able to send them back to you.
   `.trim(),
   inputSchema: z.object({
-    answers: z.array(z.string()).max(4).min(2).describe("The prefilled user's answers to your message questions"),
+    answers: z.array(z.string()).max(3).min(2).describe("The prefilled user's answers to your message questions"),
   }),
   execute: async () => {
     return "";
@@ -209,6 +219,73 @@ const showProducts = (state: AgentState, _setState: (state: AgentState) => void)
       return `Displaying ${productsToShow.length} addon product(s) to the user.`;
     },
   } satisfies Tool<{ productChargeCodes: string[] }, string>;
+};
+
+const addProtectionPackage = (state: AgentState, setState: (state: AgentState) => void) => {
+  return {
+    description:
+      "Add/select a protection package for the user's booking. Use this tool when the user explicitly wants to add a specific protection package to their booking. This will add the selected protection package to the booking.".trim(),
+    inputSchema: z.object({
+      packageId: z.string().describe("The ID of the protection package to add to the booking"),
+    }),
+    execute: async ({ packageId }: { packageId: string }) => {
+      if (!state.booking) {
+        return "Cannot add protection package: no booking available.";
+      }
+
+      // Update the booking state to mark the package as selected
+      const updatedPackages = state.booking.available_add_ons_v2.packages.map((pkg) =>
+        pkg.id === packageId ? { ...pkg, is_selected: true } : { ...pkg, is_selected: false },
+      );
+
+      const updatedBooking = {
+        ...state.booking,
+        available_add_ons_v2: {
+          ...state.booking.available_add_ons_v2,
+          packages: updatedPackages,
+        },
+      };
+
+      setState({ ...state, booking: updatedBooking });
+
+      const selectedPackage = updatedPackages.find((pkg) => pkg.id === packageId);
+      return `Successfully added protection package "${selectedPackage?.description.name || packageId}" to the booking.`;
+    },
+  } satisfies Tool<AddProtectionPackageToolInput, string>;
+};
+
+const addProduct = (state: AgentState, setState: (state: AgentState) => void) => {
+  return {
+    description:
+      "Add an addon product to the user's booking. Use this tool when the user explicitly wants to add a specific addon product to their booking. This will toggle/add the selected product to the booking.".trim(),
+    inputSchema: z.object({
+      productChargeCode: z.string().describe("The charge code of the addon product to add to the booking"),
+    }),
+    execute: async ({ productChargeCode }: { productChargeCode: string }) => {
+      if (!state.booking) {
+        return "Cannot add product: no booking available.";
+      }
+
+      // Toggle the product selection state
+      const updatedProducts = state.booking.available_add_ons_v2.products.map((product) =>
+        product.charge_code === productChargeCode ? { ...product, is_selected: !product.is_selected } : product,
+      );
+
+      const updatedBooking = {
+        ...state.booking,
+        available_add_ons_v2: {
+          ...state.booking.available_add_ons_v2,
+          products: updatedProducts,
+        },
+      };
+
+      setState({ ...state, booking: updatedBooking });
+
+      const selectedProduct = updatedProducts.find((product) => product.charge_code === productChargeCode);
+      const action = selectedProduct?.is_selected ? "added" : "removed";
+      return `Successfully ${action} addon product "${selectedProduct?.description.name || productChargeCode}" ${action === "added" ? "to" : "from"} the booking.`;
+    },
+  } satisfies Tool<AddProductToolInput, string>;
 };
 
 const abortProtectionUpselling = (state: AgentState, setState: (state: AgentState) => void) => {

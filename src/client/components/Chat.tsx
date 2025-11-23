@@ -4,6 +4,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { match } from "ts-pattern";
 import { Avatar, AvatarImage } from "@/components/ui/avatar.tsx";
+import { SuggestionChip, SuggestionChipArea } from "@/components/ui/suggestion-chip";
 import type { ChatMessageMetadata } from "@/lib/messages.ts";
 import type { Offer } from "@/lib/sixt/types";
 import { cn } from "@/lib/utils";
@@ -256,6 +257,15 @@ function AssistantMessage({
             .with({ type: "tool-showProducts" }, (part) => (
               <AssistantShowProductsToolMessagePart key={part.toolCallId || `products-${index}`} part={part} />
             ))
+            .with({ type: "tool-addProtectionPackage" }, (part) => (
+              <AssistantAddProtectionPackageToolMessagePart
+                key={part.toolCallId || `add-package-${index}`}
+                part={part}
+              />
+            ))
+            .with({ type: "tool-addProduct" }, (part) => (
+              <AssistantAddProductToolMessagePart key={part.toolCallId || `add-product-${index}`} part={part} />
+            ))
             .otherwise(() => <React.Fragment key={`unknown-${message.id}-${index}`} />);
         })}
 
@@ -286,7 +296,7 @@ function UserMessage({ message }: { message: UIMessage }) {
 
   return (
     <div className="flex max-w-[90%] flex-col items-end gap-2">
-      <div className="prose prose-chat wrap-anywhere break-[words] w-fit rounded-2xl bg-accent px-4 py-2.5">
+      <div className="prose prose-chat wrap-anywhere break-[words] w-fit rounded-2xl bg-accent px-3 py-2">
         {textParts.map((part, index) => (
           // biome-ignore lint/suspicious/noArrayIndexKey: OK in this case, as nothing will be "moved around"
           <React.Fragment key={index}>
@@ -463,6 +473,26 @@ function AssistantShowProductsToolMessagePart({ part }: { part: ToolUIPart }) {
   return <ProductsUI products={productsToShow} onProductToggle={toggleProduct} />;
 }
 
+function AssistantAddProtectionPackageToolMessagePart({ part }: { part: ToolUIPart }) {
+  // Show shimmer while tool is executing
+  if (part.state === "input-streaming" || part.state === "input-available") {
+    return <ToolCallShimmer message="Adding protection package to your booking" />;
+  }
+
+  // Don't render anything after tool completes - the LLM will confirm the action
+  return null;
+}
+
+function AssistantAddProductToolMessagePart({ part }: { part: ToolUIPart }) {
+  // Show shimmer while tool is executing
+  if (part.state === "input-streaming" || part.state === "input-available") {
+    return <ToolCallShimmer message="Adding product to your booking" />;
+  }
+
+  // Don't render anything after tool completes - the LLM will confirm the action
+  return null;
+}
+
 function AssistantShowAnswerSuggestionsToolMessagePart({
   part,
   sendChatMessage,
@@ -481,17 +511,10 @@ function AssistantShowAnswerSuggestionsToolMessagePart({
   const answers = (part.input as AnswerSuggestionsToolInput).answers;
 
   return (
-    <div className="my-5 flex flex-col justify-start gap-0.5">
+    <SuggestionChipArea className="mt-1">
       {answers.map((answer, _index) => (
-        <button
-          key={`anseroption-${answer}`}
-          type="button"
-          className="mb-2 w-max cursor-pointer rounded-lg border border-primary bg-background p-2 px-4 text-primary"
-          onClick={() => sendChatMessage(answer)}
-        >
-          {answer}
-        </button>
+        <SuggestionChip key={`anseroption-${answer}`} suggestion={answer} onClick={() => sendChatMessage(answer)} />
       ))}
-    </div>
+    </SuggestionChipArea>
   );
 }

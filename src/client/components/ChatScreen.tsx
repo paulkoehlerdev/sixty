@@ -16,7 +16,10 @@ import type {
 import type { OfferId } from "@/lib/sixt/types.ts";
 import type { AgentState } from "@/lib/state.ts";
 
-export const ChatScreen: React.FC<{ sessionID: string }> = ({ sessionID }) => {
+export const ChatScreen: React.FC<{ sessionID: string; startNewSession: () => void }> = ({
+  sessionID,
+  startNewSession,
+}) => {
   const [agentState, setAgentState] = useState<AgentState | null>(null);
 
   const agent = useAgent<AgentState>({
@@ -90,7 +93,7 @@ export const ChatScreen: React.FC<{ sessionID: string }> = ({ sessionID }) => {
           {agentState?.stage !== "completed" && (
             <>
               <div className="fixed inset-x-0 bottom-0 h-24 bg-linear-to-t from-background via-background to-transparent" />
-              <div className="relative z-10 w-full">
+              <div className="relative z-10 mb-5 w-full">
                 <ChatInput placeholder="Send a message" sendChatMessage={sendChatMessage} />
               </div>
             </>

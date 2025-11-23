@@ -49,6 +49,8 @@
 
   --color-success-gradient-start: var(--success-gradient-start);
   --color-success-gradient-end: var(--success-gradient-end);
+
+  --suggestion-chip-bg: #f2f7ff;
 }
 
 html {
@@ -142,6 +144,8 @@ html {
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.408 0.123 38.172);
+
+  --suggestion-chip-bg: oklch(0.21 0.006 285.885);
 }
 
 @layer base {
@@ -283,5 +287,33 @@ html {
   }
   .animate-shimmer {
     animation: shimmer 1.5s infinite;
+  }
+
+  /* from https://kizu.dev/shrinkwrap-problem/#the-basic-setup-with-the-fallback */
+  .shrinkwrap {
+    position: relative; /* 1 */
+    isolation: isolate; /* 1 */
+  }
+  
+  .shrinkwrap-target {
+    position: relative;    /* 2 */
+    display: inline-block; /* 2 */
+    anchor-name: --target; /* 3 */
+  }
+  
+  .shrinkwrap-target::before { /* 2 */
+    content: "";
+    position: absolute;
+    z-index: -1;              /* 1 */
+    position-anchor: --target; /* 3 */
+    inset: 0; /* 4 */
+    inset-inline: anchor(inside);
+  }
+  
+  @supports (anchor-name: --foo) {
+    .shrinkwrap-target {
+      position: static; /* 2 */
+      display: inline;  /* 2 */
+    }
   }
 }
