@@ -5,6 +5,7 @@ import remarkGfm from "remark-gfm";
 import { match } from "ts-pattern";
 import { Avatar, AvatarImage } from "@/components/ui/avatar.tsx";
 import type { ChatMessageMetadata } from "@/lib/messages.ts";
+import type { Offer } from "@/lib/sixt/types";
 import { cn } from "@/lib/utils";
 import type {
   AnswerSuggestionsToolInput,
@@ -347,36 +348,70 @@ function AssistantShowCarTypeUpsellOfferToolMessagePart({ part }: { part: ToolUI
   }
 
   const input = part.input as CarUpsellOfferToolInput;
-  const offer = agentState?.availableOffers?.[input.offerId];
 
-  if (!offer) {
+  // Map each input offer to its data and filter out any missing offers
+  let offerData = input.offers
+    .map((offerInput) => {
+      const offer = agentState?.availableOffers?.[offerInput.offerId];
+      if (!offer) {
+        return null;
+      }
+
+      return {
+        offer,
+        aiTextInput: [
+          { header: offerInput.header_priority0, text: offerInput.text_priority0 },
+          { header: offerInput.header_priority1, text: offerInput.text_priority1 },
+          { header: offerInput.header_priority2, text: offerInput.text_priority2 },
+        ],
+      };
+    })
+    .filter((o): o is { offer: Offer; aiTextInput: { header: string; text: string }[] } => o !== null);
+
+  // If a booking exists with a selected offer, only show that offer
+  const selectedOfferId = agentState?.booking?.offer_v2?.offer_id;
+  if (selectedOfferId) {
+    offerData = offerData.filter(({ offer }) => offer.offer_id === selectedOfferId);
+  }
+
+  if (offerData.length === 0) {
     return;
   }
 
+  // Single offer - show without carousel
+  if (offerData.length === 1) {
+    const { offer, aiTextInput } = offerData[0];
+    return (
+      <UpgradeOfferUI
+        className="my-4"
+        offer={offer}
+        baseOffer={agentState?.initialOffer}
+        booking={agentState?.booking}
+        aiTextInput={aiTextInput}
+        onUpgrade={() => {
+          acceptUpgradeOffer(offer.offer_id);
+        }}
+      />
+    );
+  }
+
+  // Multiple offers - show horizontal scroll
   return (
-    <UpgradeOfferUI
-      className="my-4"
-      offer={offer}
-      baseOffer={agentState.initialOffer}
-      booking={agentState?.booking}
-      aiTextInput={[
-        {
-          header: input.header_priority0,
-          text: input.text_priority0,
-        },
-        {
-          header: input.header_priority1,
-          text: input.text_priority1,
-        },
-        {
-          header: input.header_priority2,
-          text: input.text_priority2,
-        },
-      ]}
-      onUpgrade={() => {
-        acceptUpgradeOffer(input.offerId);
-      }}
-    />
+    <div className="flex max-w-lg flex-col gap-4 overflow-x-scroll py-4">
+      {offerData.map(({ offer, aiTextInput }) => (
+        <div key={offer.offer_id} className="max-w-120 shrink-0">
+          <UpgradeOfferUI
+            offer={offer}
+            baseOffer={agentState?.initialOffer}
+            booking={agentState?.booking}
+            aiTextInput={aiTextInput}
+            onUpgrade={() => {
+              acceptUpgradeOffer(offer.offer_id);
+            }}
+          />
+        </div>
+      ))}
+    </div>
   );
 }
 

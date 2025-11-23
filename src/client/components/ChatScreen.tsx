@@ -16,10 +16,7 @@ import type {
 import type { OfferId } from "@/lib/sixt/types.ts";
 import type { AgentState } from "@/lib/state.ts";
 
-export const ChatScreen: React.FC<{ sessionID: string; startNewSession: () => void }> = ({
-  sessionID,
-  startNewSession,
-}) => {
+export const ChatScreen: React.FC<{ sessionID: string }> = ({ sessionID }) => {
   const [agentState, setAgentState] = useState<AgentState | null>(null);
 
   const agent = useAgent<AgentState>({
@@ -70,7 +67,7 @@ export const ChatScreen: React.FC<{ sessionID: string; startNewSession: () => vo
 
   return (
     <AgentStateContext.Provider value={{ agentState, acceptUpgradeOffer, selectProtectionPackage, toggleProduct }}>
-      <ScrollArea className="relative mx-auto h-screen max-w-lg px-2 pt-4">
+      <ScrollArea className="relative mx-auto h-screen max-w-lg px-3 pt-4">
         <div className="mb-3 flex h-20 w-full">
           <button
             type="button"
@@ -81,7 +78,6 @@ export const ChatScreen: React.FC<{ sessionID: string; startNewSession: () => vo
             onClick={() => startNewSession()}
           />
         </div>
-
         <Chat
           messages={agentChat.messages}
           isWaitingForResponse={agentChat.status === "submitted"}
@@ -90,21 +86,15 @@ export const ChatScreen: React.FC<{ sessionID: string; startNewSession: () => vo
 
         <div className="h-30" />
 
-        <div className="fixed right-0 bottom-0 left-0 mx-auto grid max-w-lg justify-items-center bg-background">
+        <div className="fixed right-3 bottom-0 left-3 mx-auto grid max-w-lg justify-items-center">
           {agentState?.stage !== "completed" && (
-            <div className="w-full max-w-[850px]">
-              <ChatInput placeholder="Send a message" sendChatMessage={sendChatMessage} />
-            </div>
+            <>
+              <div className="fixed inset-x-0 bottom-0 h-24 bg-linear-to-t from-background via-background to-transparent" />
+              <div className="relative z-10 w-full">
+                <ChatInput placeholder="Send a message" sendChatMessage={sendChatMessage} />
+              </div>
+            </>
           )}
-          <div className="mt-2 inline-block w-full text-center text-xs">
-            <button
-              type="button"
-              className="cursor-pointer underline hover:text-primary"
-              onClick={() => startNewSession()}
-            >
-              New Session
-            </button>
-          </div>
         </div>
       </ScrollArea>
     </AgentStateContext.Provider>

@@ -38,13 +38,15 @@ export const getAvailableToolsForState = (state: AgentState, setState: (state: A
 };
 
 export type CarUpsellOfferToolInput = {
-  offerId: string;
-  header_priority0: string;
-  text_priority0: string;
-  header_priority1: string;
-  text_priority1: string;
-  header_priority2: string;
-  text_priority2: string;
+  offers: {
+    offerId: string;
+    header_priority0: string;
+    text_priority0: string;
+    header_priority1: string;
+    text_priority1: string;
+    header_priority2: string;
+    text_priority2: string;
+  }[];
 };
 
 export type ProtectionPackagesToolInput = {
@@ -58,22 +60,49 @@ export type ProductsToolInput = {
 
 const showCarTypeUpsellOffer = {
   description: `
-    Show an car type upselling offer to the user.
-    Please provide information about the Upsell: Why should the user upgrade? What benefits will they get?
-    **CRITICAL: The header and text fields MUST be based ONLY on the specific offer with the offerId you are passing in this tool call. Do NOT mix information from other offers.**
-    You should combine the information into 3 prioritized points with a short header and a longer description (text) for each point.
-    The text should focus on the specific things that are different from the current offer.
+    Show car type upselling offers to the user. You can show 1-4 offers at once.
+    For each offer, provide specific information about that particular upgrade: Why should the user upgrade to THIS car? What benefits will they get?
+    **IMPORTANT: Each offer must have its own tailored headers and texts. Do NOT use generic text - be specific to each car's features.**
+    For each offer, combine the information into 3 prioritized points with a short header and a longer description (text) for each point.
     The priority is descending, 0 is the most important.
     (Use header_priority0, text_priority0, header_priority1, text_priority1, header_priority2, text_priority2)
   `.trim(),
   inputSchema: z.object({
-    offerId: z.string().describe("Offer ID of the upselling car offer"),
-    header_priority0: z.string().max(40).describe("The header for the priority 0 upgrade reason. (max 40 chars)"),
-    text_priority0: z.string().max(100).describe("The text for the priority 0 upgrade reason.  (max 100 chars)"),
-    header_priority1: z.string().max(40).describe("The header for the priority 1 upgrade reason. (max 40 chars)"),
-    text_priority1: z.string().max(100).describe("The text for the priority 0 upgrade reason.  (max 100 chars)"),
-    header_priority2: z.string().max(40).describe("The header for the priority 2 upgrade reason. (max 40 chars)"),
-    text_priority2: z.string().max(100).describe("The text for the priority 0 upgrade reason. (max 100 chars)"),
+    offers: z
+      .array(
+        z.object({
+          offerId: z.string().describe("Offer ID of the car upgrade"),
+          header_priority0: z
+            .string()
+            .max(40)
+            .describe("The header for the priority 0 upgrade reason for THIS specific car. (max 40 chars)"),
+          text_priority0: z
+            .string()
+            .max(100)
+            .describe("The text for the priority 0 upgrade reason for THIS specific car. (max 100 chars)"),
+          header_priority1: z
+            .string()
+            .max(40)
+            .describe("The header for the priority 1 upgrade reason for THIS specific car. (max 40 chars)"),
+          text_priority1: z
+            .string()
+            .max(100)
+            .describe("The text for the priority 1 upgrade reason for THIS specific car. (max 100 chars)"),
+          header_priority2: z
+            .string()
+            .max(40)
+            .describe("The header for the priority 2 upgrade reason for THIS specific car. (max 40 chars)"),
+          text_priority2: z
+            .string()
+            .max(100)
+            .describe("The text for the priority 2 upgrade reason for THIS specific car. (max 100 chars)"),
+        }),
+      )
+      .min(1)
+      .max(4)
+      .describe(
+        "Array of 1-4 car upgrade offers to show. Each offer needs its own specific headers and texts. If showing multiple, they will be displayed in a carousel.",
+      ),
   }),
   execute: async () => {
     return "Showing the upselling car offer to the user.";

@@ -51,6 +51,10 @@
   --color-success-gradient-end: var(--success-gradient-end);
 }
 
+html {
+  font-size: 15px;
+}
+
 :root {
   --radius: 0.65rem;
 
