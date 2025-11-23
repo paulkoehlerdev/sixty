@@ -218,17 +218,18 @@ const ChatPage: React.FC<ChatPageProps> = ({ agentChat, agentState, sendChatMess
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.2 }}
-          className="fixed inset-0 z-50 bg-background"
+          className="fixed inset-0 z-50 flex flex-col bg-background"
+          style={{ height: "100dvh" }}
         >
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
             transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-            className="flex h-full flex-col"
+            className="flex h-full min-h-0 flex-col"
           >
             {/* Header with close button */}
-            <div className="flex items-center justify-between border-b px-4 py-3">
+            <div className="flex shrink-0 items-center justify-between border-b px-4 py-3">
               <h2 className="font-semibold text-lg">Chat with Chris</h2>
               <button
                 type="button"
@@ -241,7 +242,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ agentChat, agentState, sendChatMess
             </div>
 
             {/* Chat content */}
-            <div className="flex-1 overflow-hidden">
+            <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
               <ChatContent agentChat={agentChat} agentState={agentState} sendChatMessage={sendChatMessage} />
             </div>
           </motion.div>
@@ -259,7 +260,7 @@ type ChatContentProps = {
 
 const ChatContent: React.FC<ChatContentProps> = ({ agentChat, agentState, sendChatMessage }) => {
   return (
-    <div className="relative flex h-full flex-col">
+    <div className="relative flex min-h-0 flex-1 flex-col">
       <ScrollArea className="flex-1 px-4">
         <div className="mx-auto max-w-2xl py-4">
           <Chat
@@ -267,17 +268,28 @@ const ChatContent: React.FC<ChatContentProps> = ({ agentChat, agentState, sendCh
             isWaitingForResponse={agentChat.status === "submitted"}
             sendChatMessage={sendChatMessage}
           />
+          
+          {/* Spacer to prevent content from being hidden behind input */}
+          {agentState?.stage !== "completed" && <div className="h-24" />}
         </div>
       </ScrollArea>
 
-      {/* Chat input at bottom */}
-      <div className="bg-background px-4 py-4">
-        <div className="mx-auto max-w-2xl">
-          {agentState?.stage !== "completed" && (
+      {/* Gradient fade at bottom */}
+      {agentState?.stage !== "completed" && (
+        <div className="pointer-events-none fixed inset-x-0 bottom-0 z-10 h-24 bg-linear-to-t from-background via-background to-transparent" />
+      )}
+
+      {/* Chat input at bottom - absolutely positioned */}
+      {agentState?.stage !== "completed" && (
+        <div 
+          className="fixed inset-x-0 bottom-0 z-20 px-4 py-4"
+          style={{ paddingBottom: "max(1rem, env(safe-area-inset-bottom))" }}
+        >
+          <div className="mx-auto max-w-2xl">
             <ChatInput placeholder="Send a message" sendChatMessage={sendChatMessage} />
-          )}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
