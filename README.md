@@ -4,6 +4,11 @@
 
 A seamless post-booking solution for SIXT, delivering the same exceptional quality as in-store. Enjoy a fast, intuitive experience with personalized recommendations for your journey.
 
+<video width="600" controls>
+  <source src="docs/demo.mp4" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
+
 ## Overview
 
 Sixty is an AI-powered chat interface that enhances the rental car pickup experience. Built for **hackaTUM 2025**, it brings the personal touch of in-store interactions to the digital realm, helping customers customize and improve their rental experience right before pickup.
