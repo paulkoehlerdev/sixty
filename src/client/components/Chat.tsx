@@ -10,7 +10,6 @@ import { cn } from "@/lib/utils";
 import type {
   AddProductToolInput,
   AddProtectionPackageToolInput,
-  AnswerSuggestionsToolInput,
   CarUpsellOfferToolInput,
   ProductsToolInput,
   ProtectionPackagesToolInput,
@@ -121,12 +120,20 @@ export const Chat: React.FC<Props> = ({ messages, isWaitingForResponse, sendChat
         // remove messages that have no parts
         .filter((message) => message.parts.length > 0)
         .map((message, index, arr) => {
+          // Find the last user message before this message
+          const currentMessageIndex = messages.findIndex((m) => m.id === message.id);
+          const lastUserMessageId = messages
+            .slice(0, currentMessageIndex)
+            .reverse()
+            .find((m) => m.role === "user")?.id;
+
           return (
             <MessageBubble
               key={message.id}
               message={message}
               isLast={index === arr.length - 1}
               sendChatMessage={sendChatMessage}
+              lastUserMessageId={lastUserMessageId}
             />
           );
         })}
@@ -144,17 +151,24 @@ const MessageBubble = React.memo(function MessageBubble({
   message,
   isLast,
   sendChatMessage,
+  lastUserMessageId,
 }: {
   message: UIMessage;
   isLast: boolean;
   sendChatMessage: (message: string) => void;
+  lastUserMessageId?: string;
 }) {
   return (
     <div className={cn("flex gap-2", message.role === "user" ? "items-center justify-end" : "justify-start")}>
       {match(message.role)
         .with("user", () => <UserMessage message={message} />)
         .with("assistant", () => (
-          <AssistantMessage message={message} isLast={isLast} sendChatMessage={sendChatMessage} />
+          <AssistantMessage
+            message={message}
+            isLast={isLast}
+            sendChatMessage={sendChatMessage}
+            lastUserMessageId={lastUserMessageId}
+          />
         ))
         .otherwise(() => (
           <></>
@@ -168,11 +182,6 @@ const MessageBubble = React.memo(function MessageBubble({
 function hasSubsequentRenderingParts(parts: UIMessage["parts"], currentIndex: number): boolean {
   for (let i = currentIndex + 1; i < parts.length; i++) {
     const part = parts[i];
-
-    // Skip answer suggestions as they're handled separately
-    if (part.type === "tool-showAnswerSuggestions") {
-      continue;
-    }
 
     // Text parts always render
     if (part.type === "text") {
@@ -198,16 +207,26 @@ function AssistantMessage({
   message,
   isLast,
   sendChatMessage,
+  lastUserMessageId,
 }: {
   message: UIMessage;
   isLast: boolean;
   sendChatMessage: (message: string) => void;
+  lastUserMessageId?: string;
 }) {
-  const doesShowWidget =
-    message.parts.filter((p) => p.type.startsWith("tool-show") && p.type !== "tool-showAnswerSuggestions").length > 0;
+  const { agentState } = useAgentState();
+  const doesShowWidget = message.parts.filter((p) => p.type.startsWith("tool-show")).length > 0;
+  const chatEnded = message.parts.filter((p) => p.type === "tool-endChat").length > 0;
 
-  // Find answer suggestions part to handle separately
-  const answerSuggestionsPart = message.parts.find((p) => p.type === "tool-showAnswerSuggestions");
+  // Check if suggestions should be shown for this assistant message
+  const shouldShowSuggestions =
+    isLast &&
+    !doesShowWidget &&
+    !chatEnded &&
+    agentState?.answerSuggestions &&
+    agentState.suggestionsMessageID &&
+    lastUserMessageId &&
+    agentState.suggestionsMessageID === lastUserMessageId;
 
   return (
     <div className="w-full max-w-full space-y-2">
@@ -221,11 +240,6 @@ function AssistantMessage({
       }
       <div>
         {message.parts.map((part, index) => {
-          // Skip answer suggestions here - they're handled separately at the end
-          if (part.type === "tool-showAnswerSuggestions") {
-            return null;
-          }
-
           const hasSubsequentParts = hasSubsequentRenderingParts(message.parts, index);
 
           return match(part)
@@ -309,15 +323,13 @@ function AssistantMessage({
             .otherwise(() => <React.Fragment key={`unknown-${message.id}-${index}`} />);
         })}
 
-        {isLast &&
-          !doesShowWidget &&
-          answerSuggestionsPart &&
-          answerSuggestionsPart.type === "tool-showAnswerSuggestions" && (
-            <AssistantShowAnswerSuggestionsToolMessagePart
-              part={answerSuggestionsPart as ToolUIPart}
-              sendChatMessage={sendChatMessage}
-            />
-          )}
+        {/* Show answer suggestions from state if this is the last message and matches the suggestionsMessageID */}
+        {shouldShowSuggestions && (
+          <AnswerSuggestionsFromState
+            suggestions={agentState.answerSuggestions ?? []}
+            sendChatMessage={sendChatMessage}
+          />
+        )}
       </div>
     </div>
   );
@@ -665,31 +677,21 @@ function AssistantAddProductToolMessagePart({
   return <ProductsUI products={productsToShow} onProductToggle={toggleProduct} />;
 }
 
-function AssistantShowAnswerSuggestionsToolMessagePart({
-  part,
+function AnswerSuggestionsFromState({
+  suggestions,
   sendChatMessage,
 }: {
-  part: ToolUIPart;
+  suggestions: string[];
   sendChatMessage: (message: string) => void;
 }) {
-  if (!part) {
-    return;
-  }
-
-  if (part.state === "input-streaming") {
-    return;
-  }
-
-  if (!part.input) {
+  if (!suggestions || suggestions.length === 0) {
     return null;
   }
 
-  const answers = (part.input as AnswerSuggestionsToolInput).answers;
-
   return (
     <SuggestionChipArea className="mt-1">
-      {answers.map((answer, _index) => (
-        <SuggestionChip key={`anseroption-${answer}`} suggestion={answer} onClick={() => sendChatMessage(answer)} />
+      {suggestions.map((answer, _index) => (
+        <SuggestionChip key={`answeroption-${answer}`} suggestion={answer} onClick={() => sendChatMessage(answer)} />
       ))}
     </SuggestionChipArea>
   );

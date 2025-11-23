@@ -8,7 +8,6 @@ import { cleanOfferForPrompt, getSubPromptForState } from "./system";
 
 export const getAvailableToolsForState = (state: AgentState, setState: (state: AgentState) => void): ToolSet => {
   const tools: ToolSet = {
-    showAnswerSuggestions,
     updateScratchpad: createUpdateScratchpadTool(
       () => state.scratchpad,
       (newScratchpad) => {
@@ -115,7 +114,11 @@ const showCarTypeUpsellOffer = {
       ),
   }),
   execute: async () => {
-    return "Showing the upselling car offers to the user.";
+    return `
+      Showing the upselling car offers to the user. 
+      The user can now press the upgrade button. 
+      You will be notified when the upgrade is complete.
+    `.trim();
   },
 } satisfies Tool<CarUpsellOfferToolInput, string>;
 

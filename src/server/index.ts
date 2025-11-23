@@ -4,11 +4,11 @@ import { AIChatAgent } from "agents/ai-chat-agent";
 import {
   convertToModelMessages,
   createUIMessageStreamResponse,
-  hasToolCall,
   type StreamTextOnFinishCallback,
   stepCountIs,
   streamText,
   type ToolSet,
+  StepResult,
 } from "ai";
 import { v4 as uuidv4 } from "uuid";
 import type { ControlMessage } from "../lib/messages.ts";
@@ -18,6 +18,7 @@ import { type AgentState, getAvailableOffers } from "../lib/state";
 import { getInitialScratchpad } from "./scratchpad.ts";
 import { getSystemPromptForState } from "./system";
 import { getAvailableToolsForState } from "./tools";
+import { AnswerSuggestionsAgent } from "./suggestions-agent";
 
 const model = openai("gpt-4.1-mini");
 
@@ -86,7 +87,7 @@ export class SixtyAgent extends AIChatAgent<Env, AgentState> {
       }
     };
 
-    if(this.state.initialOffer === undefined) {
+    if (this.state.initialOffer === undefined) {
       fetch();
     }
   }
@@ -106,14 +107,67 @@ export class SixtyAgent extends AIChatAgent<Env, AgentState> {
       messages: convertToModelMessages(this.messages),
       model,
       tools: tools,
-      onFinish,
+      onFinish: async (result) => {
+        // Call the original onFinish callback
+        if (onFinish) {
+          await onFinish(result);
+        }
+
+        // After assistant message completes, trigger suggestions agent
+        await this.generateAnswerSuggestions(result);
+      },
       abortSignal: options?.abortSignal,
-      stopWhen: [hasToolCall("showAnswerSuggestions"), stepCountIs(5)],
+      stopWhen: [stepCountIs(5)],
     });
 
     return createUIMessageStreamResponse({
       stream: result.toUIMessageStream(),
     });
+  }
+
+  async generateAnswerSuggestions(result: StepResult<ToolSet>): Promise<void> {
+    // Get the last assistant message
+    const lastUserMessage = [...this.messages].reverse().find((msg) => msg.role === "user");
+
+    if (!lastUserMessage) {
+      console.warn("No user message found in the chat history");
+      return;
+    }
+
+    // Get the suggestions agent from env
+    // Access env through the agent's internal property (AIChatAgent should expose env)
+    const env = (this as unknown as { env: Env }).env;
+    if (!env?.AnswerSuggestionsAgent) {
+      console.warn("AnswerSuggestionsAgent not available in env");
+      return;
+    }
+
+    const suggestionsAgentId = env.AnswerSuggestionsAgent.idFromName(this.name);
+    const suggestionsAgent = env.AnswerSuggestionsAgent.get(suggestionsAgentId) as AnswerSuggestionsAgent;
+
+    const messages = [
+      ...this.messages,
+      { id: uuidv4(), role: "assistant", parts: [{ type: "text", text: result.text }] },
+    ];
+
+    // Generate suggestions
+    const suggestions = await suggestionsAgent.generateSuggestions(messages);
+
+    // Update state with suggestions
+    if (suggestions && suggestions.length > 0) {
+      this.setState({
+        ...this.state,
+        answerSuggestions: suggestions,
+        suggestionsMessageID: lastUserMessage.id,
+      });
+    } else {
+      // Clear suggestions if none were generated
+      this.setState({
+        ...this.state,
+        answerSuggestions: undefined,
+        suggestionsMessageID: lastUserMessage.id,
+      });
+    }
   }
 
   async onMessage(connection: Connection, message: WSMessage): Promise<void> {
@@ -229,6 +283,8 @@ export class SixtyAgent extends AIChatAgent<Env, AgentState> {
     this.setState({ ...this.state, booking: updatedBooking });
   }
 }
+
+export { AnswerSuggestionsAgent } from "./suggestions-agent";
 
 export default {
   async fetch(request: Request, env: Env) {

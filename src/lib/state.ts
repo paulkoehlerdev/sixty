@@ -13,6 +13,9 @@ export type AgentState = {
   availableOffers?: Record<OfferId, Offer>;
 
   booking?: Booking;
+
+  answerSuggestions?: string[];
+  suggestionsMessageID?: string;
 };
 
 export type Stage = "car_type_upselling" | "insurance_upselling" | "addon_upselling" | "completed";

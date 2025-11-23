@@ -60,7 +60,7 @@ export function PriceDisplay({
     value = price.display_amount.value - comparisonPrice.display_amount.value;
   }
 
-  const [left, right] = value.toFixed(2).split(".");
+  const [left, right] = Math.abs(value).toFixed(2).split(".");
   return (
     <p className={cn(priceDisplayVariants({ size }), className)} {...props}>
       <span className={priceDisplayMainTextVariants({ size })}>

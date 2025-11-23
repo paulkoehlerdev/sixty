@@ -3,10 +3,11 @@
 declare namespace Cloudflare {
   interface GlobalProps {
     mainModule: typeof import("./src/server/index");
-    durableNamespaces: "SixtyAgent";
+    durableNamespaces: "SixtyAgent" | "AnswerSuggestionsAgent";
   }
   interface Env {
     SixtyAgent: DurableObjectNamespace /* SixtyAgent */;
+    AnswerSuggestionsAgent: DurableObjectNamespace /* AnswerSuggestionsAgent */;
   }
 }
 interface Env extends Cloudflare.Env {}

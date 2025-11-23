@@ -9,6 +9,10 @@
       {
         "name": "SixtyAgent",
         "class_name": "SixtyAgent"
+      },
+      {
+        "name": "AnswerSuggestionsAgent",
+        "class_name": "AnswerSuggestionsAgent"
       }
     ]
   },
@@ -16,6 +20,10 @@
     {
       "tag": "v1",
       "new_sqlite_classes": ["SixtyAgent"]
+    },
+    {
+      "tag": "v2",
+      "new_sqlite_classes": ["AnswerSuggestionsAgent"]
     }
   ],
   "assets": {
