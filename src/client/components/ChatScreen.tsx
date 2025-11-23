@@ -260,20 +260,14 @@ type ChatContentProps = {
 };
 
 const ChatContent: React.FC<ChatContentProps> = ({ agentChat, agentState, sendChatMessage }) => {
-  const { viewportRef, onNewUserMessage } = useChatScroll();
+  const viewportRef = useRef<HTMLElement | null>(null);
 
-  const userMessageCountRef = useRef(0);
-
-  // Track user messages to notify scroller
+  // Simple scroll to bottom on new messages
   useEffect(() => {
-    // do only consider VISIBLE user messages
-    const userMessageCount = agentChat.messages.filter((m) => m.role === "user").length;
-
-    if (userMessageCountRef.current < userMessageCount) {
-      onNewUserMessage();
-      userMessageCountRef.current = userMessageCount;
+    if (agentChat.messages.length > 0 && viewportRef.current) {
+      viewportRef.current.scrollTo({ top: viewportRef.current.scrollHeight, behavior: "smooth" });
     }
-  }, [agentChat.messages, onNewUserMessage]);
+  }, [agentChat.messages.length]);
 
   // Reset following when user sends a message
   const handleSendMessage = (message: string) => {
