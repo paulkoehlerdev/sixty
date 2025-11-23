@@ -3,7 +3,6 @@ import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { match } from "ts-pattern";
-import { Avatar, AvatarImage } from "@/components/ui/avatar.tsx";
 import { SuggestionChip, SuggestionChipArea } from "@/components/ui/suggestion-chip";
 import type { ChatMessageMetadata } from "@/lib/messages.ts";
 import type { Offer } from "@/lib/sixt/types";
@@ -32,6 +31,8 @@ type Props = {
   sendChatMessage: (message: string) => void;
 };
 
+const ignoredToolCalls = ["tool-updateScratchpad"];
+
 export const Chat: React.FC<Props> = ({ messages, isWaitingForResponse, sendChatMessage }) => {
   const { agentState } = useAgentState();
   const chatEndRef = useRef<HTMLDivElement>(null);
@@ -52,18 +53,7 @@ export const Chat: React.FC<Props> = ({ messages, isWaitingForResponse, sendChat
       return true;
     }
 
-    // Define which tool calls render content when finished
-    const contentRenderingTools = [
-      "tool-showCarTypeUpsellOffer",
-      "tool-showProtectionPackages",
-      "tool-showProducts",
-      "tool-addProtectionPackage",
-      "tool-addProduct",
-      "tool-showAnswerSuggestions",
-    ];
-
     // Define which tool calls should be ignored for streaming indicator logic
-    const ignoredToolCalls = ["tool-updateScratchpad"];
 
     // Find the last user message index
     let lastUserMessageIndex = -1;
@@ -78,9 +68,6 @@ export const Chat: React.FC<Props> = ({ messages, isWaitingForResponse, sendChat
     if (lastUserMessageIndex === -1) {
       return true;
     }
-
-    let hasStreamingToolCall = false;
-    let hasCompletedContentRenderingTool = false;
 
     // Check messages after the last user message
     for (let i = lastUserMessageIndex + 1; i < messages.length; i++) {
@@ -103,30 +90,11 @@ export const Chat: React.FC<Props> = ({ messages, isWaitingForResponse, sendChat
             continue;
           }
 
-          const isContentRenderingTool = contentRenderingTools.includes(part.type);
-
-          // Check if tool is still streaming (input-streaming or input-available)
-          if ("state" in part && (part.state === "input-streaming" || part.state === "input-available")) {
-            hasStreamingToolCall = true;
-          }
-          // Check if it's a completed content-rendering tool
-          else if ("state" in part && isContentRenderingTool && part.state === "output-available") {
-            hasCompletedContentRenderingTool = true;
-          }
+          // If it's a tool call, hide the indicator
+          return false;
         }
       }
     }
-
-    // If there's a streaming tool call, hide indicator (show tool shimmer instead)
-    if (hasStreamingToolCall) {
-      return false;
-    }
-
-    // If there's a completed content-rendering tool, hide indicator (content is shown)
-    if (hasCompletedContentRenderingTool) {
-      return false;
-    }
-
     // If we only have completed non-rendering tools, show indicator (still waiting for content)
     return true;
   }, [isWaitingForResponse, messages]);
@@ -147,6 +115,12 @@ export const Chat: React.FC<Props> = ({ messages, isWaitingForResponse, sendChat
 
       {messages
         .filter((message) => !message.metadata || message.metadata !== "hidden")
+        .map((message) => ({
+          ...message,
+          parts: message.parts.filter((part) => part.type !== "step-start" && !ignoredToolCalls.includes(part.type)),
+        }))
+        // remove messages that have no parts
+        .filter((message) => message.parts.length > 0)
         .map((message, index, arr) => {
           return (
             <MessageBubble
@@ -167,7 +141,7 @@ export const Chat: React.FC<Props> = ({ messages, isWaitingForResponse, sendChat
   );
 };
 
-function MessageBubble({
+const MessageBubble = React.memo(function MessageBubble({
   message,
   isLast,
   sendChatMessage,
@@ -188,6 +162,37 @@ function MessageBubble({
         ))}
     </div>
   );
+});
+
+// Helper function to check if there are subsequent parts that would render something
+// Only these tool calls actually render UI: addProduct, addProtectionPackage, showProducts, showProtectionPackages, showCarTypeUpsellOffer
+function hasSubsequentRenderingParts(parts: UIMessage['parts'], currentIndex: number): boolean {
+  for (let i = currentIndex + 1; i < parts.length; i++) {
+    const part = parts[i];
+    
+    // Skip answer suggestions as they're handled separately
+    if (part.type === "tool-showAnswerSuggestions") {
+      continue;
+    }
+    
+    // Text parts always render
+    if (part.type === "text") {
+      return true;
+    }
+    
+    // Only these specific tool calls render something
+    if (
+      part.type === "tool-addProduct" ||
+      part.type === "tool-addProtectionPackage" ||
+      part.type === "tool-showProducts" ||
+      part.type === "tool-showProtectionPackages" ||
+      part.type === "tool-showCarTypeUpsellOffer"
+    ) {
+      return true;
+    }
+  }
+  
+  return false;
 }
 
 function AssistantMessage({
@@ -207,12 +212,12 @@ function AssistantMessage({
 
   return (
     <div className="w-full max-w-full space-y-2">
-      <div className="flex items-center gap-3">
-        <Avatar className="h-7 w-7">
+      {<div className="flex items-center gap-3">
+        {/*<Avatar className="h-7 w-7">
           <AvatarImage src="/favicon.svg" />
-        </Avatar>
+        </Avatar>*/}
         <p className="font-bold text-primary">Chris</p>
-      </div>
+      </div>}
       <div>
         {message.parts.map((part, index) => {
           // Skip answer suggestions here - they're handled separately at the end
@@ -220,64 +225,85 @@ function AssistantMessage({
             return null;
           }
 
+          const hasSubsequentParts = hasSubsequentRenderingParts(message.parts, index);
+
           return match(part)
             .with({ type: "text" }, (part) => (
-              <AssistantTextMessagePart key={`${message.id}-text-${index}`} part={part} />
+              <AssistantTextMessagePart key={`${message.id}-${part.type}-${index}`} part={part} />
             ))
             .with({ type: "tool-getAvailableCarUpgrades" }, (part) => (
               <AssistantGetAvailableCarUpgradesToolMessagePart
-                key={part.toolCallId || `upgrades-${index}`}
+                key={part.toolCallId}
                 part={part}
+                hasSubsequentParts={hasSubsequentParts}
               />
             ))
             .with({ type: "tool-abortCarTypeUpsell" }, (part) => (
               <AssistantAbortToolMessagePart
-                key={part.toolCallId || `abort-car-${index}`}
+                key={part.toolCallId}
                 part={part}
                 message="Got it"
+                hasSubsequentParts={hasSubsequentParts}
               />
             ))
             .with({ type: "tool-abortProtectionUpselling" }, (part) => (
               <AssistantAbortToolMessagePart
-                key={part.toolCallId || `abort-protection-${index}`}
+                key={part.toolCallId}
                 part={part}
                 message="Understood"
+                hasSubsequentParts={hasSubsequentParts}
               />
             ))
             .with({ type: "tool-abortAddonUpselling" }, (part) => (
               <AssistantAbortToolMessagePart
-                key={part.toolCallId || `abort-addon-${index}`}
+                key={part.toolCallId}
                 part={part}
                 message="Finalizing your booking"
+                hasSubsequentParts={hasSubsequentParts}
               />
             ))
             .with({ type: "tool-endChat" }, (part) => (
               <AssistantAbortToolMessagePart
-                key={part.toolCallId || `end-chat-${index}`}
+                key={part.toolCallId}
                 part={part}
                 message="Preparing your booking summary"
+                hasSubsequentParts={hasSubsequentParts}
               />
             ))
             .with({ type: "tool-showCarTypeUpsellOffer" }, (part) => (
-              <AssistantShowCarTypeUpsellOfferToolMessagePart key={part.toolCallId || `upsell-${index}`} part={part} />
+              <AssistantShowCarTypeUpsellOfferToolMessagePart
+                key={part.toolCallId}
+                part={part}
+                hasSubsequentParts={hasSubsequentParts}
+              />
             ))
             .with({ type: "tool-showProtectionPackages" }, (part) => (
               <AssistantShowProtectionPackagesToolMessagePart
-                key={part.toolCallId || `packages-${index}`}
+                key={part.toolCallId}
                 part={part}
+                hasSubsequentParts={hasSubsequentParts}
               />
             ))
             .with({ type: "tool-showProducts" }, (part) => (
-              <AssistantShowProductsToolMessagePart key={part.toolCallId || `products-${index}`} part={part} />
+              <AssistantShowProductsToolMessagePart
+                key={part.toolCallId}
+                part={part}
+                hasSubsequentParts={hasSubsequentParts}
+              />
             ))
             .with({ type: "tool-addProtectionPackage" }, (part) => (
               <AssistantAddProtectionPackageToolMessagePart
-                key={part.toolCallId || `add-package-${index}`}
+                key={part.toolCallId}
                 part={part}
+                hasSubsequentParts={hasSubsequentParts}
               />
             ))
             .with({ type: "tool-addProduct" }, (part) => (
-              <AssistantAddProductToolMessagePart key={part.toolCallId || `add-product-${index}`} part={part} />
+              <AssistantAddProductToolMessagePart
+                key={part.toolCallId}
+                part={part}
+                hasSubsequentParts={hasSubsequentParts}
+              />
             ))
             .otherwise(() => <React.Fragment key={`unknown-${message.id}-${index}`} />);
         })}
@@ -343,9 +369,20 @@ function AssistantTextMessagePart({ part }: { part: TextUIPart }) {
   );
 }
 
-function AssistantGetAvailableCarUpgradesToolMessagePart({ part }: { part: ToolUIPart }) {
+function AssistantGetAvailableCarUpgradesToolMessagePart({
+  part,
+  hasSubsequentParts,
+}: {
+  part: ToolUIPart;
+  hasSubsequentParts: boolean;
+}) {
   // Show shimmer while tool is executing
   if (part.state === "input-streaming" || part.state === "input-available") {
+    return <ToolCallShimmer message="Checking available car upgrades" />;
+  }
+
+  // Keep showing shimmer if tool completed but doesn't render and there are no subsequent parts
+  if (!hasSubsequentParts) {
     return <ToolCallShimmer message="Checking available car upgrades" />;
   }
 
@@ -353,9 +390,22 @@ function AssistantGetAvailableCarUpgradesToolMessagePart({ part }: { part: ToolU
   return null;
 }
 
-function AssistantAbortToolMessagePart({ part, message }: { part: ToolUIPart; message: string }) {
+function AssistantAbortToolMessagePart({
+  part,
+  message,
+  hasSubsequentParts,
+}: {
+  part: ToolUIPart;
+  message: string;
+  hasSubsequentParts: boolean;
+}) {
   // Show shimmer while tool is executing
   if (part.state === "input-streaming" || part.state === "input-available") {
+    return <ToolCallShimmer message={message} />;
+  }
+
+  // Keep showing shimmer if tool completed but doesn't render and there are no subsequent parts
+  if (!hasSubsequentParts) {
     return <ToolCallShimmer message={message} />;
   }
 
@@ -363,11 +413,25 @@ function AssistantAbortToolMessagePart({ part, message }: { part: ToolUIPart; me
   return null;
 }
 
-function AssistantShowCarTypeUpsellOfferToolMessagePart({ part }: { part: ToolUIPart }) {
+function AssistantShowCarTypeUpsellOfferToolMessagePart({
+  part,
+  hasSubsequentParts,
+}: {
+  part: ToolUIPart;
+  hasSubsequentParts: boolean;
+}) {
   const { agentState, acceptUpgradeOffer } = useAgentState();
 
-  if (!part.input || part.state === "input-streaming") {
+  if (part.state === "input-streaming") {
     return <ToolCallShimmer message="Finding the perfect upgrade options for you" />;
+  }
+
+  if (!part.input) {
+    // Keep showing shimmer if no subsequent parts
+    if (!hasSubsequentParts) {
+      return <ToolCallShimmer message="Finding the perfect upgrade options for you" />;
+    }
+    return null;
   }
 
   const input = part.input as CarUpsellOfferToolInput;
@@ -398,7 +462,11 @@ function AssistantShowCarTypeUpsellOfferToolMessagePart({ part }: { part: ToolUI
   }
 
   if (offerData.length === 0) {
-    return;
+    // Keep showing shimmer if no offers and no subsequent parts
+    if (!hasSubsequentParts) {
+      return <ToolCallShimmer message="Finding the perfect upgrade options for you" />;
+    }
+    return null;
   }
 
   // Single offer - show without carousel
@@ -420,9 +488,9 @@ function AssistantShowCarTypeUpsellOfferToolMessagePart({ part }: { part: ToolUI
 
   // Multiple offers - show horizontal scroll
   return (
-    <div className="scrollbar-none flex w-(--chat-width) max-w-lg flex-row gap-4 overflow-x-scroll py-4">
+    <div className="scrollbar-none flex w-(--chat-width) max-w-lg snap-x snap-mandatory flex-row gap-4 overflow-x-scroll py-4">
       {offerData.map(({ offer, aiTextInput }) => (
-        <div key={offer.offer_id} className="max-w-[calc(0.95*var(--chat-width))] shrink-0">
+        <div key={offer.offer_id} className="max-w-[calc(0.95*var(--chat-width))] shrink-0 snap-center">
           <UpgradeOfferUI
             offer={offer}
             baseOffer={agentState?.initialOffer}
@@ -438,11 +506,25 @@ function AssistantShowCarTypeUpsellOfferToolMessagePart({ part }: { part: ToolUI
   );
 }
 
-function AssistantShowProtectionPackagesToolMessagePart({ part }: { part: ToolUIPart }) {
+function AssistantShowProtectionPackagesToolMessagePart({
+  part,
+  hasSubsequentParts,
+}: {
+  part: ToolUIPart;
+  hasSubsequentParts: boolean;
+}) {
   const { agentState, selectProtectionPackage } = useAgentState();
 
-  if (!part.input || part.state === "input-streaming") {
+  if (part.state === "input-streaming") {
     return <ToolCallShimmer message="Preparing protection packages" />;
+  }
+
+  if (!part.input) {
+    // Keep showing shimmer if no subsequent parts
+    if (!hasSubsequentParts) {
+      return <ToolCallShimmer message="Preparing protection packages" />;
+    }
+    return null;
   }
 
   const input = part.input as ProtectionPackagesToolInput;
@@ -456,7 +538,11 @@ function AssistantShowProtectionPackagesToolMessagePart({ part }: { part: ToolUI
   }
 
   if (packagesToShow.length === 0) {
-    return;
+    // Keep showing shimmer if no packages and no subsequent parts
+    if (!hasSubsequentParts) {
+      return <ToolCallShimmer message="Preparing protection packages" />;
+    }
+    return null;
   }
 
   return (
@@ -468,11 +554,25 @@ function AssistantShowProtectionPackagesToolMessagePart({ part }: { part: ToolUI
   );
 }
 
-function AssistantShowProductsToolMessagePart({ part }: { part: ToolUIPart }) {
+function AssistantShowProductsToolMessagePart({
+  part,
+  hasSubsequentParts,
+}: {
+  part: ToolUIPart;
+  hasSubsequentParts: boolean;
+}) {
   const { agentState, toggleProduct } = useAgentState();
 
-  if (!part.input || part.state === "input-streaming") {
+  if (part.state === "input-streaming") {
     return <ToolCallShimmer message="Loading available add-ons" />;
+  }
+
+  if (!part.input) {
+    // Keep showing shimmer if no subsequent parts
+    if (!hasSubsequentParts) {
+      return <ToolCallShimmer message="Loading available add-ons" />;
+    }
+    return null;
   }
 
   const input = part.input as ProductsToolInput;
@@ -480,17 +580,35 @@ function AssistantShowProductsToolMessagePart({ part }: { part: ToolUIPart }) {
   const productsToShow = availableProducts.filter((product) => input.productChargeCodes.includes(product.charge_code));
 
   if (productsToShow.length === 0) {
-    return;
+    // Keep showing shimmer if no products and no subsequent parts
+    if (!hasSubsequentParts) {
+      return <ToolCallShimmer message="Loading available add-ons" />;
+    }
+    return null;
   }
 
   return <ProductsUI products={productsToShow} onProductToggle={toggleProduct} />;
 }
 
-function AssistantAddProtectionPackageToolMessagePart({ part }: { part: ToolUIPart }) {
+function AssistantAddProtectionPackageToolMessagePart({
+  part,
+  hasSubsequentParts,
+}: {
+  part: ToolUIPart;
+  hasSubsequentParts: boolean;
+}) {
   const { agentState, selectProtectionPackage } = useAgentState();
 
-  if (!part.input || part.state === "input-streaming") {
+  if (part.state === "input-streaming") {
     return <ToolCallShimmer message="Adding protection package to your booking" />;
+  }
+
+  if (!part.input) {
+    // Keep showing shimmer if no subsequent parts
+    if (!hasSubsequentParts) {
+      return <ToolCallShimmer message="Adding protection package to your booking" />;
+    }
+    return null;
   }
 
   const input = part.input as AddProtectionPackageToolInput;
@@ -498,6 +616,10 @@ function AssistantAddProtectionPackageToolMessagePart({ part }: { part: ToolUIPa
   const packageToShow = availablePackages.find((pkg) => pkg.id === input.packageId);
 
   if (!packageToShow) {
+    // Keep showing shimmer if package not found and no subsequent parts
+    if (!hasSubsequentParts) {
+      return <ToolCallShimmer message="Adding protection package to your booking" />;
+    }
     return null;
   }
 
@@ -505,11 +627,25 @@ function AssistantAddProtectionPackageToolMessagePart({ part }: { part: ToolUIPa
   return <ProtectionPlansUI packages={[packageToShow]} onPackageSelect={selectProtectionPackage} />;
 }
 
-function AssistantAddProductToolMessagePart({ part }: { part: ToolUIPart }) {
+function AssistantAddProductToolMessagePart({
+  part,
+  hasSubsequentParts,
+}: {
+  part: ToolUIPart;
+  hasSubsequentParts: boolean;
+}) {
   const { agentState, toggleProduct } = useAgentState();
 
-  if (!part.input || part.state === "input-streaming") {
+  if (part.state === "input-streaming") {
     return <ToolCallShimmer message="Adding product to your booking" />;
+  }
+
+  if (!part.input) {
+    // Keep showing shimmer if no subsequent parts
+    if (!hasSubsequentParts) {
+      return <ToolCallShimmer message="Adding product to your booking" />;
+    }
+    return null;
   }
 
   const input = part.input as AddProductToolInput;
@@ -517,17 +653,17 @@ function AssistantAddProductToolMessagePart({ part }: { part: ToolUIPart }) {
   const productToShow = availableProducts.find((product) => product.charge_code === input.productChargeCode);
 
   if (!productToShow) {
+    // Keep showing shimmer if product not found and no subsequent parts
+    if (!hasSubsequentParts) {
+      return <ToolCallShimmer message="Adding product to your booking" />;
+    }
     return null;
   }
 
   // Render the product that was added (it should already be marked as selected in the state)
   return (
     <div className="my-4">
-      <ProductCard
-        product={productToShow}
-        isSelected={productToShow.is_selected}
-        onToggle={toggleProduct}
-      />
+      <ProductCard product={productToShow} isSelected={productToShow.is_selected} onToggle={toggleProduct} />
     </div>
   );
 }
@@ -543,8 +679,12 @@ function AssistantShowAnswerSuggestionsToolMessagePart({
     return;
   }
 
-  if (!part.input || part.state === "input-streaming") {
+  if (part.state === "input-streaming") {
     return;
+  }
+
+  if (!part.input) {
+    return null;
   }
 
   const answers = (part.input as AnswerSuggestionsToolInput).answers;

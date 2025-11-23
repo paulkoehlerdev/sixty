@@ -119,7 +119,7 @@ const BookingsPage: React.FC<BookingsPageProps> = ({ agentState, onOpenChat, sta
   return (
     <>
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="font-bold text-3xl">BOOKINGS</h1>
+        <h1 className="font-black text-2xl">YOUR BOOKINGS</h1>
         <div className="flex items-center gap-3">
           <button
             type="button"
