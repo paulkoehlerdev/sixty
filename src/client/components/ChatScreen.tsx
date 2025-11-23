@@ -4,12 +4,11 @@ import type { UIMessage } from "ai";
 import { AnimatePresence, motion } from "framer-motion";
 import { MessageCircle, Moon, Sun, X } from "lucide-react";
 import type React from "react";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { AgentStateContext } from "@/client/components/AgentStateContext.tsx";
 import { Chat } from "@/client/components/Chat.tsx";
 import { ChatInput } from "@/client/components/ChatInput.tsx";
 import { BookingSummary } from "@/client/components/ui-elements/BookingSummary.tsx";
-import { useChatScroll } from "@/client/components/useChatScroll.ts";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import type {
@@ -260,14 +259,6 @@ type ChatContentProps = {
 };
 
 const ChatContent: React.FC<ChatContentProps> = ({ agentChat, agentState, sendChatMessage }) => {
-  const viewportRef = useRef<HTMLElement | null>(null);
-
-  // Simple scroll to bottom on new messages
-  useEffect(() => {
-    if (agentChat.messages.length > 0 && viewportRef.current) {
-      viewportRef.current.scrollTo({ top: viewportRef.current.scrollHeight, behavior: "smooth" });
-    }
-  }, [agentChat.messages.length]);
 
   // Reset following when user sends a message
   const handleSendMessage = (message: string) => {
@@ -277,7 +268,7 @@ const ChatContent: React.FC<ChatContentProps> = ({ agentChat, agentState, sendCh
 
   return (
     <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden">
-      <ScrollArea className="flex-1 px-2" viewportRef={viewportRef}>
+      <ScrollArea className="flex-1 px-2">
         <div className="mx-auto w-(--chat-width) max-w-(--chat-width) py-4">
           <Chat
             messages={agentChat.messages}

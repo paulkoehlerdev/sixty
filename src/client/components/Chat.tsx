@@ -1,5 +1,5 @@
 import type { TextUIPart, ToolUIPart, UIMessage } from "ai";
-import React, { useMemo } from "react";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { match } from "ts-pattern";
@@ -33,6 +33,17 @@ const ignoredToolCalls = ["tool-updateScratchpad"];
 
 export const Chat: React.FC<Props> = ({ messages, isWaitingForResponse, sendChatMessage }) => {
   const { agentState } = useAgentState();
+  const chatEndRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = useCallback(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, []);
+
+  useEffect(() => {
+    if (messages.length > 0) {
+      scrollToBottom();
+    }
+  }, [messages, scrollToBottom]);
 
   // Check if we should show the streaming indicator
   const shouldShowStreamingIndicator = useMemo(() => {
@@ -130,6 +141,8 @@ export const Chat: React.FC<Props> = ({ messages, isWaitingForResponse, sendChat
       <div>{shouldShowStreamingIndicator && <StreamingIndicator />}</div>
 
       {agentState && agentState.stage === "completed" && <BookingSummary state={agentState} />}
+
+      <div ref={chatEndRef} />
     </div>
   );
 };
