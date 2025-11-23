@@ -4,11 +4,11 @@ import { AIChatAgent } from "agents/ai-chat-agent";
 import {
   convertToModelMessages,
   createUIMessageStreamResponse,
+  type StepResult,
   type StreamTextOnFinishCallback,
   stepCountIs,
   streamText,
   type ToolSet,
-  StepResult,
 } from "ai";
 import { v4 as uuidv4 } from "uuid";
 import type { ControlMessage } from "../lib/messages.ts";
@@ -16,9 +16,9 @@ import { getBookingForOffer } from "../lib/sixt/api.ts";
 import type { Offer, OfferId } from "../lib/sixt/types.ts";
 import { type AgentState, getAvailableOffers } from "../lib/state";
 import { getInitialScratchpad } from "./scratchpad.ts";
+import type { AnswerSuggestionsAgent } from "./suggestions-agent";
 import { getSystemPromptForState } from "./system";
 import { getAvailableToolsForState } from "./tools";
-import { AnswerSuggestionsAgent } from "./suggestions-agent";
 
 const model = openai("gpt-4.1-mini");
 
@@ -130,7 +130,6 @@ export class SixtyAgent extends AIChatAgent<Env, AgentState> {
     const lastUserMessage = [...this.messages].reverse().find((msg) => msg.role === "user");
 
     if (!lastUserMessage) {
-      console.warn("No user message found in the chat history");
       return;
     }
 
@@ -138,7 +137,6 @@ export class SixtyAgent extends AIChatAgent<Env, AgentState> {
     // Access env through the agent's internal property (AIChatAgent should expose env)
     const env = (this as unknown as { env: Env }).env;
     if (!env?.AnswerSuggestionsAgent) {
-      console.warn("AnswerSuggestionsAgent not available in env");
       return;
     }
 
@@ -328,7 +326,7 @@ export class SixtyAgent extends AIChatAgent<Env, AgentState> {
     ]);
   }
 
-  async processPayment(paymentMethod: "apple" | "google" | "card") {
+  async processPayment(_paymentMethod: "apple" | "google" | "card") {
     if (!this.state.booking) {
       return;
     }

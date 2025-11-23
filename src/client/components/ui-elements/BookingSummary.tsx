@@ -1,5 +1,5 @@
-import { CheckCircle2, Loader2, Package, Shield, X } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
+import { CheckCircle2, Loader2, Package, Shield, X } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -55,10 +55,10 @@ export function BookingSummary({ state }: BookingSummaryProps) {
 
   const handleUnlock = async () => {
     setIsUnlocking(true);
-    
+
     // Wait for a bit to show the loading state
     await new Promise((resolve) => setTimeout(resolve, 1500));
-    
+
     unlockCar();
     setIsUnlocking(false);
   };
@@ -72,11 +72,11 @@ export function BookingSummary({ state }: BookingSummaryProps) {
       <PaymentAnimation open={showPaymentAnimation} onOpenChange={setShowPaymentAnimation} />
 
       <Card variant={carUnlocked ? "success" : "normal"} className="dark:border-none">
-          <CardHeader className="pb-0">
-            <CardTitle className="font-bold text-lg">Booking Summary</CardTitle>
-          </CardHeader>
+        <CardHeader className="pb-0">
+          <CardTitle className="font-bold text-lg">Booking Summary</CardTitle>
+        </CardHeader>
 
-          <CarOfferCardContent offer={offer} isSuccess={carUnlocked} />
+        <CarOfferCardContent offer={offer} isSuccess={carUnlocked} />
 
         <CardContent className="space-y-4">
           {selectedPackage && (
@@ -145,7 +145,8 @@ export function BookingSummary({ state }: BookingSummaryProps) {
                       <Button
                         className="w-full text-white disabled:opacity-100"
                         style={{
-                          background: "linear-gradient(135deg, var(--success-gradient-start), var(--success-gradient-end))",
+                          background:
+                            "linear-gradient(135deg, var(--success-gradient-start), var(--success-gradient-end))",
                         }}
                         disabled={true}
                       >
@@ -291,54 +292,54 @@ export function BookingSummary({ state }: BookingSummaryProps) {
                     Car Unlocked Successfully
                   </Button>
                 </motion.div>
-            ) : (
-              // Unlock Button for initial offer
-              <motion.div
-                key="unlock-button"
-                initial={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.2 }}
-              >
-                <Button className="w-full" onClick={handleUnlock} disabled={isUnlocking}>
-                  {isUnlocking ? (
-                    <motion.div
-                      className="flex items-center"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      <div className="relative mr-2">
-                        <motion.div
-                          animate={{ rotate: 360 }}
-                          transition={{
-                            duration: 1,
-                            repeat: Number.POSITIVE_INFINITY,
-                            ease: "linear",
-                          }}
-                        >
-                          <Loader2 className="h-4 w-4 text-primary-foreground" />
-                        </motion.div>
-                        <motion.div
-                          className="absolute inset-0 rounded-full border-2 border-primary-foreground/20"
-                          animate={{
-                            scale: [1, 1.2, 1],
-                            opacity: [0.5, 0.8, 0.5],
-                          }}
-                          transition={{
-                            duration: 2,
-                            repeat: Number.POSITIVE_INFINITY,
-                            ease: "easeInOut",
-                          }}
-                        />
-                      </div>
-                      <span>Loading...</span>
-                    </motion.div>
-                  ) : (
-                    "Unlock Car"
-                  )}
-                </Button>
-              </motion.div>
-            )}
+              ) : (
+                // Unlock Button for initial offer
+                <motion.div
+                  key="unlock-button"
+                  initial={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <Button className="w-full" onClick={handleUnlock} disabled={isUnlocking}>
+                    {isUnlocking ? (
+                      <motion.div
+                        className="flex items-center"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        <div className="relative mr-2">
+                          <motion.div
+                            animate={{ rotate: 360 }}
+                            transition={{
+                              duration: 1,
+                              repeat: Number.POSITIVE_INFINITY,
+                              ease: "linear",
+                            }}
+                          >
+                            <Loader2 className="h-4 w-4 text-primary-foreground" />
+                          </motion.div>
+                          <motion.div
+                            className="absolute inset-0 rounded-full border-2 border-primary-foreground/20"
+                            animate={{
+                              scale: [1, 1.2, 1],
+                              opacity: [0.5, 0.8, 0.5],
+                            }}
+                            transition={{
+                              duration: 2,
+                              repeat: Number.POSITIVE_INFINITY,
+                              ease: "easeInOut",
+                            }}
+                          />
+                        </div>
+                        <span>Loading...</span>
+                      </motion.div>
+                    ) : (
+                      "Unlock Car"
+                    )}
+                  </Button>
+                </motion.div>
+              )}
             </AnimatePresence>
           )}
         </CardContent>

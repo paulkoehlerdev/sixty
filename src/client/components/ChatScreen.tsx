@@ -1,7 +1,8 @@
 import { useAgentChat } from "agents/ai-react";
 import { useAgent } from "agents/react";
 import type { UIMessage } from "ai";
-import { MessageCircle, Moon, Sun } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import { MessageCircle, Moon, Sun, X } from "lucide-react";
 import type React from "react";
 import { useState } from "react";
 import { AgentStateContext } from "@/client/components/AgentStateContext.tsx";
@@ -9,7 +10,6 @@ import { Chat } from "@/client/components/Chat.tsx";
 import { ChatInput } from "@/client/components/ChatInput.tsx";
 import { BookingSummary } from "@/client/components/ui-elements/BookingSummary.tsx";
 import { Card, CardContent } from "@/components/ui/card";
-import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import type {
   AcceptUpgradeControlMessage,
@@ -119,12 +119,12 @@ export const ChatScreen: React.FC<{ sessionID: string; startNewSession: () => vo
           onOpenChat={() => setIsDrawerOpen(true)}
           startNewSession={startNewSession}
         />
-        <ChatDrawer
+        <ChatPage
           agentChat={agentChat}
           agentState={agentState}
           sendChatMessage={sendChatMessage}
           isOpen={isDrawerOpen}
-          onOpenChange={setIsDrawerOpen}
+          onClose={() => setIsDrawerOpen(false)}
         />
       </div>
     </AgentStateContext.Provider>
@@ -201,21 +201,53 @@ const ChatNotificationButton: React.FC<ChatNotificationButtonProps> = ({ onOpenC
   );
 };
 
-type ChatDrawerProps = {
+type ChatPageProps = {
   agentChat: ReturnType<typeof useAgentChat<AgentState, UIMessage<ChatMessageMetadata>>>;
   agentState: AgentState | null;
   sendChatMessage: (message: string, metadata?: ChatMessageMetadata) => void;
   isOpen: boolean;
-  onOpenChange: (open: boolean) => void;
+  onClose: () => void;
 };
 
-const ChatDrawer: React.FC<ChatDrawerProps> = ({ agentChat, agentState, sendChatMessage, isOpen, onOpenChange }) => {
+const ChatPage: React.FC<ChatPageProps> = ({ agentChat, agentState, sendChatMessage, isOpen, onClose }) => {
   return (
-    <Drawer open={isOpen} onOpenChange={onOpenChange}>
-      <DrawerContent className="max-h-[96vh] min-h-[96vh]">
-        <ChatContent agentChat={agentChat} agentState={agentState} sendChatMessage={sendChatMessage} />
-      </DrawerContent>
-    </Drawer>
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          className="fixed inset-0 z-50 bg-background"
+        >
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+            className="flex h-full flex-col"
+          >
+            {/* Header with close button */}
+            <div className="flex items-center justify-between border-b px-4 py-3">
+              <h2 className="font-semibold text-lg">Chat with Chris</h2>
+              <button
+                type="button"
+                onClick={onClose}
+                className="flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-accent"
+                aria-label="Close chat"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* Chat content */}
+            <div className="flex-1 overflow-hidden">
+              <ChatContent agentChat={agentChat} agentState={agentState} sendChatMessage={sendChatMessage} />
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 };
 
@@ -227,25 +259,25 @@ type ChatContentProps = {
 
 const ChatContent: React.FC<ChatContentProps> = ({ agentChat, agentState, sendChatMessage }) => {
   return (
-    <ScrollArea className="relative mx-auto h-[96vh] w-(--chat-width) pt-4">
-      <Chat
-        messages={agentChat.messages}
-        isWaitingForResponse={agentChat.status === "submitted"}
-        sendChatMessage={sendChatMessage}
-      />
+    <div className="relative flex h-full flex-col">
+      <ScrollArea className="flex-1 px-4">
+        <div className="mx-auto max-w-2xl py-4">
+          <Chat
+            messages={agentChat.messages}
+            isWaitingForResponse={agentChat.status === "submitted"}
+            sendChatMessage={sendChatMessage}
+          />
+        </div>
+      </ScrollArea>
 
-      {agentState?.stage !== "completed" && <div className="h-16" />}
-
-      <div className="fixed right-3 bottom-0 left-3 mx-auto grid max-w-lg justify-items-center">
-        {agentState?.stage !== "completed" && (
-          <>
-            <div className="fixed inset-x-0 bottom-0 h-24 bg-linear-to-t from-background via-background to-transparent" />
-            <div className="relative z-10 mb-5 w-full">
-              <ChatInput placeholder="Send a message" sendChatMessage={sendChatMessage} />
-            </div>
-          </>
-        )}
+      {/* Chat input at bottom */}
+      <div className="bg-background px-4 py-4">
+        <div className="mx-auto max-w-2xl">
+          {agentState?.stage !== "completed" && (
+            <ChatInput placeholder="Send a message" sendChatMessage={sendChatMessage} />
+          )}
+        </div>
       </div>
-    </ScrollArea>
+    </div>
   );
 };

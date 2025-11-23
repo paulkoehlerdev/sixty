@@ -126,7 +126,7 @@ export type AnswerSuggestionsToolInput = {
   answers: string[];
 };
 
-const showAnswerSuggestions = {
+const _showAnswerSuggestions = {
   description: `
     Show the user answers to choose from.
     We need you to provide a list of up to 3 suggestions for the user to choose from.
