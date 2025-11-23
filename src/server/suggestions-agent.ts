@@ -59,8 +59,6 @@ const generateSuggestionsTool = {
 
 export class AnswerSuggestionsAgent extends AIChatAgent<Env, Record<string, never>> {
   async generateSuggestions(messages: AIChatAgent<Env, AgentState>["messages"]): Promise<string[] | null> {
-    console.log("Generating suggestions");
-
     const result = streamText({
       system: SUGGESTIONS_SYSTEM_PROMPT,
       messages: convertToModelMessages(messages),
@@ -86,8 +84,6 @@ export class AnswerSuggestionsAgent extends AIChatAgent<Env, Record<string, neve
         }
       }
     }
-
-    console.log(suggestions);
 
     return suggestions;
   }
