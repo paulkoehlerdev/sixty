@@ -1,19 +1,16 @@
 import { useAgentChat } from "agents/ai-react";
 import { useAgent } from "agents/react";
 import type { UIMessage } from "ai";
+import { MessageCircle } from "lucide-react";
 import type React from "react";
 import { useState } from "react";
-import { MessageCircle } from "lucide-react";
 import { AgentStateContext } from "@/client/components/AgentStateContext.tsx";
 import { Chat } from "@/client/components/Chat.tsx";
 import { ChatInput } from "@/client/components/ChatInput.tsx";
 import { BookingSummary } from "@/client/components/ui-elements/BookingSummary.tsx";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-  Drawer,
-  DrawerContent,
-} from "@/components/ui/drawer";
 import { Card, CardContent } from "@/components/ui/card";
+import { Drawer, DrawerContent } from "@/components/ui/drawer";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import type {
   AcceptUpgradeControlMessage,
   ChatMessageMetadata,
@@ -78,20 +75,20 @@ export const ChatScreen: React.FC<{ sessionID: string; startNewSession: () => vo
 
   return (
     <AgentStateContext.Provider value={{ agentState, acceptUpgradeOffer, selectProtectionPackage, toggleProduct }}>
-      <div className="h-screen w-screen">
-      <BookingsPage
-        agentState={agentState}
-        onOpenChat={() => setIsDrawerOpen(true)}
-        startNewSession={startNewSession}
-      />
-      <ChatDrawer
-        agentChat={agentChat}
-        agentState={agentState}
-        sendChatMessage={sendChatMessage}
-        isOpen={isDrawerOpen}
-        onOpenChange={setIsDrawerOpen}
-      />
-    </div>
+      <div className="mx-auto h-dvh w-[calc(min(100dvw,32rem))] overflow-hidden px-3">
+        <BookingsPage
+          agentState={agentState}
+          onOpenChat={() => setIsDrawerOpen(true)}
+          startNewSession={startNewSession}
+        />
+        <ChatDrawer
+          agentChat={agentChat}
+          agentState={agentState}
+          sendChatMessage={sendChatMessage}
+          isOpen={isDrawerOpen}
+          onOpenChange={setIsDrawerOpen}
+        />
+      </div>
     </AgentStateContext.Provider>
   );
 };
@@ -116,7 +113,7 @@ const BookingsPage: React.FC<BookingsPageProps> = ({ agentState, onOpenChat, sta
           onClick={() => startNewSession()}
         />
       </div>
-      
+
       <ChatNotificationButton onOpenChat={onOpenChat} />
 
       {agentState && <BookingSummary state={agentState} />}
@@ -130,11 +127,7 @@ type ChatNotificationButtonProps = {
 
 const ChatNotificationButton: React.FC<ChatNotificationButtonProps> = ({ onOpenChat }) => {
   return (
-    <button
-      type="button"
-      onClick={onOpenChat}
-      className="mb-6 w-full"
-    >
+    <button type="button" onClick={onOpenChat} className="mb-6 w-full">
       <Card variant="ai" className="cursor-pointer shadow-lg transition-transform">
         <CardContent className="flex items-center gap-4 p-5">
           <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary/10">
@@ -158,21 +151,11 @@ type ChatDrawerProps = {
   onOpenChange: (open: boolean) => void;
 };
 
-const ChatDrawer: React.FC<ChatDrawerProps> = ({
-  agentChat,
-  agentState,
-  sendChatMessage,
-  isOpen,
-  onOpenChange,
-}) => {
+const ChatDrawer: React.FC<ChatDrawerProps> = ({ agentChat, agentState, sendChatMessage, isOpen, onOpenChange }) => {
   return (
     <Drawer open={isOpen} onOpenChange={onOpenChange}>
       <DrawerContent className="max-h-[96vh] min-h-[96vh]">
-        <ChatContent
-          agentChat={agentChat}
-          agentState={agentState}
-          sendChatMessage={sendChatMessage}
-        />
+        <ChatContent agentChat={agentChat} agentState={agentState} sendChatMessage={sendChatMessage} />
       </DrawerContent>
     </Drawer>
   );
@@ -184,11 +167,7 @@ type ChatContentProps = {
   sendChatMessage: (message: string, metadata?: ChatMessageMetadata) => void;
 };
 
-const ChatContent: React.FC<ChatContentProps> = ({
-  agentChat,
-  agentState,
-  sendChatMessage,
-}) => {
+const ChatContent: React.FC<ChatContentProps> = ({ agentChat, agentState, sendChatMessage }) => {
   return (
     <ScrollArea className="relative mx-auto h-[96vh] max-w-lg px-3 pt-4">
       <Chat
@@ -197,7 +176,9 @@ const ChatContent: React.FC<ChatContentProps> = ({
         sendChatMessage={sendChatMessage}
       />
 
-      <div className="h-30" />
+      {agentState?.stage !== "completed" && (
+        <div className="h-30" />
+      )}
 
       <div className="fixed right-3 bottom-0 left-3 mx-auto grid max-w-lg justify-items-center">
         {agentState?.stage !== "completed" && (
