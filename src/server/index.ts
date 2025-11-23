@@ -40,7 +40,10 @@ export class SixtyAgent extends AIChatAgent<Env, AgentState> {
         availableOffers[offer.offer_id] = offer;
       }
 
-      const initialOffer = offers.reverse().pop(); // TEMP
+      // select one of the first 4 offers
+      const initialOffer = offers.slice(0, 4).sort(() => Math.random() - 0.5)[0];
+      // remove the initial offer from the available offers
+      delete availableOffers[initialOffer.offer_id];
 
       this.setState({ ...this.state, initialOffer, availableOffers, pickupLocation, returnLocation });
 
